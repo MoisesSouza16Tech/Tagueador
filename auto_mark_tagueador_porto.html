@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tagueador - Porto Seguro V5</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+      background: linear-gradient(135deg, #f0f4f8 0%, #e6ecf2 100%);
+      min-height: 100vh;
+      color: #333333;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+      width: 100%;
+    }
+
+    .logo-container {
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .porto-logo {
+      height: 60px;
+      width: auto;
+      max-width: 250px;
+    }
+
+    .header h1 {
+      font-size: clamp(1.8rem, 4vw, 2.5rem);
+      font-weight: 700;
+      color: #0046A6;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      color: #666666;
+      font-size: clamp(0.9rem, 2vw, 1.1rem);
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(0, 70, 166, 0.1);
+      border-radius: 16px;
+      padding: clamp(20px, 3vw, 40px);
+      width: 100%;
+      max-width: 1800px;
+      box-shadow: 0 8px 32px rgba(0, 70, 166, 0.08);
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: clamp(1.1rem, 2vw, 1.3rem);
+      font-weight: 600;
+      color: #0046A6;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid rgba(0, 70, 166, 0.1);
+    }
+
+    .section-title::before {
+      content: "📋";
+      font-size: clamp(1.2rem, 2vw, 1.5rem);
+      color: #00A859;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 120px;
+      padding: 12px;
+      border: 1px solid rgba(0, 70, 166, 0.2);
+      border-radius: 10px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 14px;
+      resize: vertical;
+      background: rgba(255, 255, 255, 0.9);
+      color: #333333;
+      transition: all 0.3s;
+    }
+
+    textarea:focus {
+      border-color: #00A859;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(0, 168, 89, 0.1);
+    }
+
+    textarea::placeholder {
+      color: #999999;
+    }
+
+    .info-banner {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(0, 168, 89, 0.08);
+      border: 1px solid rgba(0, 168, 89, 0.2);
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin: 15px 0;
+      color: #006B3F;
+      font-size: 0.85rem;
+    }
+
+    .info-banner::before {
+      content: "ℹ️";
+      font-size: 1rem;
+    }
+
+    .input-section {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+      margin: 25px 0;
+    }
+
+    @media (min-width: 992px) {
+      .input-section {
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+      }
+      
+      .input-textarea {
+        min-height: 190px;
+      }
+    }
+
+    .inputs-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .input-group label {
+      font-weight: 600;
+      color: #0046A6;
+      font-size: 0.85rem;
+    }
+
+    input[type="text"] {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 14px;
+      padding: 10px 14px;
+      border: 1px solid rgba(0, 70, 166, 0.2);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.9);
+      color: #333333;
+      transition: all 0.3s;
+    }
+
+    input[type="text"]:focus {
+      border-color: #00A859;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(0, 168, 89, 0.1);
+    }
+
+    .button-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 25px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 12px 24px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      flex: 1;
+      min-width: 150px;
+      justify-content: center;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      color: white;
+    }
+
+    .btn-primary::before {
+      content: "✨";
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #003580 0%, #00295C 100%);
+    }
+
+    .btn-danger {
+      background: linear-gradient(15deg, #003580 0%, #0052d7 100%);
+      color: white;
+      border: none;
+    }
+
+    .btn-danger::before {
+      content: "🗑️";
+    }
+
+    .btn-danger:hover {
+      background: linear-gradient(135deg, #C00009 0%, #A00007 100%);
+    }
+
+    .btn-copy {
+      background: linear-gradient(135deg, #00A859 0%, #008E4A 100%);
+      color: white;
+      padding: 8px 16px;
+      font-size: 13px;
+      min-width: auto;
+      border: none;
+      margin: 0px 10px 0px 10px;
+    }
+
+    .btn-copy::before {
+      content: "📋";
+    }
+
+    .btn-copy:hover {
+      background: linear-gradient(135deg, #008E4A 0%, #00743B 100%);
+    }
+
+    .output-section {
+      margin-top: 30px;
+    }
+
+    .resultado-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .resultado-header::before {
+      content: "📊";
+      font-size: clamp(1.2rem, 2vw, 1.5rem);
+      color: #00A859;
+    }
+
+    /* Estilo para o container de múltiplas tabelas - AJUSTADO */
+    .tabelas-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 25px;
+      margin-top: 20px;
+    }
+
+    /* Para telas grandes: máximo de 3 cards por linha */
+    @media (min-width: 1400px) {
+      .tabelas-container {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    /* Para telas médias: 2 cards por linha */
+    @media (min-width: 992px) and (max-width: 1399px) {
+      .tabelas-container {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    /* Para telas pequenas: 1 card por linha */
+    @media (max-width: 991px) {
+      .tabelas-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .tabela-card {
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid rgba(0, 70, 166, 0.15);
+      border-radius: 10px;
+      padding: 15px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      transition: transform 0.3s, box-shadow 0.3s;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .tabela-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .tabela-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(0, 70, 166, 0.1);
+      flex-shrink: 0;
+    }
+
+    .tabela-card-ponto {
+      font-family: 'Courier New', Courier, monospace;
+      font-weight: 700;
+      color: #00A859;
+      font-size: 1.1rem;
+      background: rgba(0, 168, 89, 0.1);
+      padding: 4px 12px;
+      border-radius: 6px;
+      border: 1px solid rgba(0, 168, 89, 0.2);
+    }
+
+    .tabela-container {
+      overflow-x: auto;
+      margin-bottom: 15px;
+      flex-grow: 1;
+    }
+
+    .tabela-resultado {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 0; /* Permite que a tabela se ajuste ao container */
+    }
+
+    .tabela-resultado th {
+      background: linear-gradient(135deg, #0046A6 0%, #003580 100%);
+      padding: 10px 12px;
+      text-align: left;
+      font-weight: 600;
+      color: white;
+      border-bottom: 2px solid rgba(0, 70, 166, 0.2);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .tabela-resultado td {
+      padding: 8px 12px;
+      border-bottom: 1px solid rgba(0, 70, 166, 0.1);
+      font-size: 13px;
+      word-break: break-word;
+    }
+
+    .tabela-resultado tr:last-child td {
+      border-bottom: none;
+    }
+
+    .tabela-resultado tr:hover {
+      background-color: rgba(0, 70, 166, 0.03);
+    }
+
+    .tabela-resultado .campo-nome {
+      width: 35%;
+      font-weight: 600;
+      color: #0046A6;
+      font-family: 'Courier New', Courier, monospace;
+      white-space: nowrap;
+    }
+
+    .tabela-resultado .campo-valor {
+      width: 65%;
+      color: #333333;
+      font-family: 'Courier New', Courier, monospace;
+    }
+
+    .campo-vazio {
+      color: #999999 !important;
+      font-style: italic;
+    }
+
+    .resultado-duplo {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+      margin-top: 20px;
+    }
+    
+    .hidden {
+      display: none !important;
+    }
+
+    .brand-accent {
+      color: #0016a8;
+      font-weight: 600;
+    }
+
+    /* Scrollbar personalizada com cores da Porto */
+    .tabela-container::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    .tabela-container::-webkit-scrollbar-track {
+      background: rgba(0, 70, 166, 0.05);
+      border-radius: 4px;
+    }
+
+    .tabela-container::-webkit-scrollbar-thumb {
+      background: rgba(0, 70, 166, 0.3);
+      border-radius: 4px;
+    }
+
+    .tabela-container::-webkit-scrollbar-thumb:hover {
+      background: rgba(0, 70, 166, 0.5);
+    }
+
+    /* Estilo para contador de resultados */
+    .contador-resultados {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding: 10px 15px;
+      background: rgba(0, 70, 166, 0.05);
+      border-radius: 8px;
+      border: 1px solid rgba(0, 70, 166, 0.1);
+    }
+
+    .contador-texto {
+      font-weight: 600;
+      color: #0046A6;
+    }
+
+    .contador-numero {
+      font-weight: 700;
+      color: #00A859;
+      background: rgba(0, 168, 89, 0.1);
+      padding: 4px 12px;
+      border-radius: 6px;
+      border: 1px solid rgba(0, 168, 89, 0.2);
+    }
+
+    /* Ajustes para responsividade */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+      }
+
+      .container {
+        padding: 20px;
+      }
+
+      .input-section {
+        grid-template-columns: 1fr;
+      }
+
+      .inputs-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .button-group {
+        flex-direction: column;
+      }
+
+      button {
+        width: 100%;
+        min-width: auto;
+      }
+
+      .porto-logo {
+        height: 50px;
+      }
+
+      .tabelas-container {
+        grid-template-columns: 1fr;
+      }
+      
+      .tabela-card {
+        padding: 12px;
+      }
+      
+      .tabela-card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      
+      .btn-copy {
+        width: 100%;
+        margin: 0;
+        justify-content: center;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .header h1 {
+        font-size: 1.5rem;
+      }
+
+      .container {
+        padding: 15px;
+      }
+
+      .porto-logo {
+        height: 40px;
+      }
+
+      textarea {
+        min-height: 100px;
+        font-size: 13px;
+      }
+
+      input[type="text"] {
+        font-size: 13px;
+        padding: 8px 12px;
+      }
+
+      button {
+        padding: 10px 20px;
+        font-size: 13px;
+      }
+      
+      .tabela-resultado th,
+      .tabela-resultado td {
+        padding: 6px 8px;
+        font-size: 12px;
+      }
+      
+      .tabela-card-ponto {
+        font-size: 1rem;
+      }
+    }
+    
+    /* Para telas muito pequenas */
+    @media (max-width: 360px) {
+      .tabela-resultado .campo-nome,
+      .tabela-resultado .campo-valor {
+        font-size: 11px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="header">
+    <div class="logo-container">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/1/14/Porto_2022.svg" 
+           alt="Porto Seguro" 
+           class="porto-logo"
+           title="Porto Seguro">
+    </div>
+    <h1>Tagueador - <span class="brand-accent">Porto Seguro</span></h1>
+  </div>
+
+  <div class="container">
+    <div class="section-title">Entrada de Dados - <p style="color: #666666; font-weight: 600!Important;">Formate automaticamente o tagueamento das aplicações</p> </div>    
+
+    <div class="input-section">
+      <div>
+        <textarea id="inputText" class="input-textarea" placeholder="Cole seus dados de tagueamento aqui... Pode colar múltiplos blocos de tagueamento, um após o outro."></textarea>
+        <div class="info-banner">
+          Os campos ao lado só substituirão os valores extraídos se estiverem preenchidos. O sistema detectará automaticamente múltiplos blocos de tagueamento.
+        </div>
+      </div>
+
+      <div class="inputs-grid">
+        <div class="input-group">
+          <label for="validacaoInput">Validacao:</label>
+          <input type="text" id="validacaoInput" placeholder="Preencha para sobscrever">
+        </div>
+
+        <div class="input-group">
+          <label for="indicadorInput">Indicador:</label>
+          <input type="text" id="indicadorInput" placeholder="Preencha para sobscrever">
+        </div>
+
+        <div class="input-group">
+          <label for="ultimoPontoInput">Ultimo_Ponto:</label>
+          <input type="text" id="ultimoPontoInput" placeholder="Preencha para sobscrever">
+        </div>
+
+        <div class="input-group">
+          <label for="pontoOrigemInput">Ponto_Origem:</label>
+          <input type="text" id="pontoOrigemInput" placeholder="Preencha para sobscrever">
+        </div>
+        
+        <div class="input-group">
+          <label for="produtoInput">Produto:</label>
+          <input type="text" id="produtoInput" placeholder="Preencha para sobscrever">
+        </div>
+      </div>
+    </div>
+
+    <div class="button-group">
+      <button class="btn-primary" onclick="processarDados()">Processar Tagueamentos</button>
+      <button class="btn-danger" onclick="limparResultado()">Limpar Tudo</button>
+    </div>
+
+    <div class="output-section">
+      <div class="section-title resultado-header">Resultados Estruturados</div>
+      
+      <div id="contadorResultados" class="contador-resultados hidden">
+        <div class="contador-texto">Total de blocos processados:</div>
+        <div class="contador-numero" id="contadorNumero">0</div>
+      </div>
+      
+      <div id="tabelasContainer" class="tabelas-container">
+        <!-- As tabelas serão geradas dinamicamente aqui -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Mapeamento dos placeholders para valores globais
+    const MAPPING = {
+      "[Fluxo_Anterior]": "{global:fluxoAnterior}",
+      "[Status_Chamada]": "{global:tipoDesconexao}",
+      "[Ultimo_Ponto]": "{global:ultimoPonto}",
+      "[Time_Stamp]": "",
+      "[Status_Code]": "{global:statusCode}",
+      "[Input_Cliente]": "{MRES}",
+      "[Ultimo_Ponto_Fluxo_Anterior]": "{global:ultimoPontoFluxoAnterior}",
+      "[Operacao_Destino]": "{global:tipoServico}"
+    };
+
+    const CAMPOS_ORDEM = [
+      { key: "event_name", nome: "event_name" },
+      { key: "validacao", nome: "Validacao" },
+      { key: "fluxo", nome: "Fluxo" },
+      { key: "indicador", nome: "Indicador" },
+      { key: "range", nome: "Range" },
+      { key: "ponto", nome: "Ponto" },
+      { key: "ultimo_Ponto", nome: "Ultimo_Ponto" },
+      { key: "input", nome: "Input" },
+      { key: "tentativa", nome: "Tentativa" },
+      { key: "ponto_origem", nome: "Ponto_Origem" },
+      { key: "produto", nome: "Produto" }
+    ];
+
+    // Ordem esperada dos campos nos blocos de tagueamento
+    const ORDEM_CAMPOS_BLOCO = [
+      "event_name", "Validacao", "Fluxo", "Indicador", "Range", 
+      "Ponto", "Ultimo_Ponto", "Input", "Tentativa", 
+      "Ponto_Origem", "Ponto Origem", "Produto", "Timestamp", "Time_Stamp"
+    ];
+
+    // Função para detectar se uma linha é um campo válido na ordem esperada
+    function isCampoValido(linha, campoEsperado) {
+      const chaveSemUnderscore = campoEsperado.replace(/_/g, ' ');
+      
+      // Verifica se a linha começa exatamente com o campo (com ou sem dois pontos)
+      const padroes = [
+        new RegExp("^\\s*" + campoEsperado + "\\s*:\\s*", "i"),
+        new RegExp("^\\s*" + campoEsperado + "\\s+(?!:\\s*)(.+)$", "i"), // Campo sem dois pontos, mas com conteúdo
+        new RegExp("^\\s*" + chaveSemUnderscore + "\\s*:\\s*", "i"),
+        new RegExp("^\\s*" + chaveSemUnderscore + "\\s+(?!:\\s*)(.+)$", "i") // Campo sem dois pontos, mas com conteúdo
+      ];
+      
+      for (const regex of padroes) {
+        if (regex.test(linha)) {
+          return true;
+        }
+      }
+      
+      // Verifica se a linha é exatamente igual ao campo (apenas o nome do campo, sem valor)
+      if (linha.trim().toLowerCase() === campoEsperado.toLowerCase() ||
+          linha.trim().toLowerCase() === chaveSemUnderscore.toLowerCase()) {
+        return true;
+      }
+      
+      return false;
+    }
+
+    // Função para extrair múltiplos blocos de tagueamento seguindo a ordem específica
+    function extrairBlocosOrdenados(texto) {
+      const blocos = [];
+      const linhas = texto.split('\n');
+      let blocoAtual = [];
+      let esperandoCampoIndex = 0;
+      let emBloco = false;
+      
+      for (let i = 0; i < linhas.length; i++) {
+        let linha = linhas[i].trim();
+        
+        // Se a linha estiver vazia, continuamos
+        if (!linha) {
+          // Se estamos em um bloco e encontramos uma linha vazia, isso pode marcar o fim do bloco
+          if (emBloco && blocoAtual.length > 0) {
+            // Verificamos se temos um bloco válido (pelo menos até o campo "Produto")
+            const blocosValidos = filtrarBlocosValidos([blocoAtual.join('\n')]);
+            if (blocosValidos.length > 0) {
+              blocos.push(blocosValidos[0]);
+            }
+            blocoAtual = [];
+            esperandoCampoIndex = 0;
+            emBloco = false;
+          }
+          continue;
+        }
+        
+        // Procura por "event_name:" em qualquer lugar da linha
+        const regexEventName = /event_name\s*:\s*/i;
+        if (regexEventName.test(linha)) {
+          // Se já estamos em um bloco, finalizamos o bloco atual antes de começar um novo
+          if (emBloco && blocoAtual.length > 0) {
+            const blocosValidos = filtrarBlocosValidos([blocoAtual.join('\n')]);
+            if (blocosValidos.length > 0) {
+              blocos.push(blocosValidos[0]);
+            }
+            blocoAtual = [];
+          }
+          
+          // Começa um novo bloco
+          blocoAtual.push(linha);
+          esperandoCampoIndex = 1; // Já temos o event_name
+          emBloco = true;
+          continue;
+        }
+        
+        // Se estamos em um bloco, continua adicionando campos
+        if (emBloco) {
+          // Verifica se a linha corresponde ao próximo campo esperado na ordem
+          if (esperandoCampoIndex < ORDEM_CAMPOS_BLOCO.length) {
+            const campoEsperado = ORDEM_CAMPOS_BLOCO[esperandoCampoIndex];
+            
+            if (isCampoValido(linha, campoEsperado)) {
+              blocoAtual.push(linha);
+              esperandoCampoIndex++;
+              
+              // Se chegamos no último campo (Timestamp ou Time_Stamp), finalizamos o bloco
+              if (campoEsperado === "Timestamp" || campoEsperado === "Time_Stamp") {
+                const blocosValidos = filtrarBlocosValidos([blocoAtual.join('\n')]);
+                if (blocosValidos.length > 0) {
+                  blocos.push(blocosValidos[0]);
+                }
+                blocoAtual = [];
+                esperandoCampoIndex = 0;
+                emBloco = false;
+              }
+            } else {
+              // Se não corresponde ao campo esperado, mas estamos em um bloco,
+              // verificamos se podemos pular para o próximo campo na ordem
+              let encontrou = false;
+              for (let j = esperandoCampoIndex + 1; j < ORDEM_CAMPOS_BLOCO.length; j++) {
+                const proximoCampo = ORDEM_CAMPOS_BLOCO[j];
+                if (isCampoValido(linha, proximoCampo)) {
+                  // Preenchemos os campos faltantes com valores vazios
+                  for (let k = esperandoCampoIndex; k < j; k++) {
+                    const campoFaltante = ORDEM_CAMPOS_BLOCO[k];
+                    blocoAtual.push(campoFaltante + ":");
+                  }
+                  blocoAtual.push(linha);
+                  esperandoCampoIndex = j + 1;
+                  emBloco = true;
+                  encontrou = true;
+                  break;
+                }
+              }
+              
+              // Se não encontrou nenhum campo seguinte, pode ser o fim do bloco
+              if (!encontrou && emBloco && blocoAtual.length > 0) {
+                // Talvez seja um valor de múltiplas linhas para um campo anterior
+                // Por exemplo, "Identificado" e "como:" podem ser conteúdo do campo anterior
+                // Nesse caso, vamos ignorar essas linhas e continuar com o bloco
+              }
+            }
+          } else {
+            // Se já passamos por todos os campos esperados, finalizamos o bloco
+            if (emBloco && blocoAtual.length > 0) {
+              const blocosValidos = filtrarBlocosValidos([blocoAtual.join('\n')]);
+              if (blocosValidos.length > 0) {
+                blocos.push(blocosValidos[0]);
+              }
+              blocoAtual = [];
+              esperandoCampoIndex = 0;
+              emBloco = false;
+            }
+          }
+        }
+      }
+      
+      // Processa o último bloco, se existir
+      if (emBloco && blocoAtual.length > 0) {
+        const blocosValidos = filtrarBlocosValidos([blocoAtual.join('\n')]);
+        if (blocosValidos.length > 0) {
+          blocos.push(blocosValidos[0]);
+        }
+      }
+      
+      return blocos;
+    }
+
+    // Filtra apenas blocos válidos (com campos obrigatórios)
+    function filtrarBlocosValidos(blocosTexto) {
+      return blocosTexto.filter(blocoTexto => {
+        // Um bloco é válido se tiver event_name (em qualquer lugar da linha) e Ponto
+        const temEventName = /event_name\s*:/i.test(blocoTexto);
+        const temPonto = /Ponto\s*:\s*\d+/i.test(blocoTexto) || /Ponto\s+\d+/i.test(blocoTexto);
+        return temEventName && temPonto;
+      });
+    }
+
+    // Função original para extrair valor de uma chave em um texto
+    function extrairValor(chave, texto) {
+      const chaveSemUnderscore = chave.replace(/_/g, ' ');
+      
+      const padroes = [
+        new RegExp("^\\s*" + chave + "\\s*:\\s*(.*)", "i"),
+        new RegExp("^\\s*" + chave + "\\s+(?!:\\s*)(.+)$", "i"), // Campo sem dois pontos
+        new RegExp("^\\s*" + chaveSemUnderscore + "\\s*:\\s*(.*)", "i"),
+        new RegExp("^\\s*" + chaveSemUnderscore + "\\s+(?!:\\s*)(.+)$", "i") // Campo sem dois pontos
+      ];
+      
+      const linhas = texto.split("\n");
+      
+      // Caso especial para event_name que pode estar no meio da linha
+      if (chave.toLowerCase() === "event_name") {
+        for (let linha of linhas) {
+          linha = linha.trim();
+          
+          // Procura por "event_name:" em qualquer lugar da linha
+          const regexEventName = /event_name\s*:\s*(.*)/i;
+          const matchEventName = linha.match(regexEventName);
+          if (matchEventName) {
+            const valor = matchEventName[1] ? matchEventName[1].trim() : "";
+            return valor;
+          }
+        }
+      }
+      
+      // Para outros campos, usa a lógica normal
+      for (let linha of linhas) {
+        linha = linha.trim();
+        
+        for (const regex of padroes) {
+          const match = linha.match(regex);
+          if (match) {
+            const valor = match[1] ? match[1].trim() : "";
+            return valor;
+          }
+        }
+        
+        // Se a linha for exatamente igual à chave (sem valor)
+        if (linha.toLowerCase() === chave.toLowerCase() || 
+            linha.toLowerCase() === chaveSemUnderscore.toLowerCase()) {
+          return "";
+        }
+      }
+      return "";
+    }
+
+    function aplicarMapeamento(valor) {
+      if (MAPPING.hasOwnProperty(valor)) {
+        return MAPPING[valor];
+      }
+      return valor;
+    }
+
+    // Processa um único bloco de tagueamento
+    function processarBloco(blocoTexto, indicadorCustom, ultimoPontoCustom, validacaoCustom, pontoOrigemCustom, produtoCustom) {
+      const tag = {
+        event_name: extrairValor("event_name", blocoTexto),
+        validacao: extrairValor("Validacao", blocoTexto),
+        fluxo: extrairValor("Fluxo", blocoTexto),
+        indicador: extrairValor("Indicador", blocoTexto),
+        range: extrairValor("Range", blocoTexto),
+        ponto: extrairValor("Ponto", blocoTexto),
+        ultimo_Ponto: extrairValor("Ultimo_Ponto", blocoTexto),
+        input: extrairValor("Input", blocoTexto),
+        tentativa: extrairValor("Tentativa", blocoTexto),
+        ponto_origem: extrairValor("Ponto_Origem", blocoTexto),
+        produto: extrairValor("Produto", blocoTexto),
+      };
+
+      // Aplica o mapeamento em todos os campos
+      for (let key in tag) {
+        if (tag[key]) {
+          tag[key] = aplicarMapeamento(tag[key]);
+        }
+      }
+
+      // Aplica regra especial para o campo Input
+      if (tag.input && tag.input.trim() !== "") {
+        tag.input = "{MRES}";
+      }
+
+      // Aplica substituição dos campos customizados APENAS se estiverem preenchidos
+      if (indicadorCustom !== "") {
+        tag.indicador = indicadorCustom;
+      }
+      
+      if (ultimoPontoCustom !== "") {
+        tag.ultimo_Ponto = ultimoPontoCustom;
+      }
+      
+      if (pontoOrigemCustom !== "") {
+        tag.ponto_origem = pontoOrigemCustom;
+      }
+      
+      if (validacaoCustom !== "") {
+        tag.validacao = validacaoCustom;
+      }
+      
+      if (produtoCustom !== "") {
+        tag.produto = produtoCustom;
+      }
+
+      // *** CORREÇÃO AQUI: Construção da saída com 12 linhas, incluindo linha 0 vazia ***
+      const saida = [
+        "",                             // Linha 0: SEMPRE VAZIA (posição 0)
+        tag.event_name || "",           // Linha 1: event_name
+        tag.validacao || "",            // Linha 2: Validacao
+        tag.fluxo || "",                // Linha 3: Fluxo
+        tag.indicador || "",            // Linha 4: Indicador
+        tag.range || "",                // Linha 5: Range
+        tag.ponto || "",                // Linha 6: Ponto
+        tag.ultimo_Ponto || "",         // Linha 7: Ultimo_Ponto
+        tag.input || "",                // Linha 9: Input
+        tag.tentativa || "",            // Linha 10: Tentativa
+        tag.ponto_origem || "",         // Linha 11: Ponto_Origem
+        tag.produto || ""               // Linha 12: Produto
+      ];
+
+      return { tag, saida: saida.join("\n") };
+    }
+
+    // Função principal para processar dados
+    function processarDados() {
+      const texto = document.getElementById("inputText").value;
+      const indicadorCustom = document.getElementById("indicadorInput").value.trim();
+      const ultimoPontoCustom = document.getElementById("ultimoPontoInput").value.trim();
+      const validacaoCustom = document.getElementById("validacaoInput").value.trim();
+      const pontoOrigemCustom = document.getElementById("pontoOrigemInput").value.trim();
+      const produtoCustom = document.getElementById("produtoInput").value.trim();
+
+      // Extrai múltiplos blocos de tagueamento seguindo a ordem correta
+      const blocosTexto = extrairBlocosOrdenados(texto);
+      
+      // Processa cada bloco
+      const blocosProcessados = blocosTexto.map(blocoTexto => {
+        return processarBloco(blocoTexto, indicadorCustom, ultimoPontoCustom, validacaoCustom, pontoOrigemCustom, produtoCustom);
+      }).filter(bloco => bloco.tag.ponto); // Filtra apenas blocos que têm ponto
+
+      // Atualiza o contador de resultados
+      const contadorResultados = document.getElementById("contadorResultados");
+      const contadorNumero = document.getElementById("contadorNumero");
+      
+      if (blocosProcessados.length > 0) {
+        contadorNumero.textContent = blocosProcessados.length;
+        contadorResultados.classList.remove("hidden");
+      } else {
+        contadorResultados.classList.add("hidden");
+      }
+
+      // Limpa o container de tabelas
+      const tabelasContainer = document.getElementById("tabelasContainer");
+      tabelasContainer.innerHTML = "";
+
+      // Cria uma tabela para cada bloco processado
+      blocosProcessados.forEach((bloco, index) => {
+        const { tag, saida } = bloco;
+        
+        // Cria o card da tabela
+        const tabelaCard = document.createElement("div");
+        tabelaCard.className = "tabela-card";
+        tabelaCard.id = `tabela-card-${index}`;
+        
+        // Cria o cabeçalho do card com o ponto e botão de copiar
+        const cardHeader = document.createElement("div");
+        cardHeader.className = "tabela-card-header";
+        
+        const pontoElement = document.createElement("div");
+        pontoElement.className = "tabela-card-ponto";
+        pontoElement.textContent = tag.ponto || "Sem ponto";
+        
+        const btnCopiar = document.createElement("button");
+        btnCopiar.className = "btn-copy";
+        btnCopiar.innerHTML = "Copiar Tagueamento";
+        btnCopiar.onclick = () => copiarTexto(saida, btnCopiar);
+        
+        cardHeader.appendChild(pontoElement);
+        cardHeader.appendChild(btnCopiar);
+        
+        // Cria a tabela
+        const tabelaContainer = document.createElement("div");
+        tabelaContainer.className = "tabela-container";
+        
+        const tabela = document.createElement("table");
+        tabela.className = "tabela-resultado";
+        
+        // Cabeçalho da tabela
+        const thead = document.createElement("thead");
+        const headerRow = document.createElement("tr");
+        headerRow.innerHTML = `
+          <th style="width: 35%">CAMPO</th>
+          <th style="width: 65%">VALOR</th>
+        `;
+        thead.appendChild(headerRow);
+        tabela.appendChild(thead);
+        
+        // Corpo da tabela
+        const tbody = document.createElement("tbody");
+        
+        // *** CORREÇÃO AQUI: Adicionando a linha vazia na tabela também ***
+        // Primeiro, adicionamos uma linha para a posição 0 vazia
+        const trVazia = document.createElement("tr");
+        trVazia.innerHTML = `
+          <td class="campo-nome"></td>
+          <td class="campo-valor"></td>
+        `;
+        tbody.appendChild(trVazia);
+        
+        // Depois, adicionamos todas as outras linhas
+        CAMPOS_ORDEM.forEach(campo => {
+          const valor = tag[campo.key] || "";
+          const tr = document.createElement("tr");
+          const valorClasse = valor ? "" : "campo-vazio";
+          const valorTexto = valor || "(vazio)";
+          
+          tr.innerHTML = `
+            <td class="campo-nome">${campo.nome}:</td>
+            <td class="campo-valor ${valorClasse}">${valorTexto}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+        
+        tabela.appendChild(tbody);
+        tabelaContainer.appendChild(tabela);
+        
+        // Monta o card
+        tabelaCard.appendChild(cardHeader);
+        tabelaCard.appendChild(tabelaContainer);
+        
+        // Adiciona o card ao container
+        tabelasContainer.appendChild(tabelaCard);
+      });
+
+      // Se não houver blocos processados, exibe uma mensagem
+      if (blocosProcessados.length === 0) {
+        const mensagem = document.createElement("div");
+        mensagem.className = "info-banner";
+        mensagem.style.marginTop = "20px";
+        mensagem.textContent = "Nenhum bloco de tagueamento válido foi encontrado no texto.";
+        tabelasContainer.appendChild(mensagem);
+      }
+    }
+
+    // Função para copiar texto
+    function copiarTexto(texto, botao) {
+      const textareaTemp = document.createElement("textarea");
+      textareaTemp.value = texto;
+      document.body.appendChild(textareaTemp);
+      textareaTemp.select();
+      textareaTemp.setSelectionRange(0, 99999);
+      
+      try {
+        const successful = document.execCommand('copy');
+        if (successful) {
+          const originalText = botao.textContent;
+          botao.textContent = "Copiado!";
+          botao.style.background = "linear-gradient(135deg, #00743B 0%, #005A2D 100%)";
+          
+          setTimeout(() => {
+            botao.textContent = originalText;
+            botao.style.background = "linear-gradient(135deg, #00A859 0%, #008E4A 100%)";
+          }, 2000);
+        }
+      } catch (err) {
+        console.error('Falha ao copiar: ', err);
+        alert("Não foi possível copiar o texto. Selecione manualmente e use Ctrl+C.");
+      } finally {
+        document.body.removeChild(textareaTemp);
+      }
+    }
+
+    function limparResultado() {
+      document.getElementById("inputText").value = "";
+      document.getElementById("contadorResultados").classList.add("hidden");
+      document.getElementById("tabelasContainer").innerHTML = "";
+      
+      // Limpa os campos de input
+      document.getElementById("validacaoInput").value = "";
+      document.getElementById("indicadorInput").value = "";
+      document.getElementById("ultimoPontoInput").value = "";
+      document.getElementById("pontoOrigemInput").value = "";
+      document.getElementById("produtoInput").value = "";
+    }
+    
+    // Adiciona evento para processar quando o usuário pressionar Ctrl+Enter na área de entrada
+    document.getElementById('inputText').addEventListener('keydown', function(e) {
+      if (e.ctrlKey && e.key === 'Enter') {
+        processarDados();
+      }
+    });
+    
+    // Adiciona evento para processar quando o usuário pressionar Enter nos campos de input
+    const inputs = document.querySelectorAll('#validacaoInput, #indicadorInput, #ultimoPontoInput, #pontoOrigemInput, #produtoInput');
+    inputs.forEach(input => {
+      input.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          processarDados();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
