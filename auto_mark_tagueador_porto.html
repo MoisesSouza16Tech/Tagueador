@@ -606,6 +606,10 @@
           <label for="produtoInput">Produto:</label>
           <input type="text" id="produtoInput" placeholder="Preencha para sobscrever">
         </div>
+        <div class="input-group">
+          <label for="operacaoDestinoInput">[Operacao_Destino]:</label>
+          <input type="text" id="operacaoDestinoInput" placeholder="Preencha para sobscrever">
+        </div>
       </div>
     </div>
 
@@ -950,7 +954,8 @@
       const validacaoCustom = document.getElementById("validacaoInput").value.trim();
       const pontoOrigemCustom = document.getElementById("pontoOrigemInput").value.trim();
       const produtoCustom = document.getElementById("produtoInput").value.trim();
-
+      const operacaoDestinoInputCustom = document.getElementById("operacaoDestinoInput").value.trim();
+      
       // Extrai múltiplos blocos de tagueamento seguindo a ordem correta
       const blocosTexto = extrairBlocosOrdenados(texto);
       
@@ -1102,6 +1107,7 @@
       document.getElementById("ultimoPontoInput").value = "";
       document.getElementById("pontoOrigemInput").value = "";
       document.getElementById("produtoInput").value = "";
+      document.getElementById("operacaoDestinoInput").value = "";
     }
     
     // Adiciona evento para processar quando o usuário pressionar Ctrl+Enter na área de entrada
@@ -1124,6 +1130,7 @@
 </body>
 
 </html>
+
 
 
 
