@@ -949,8 +949,14 @@
         tag.validacao = validacaoCustom;
       }
 
-      // Aplica regra especial para o campo Input
-      if (tag.input && tag.input.trim() !== "") {
+      // *** NOVA LÓGICA: Padrão Else_Invalido ***
+      // Se o campo Validacao for "Else_Invalido", independente se o Input está preenchido, coloca {MRES}
+      if (tag.validacao === "Else_Invalido") {
+        tag.input = "{MRES}";
+      } 
+      // *** LÓGICA ORIGINAL PARA INPUT ***
+      // Aplica regra especial para o campo Input apenas se não for "Else_Invalido"
+      else if (tag.input && tag.input.trim() !== "") {
         tag.input = "{MRES}";
       }
 
@@ -1219,6 +1225,3 @@
   </script>
 </body>
 </html>
-
-
-
