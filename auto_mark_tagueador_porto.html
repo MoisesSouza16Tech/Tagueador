@@ -244,7 +244,8 @@
       font-size: 13px;
       min-width: auto;
       border: none;
-      margin: 0px 10px 0px 10px;
+      margin: 10px 0 0 0;
+      width: 100%;
     }
 
     .btn-copy::before {
@@ -253,6 +254,25 @@
 
     .btn-copy:hover {
       background: linear-gradient(135deg, #008E4A 0%, #00743B 100%);
+    }
+
+    .btn-copy-small {
+      background: rgba(0, 70, 166, 0.1);
+      color: #0046A6;
+      border: 1px solid rgba(0, 70, 166, 0.3);
+      padding: 4px 12px;
+      font-size: 11px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      margin-left: 8px;
+      transition: all 0.2s;
+    }
+
+    .btn-copy-small:hover {
+      background: rgba(0, 70, 166, 0.2);
     }
 
     .output-section {
@@ -320,12 +340,18 @@
 
     .tabela-card-header {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      flex-direction: column;
       margin-bottom: 15px;
       padding-bottom: 10px;
       border-bottom: 1px solid rgba(0, 70, 166, 0.1);
       flex-shrink: 0;
+    }
+
+    .ponto-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
     }
 
     .tabela-card-ponto {
@@ -508,6 +534,11 @@
         margin: 0;
         justify-content: center;
       }
+      
+      .ponto-container {
+        width: 100%;
+        justify-content: space-between;
+      }
     }
 
     @media (max-width: 480px) {
@@ -546,6 +577,11 @@
       
       .tabela-card-ponto {
         font-size: 1rem;
+      }
+      
+      .btn-copy-small {
+        font-size: 10px;
+        padding: 2px 6px;
       }
     }
     
@@ -953,6 +989,38 @@
       return { tag, saida: saida.join("\n") };
     }
 
+    // Função para copiar apenas o ponto (SP xxxx)
+    function copiarPonto(textoPonto, botao) {
+      const textareaTemp = document.createElement("textarea");
+      textareaTemp.value = textoPonto;
+      document.body.appendChild(textareaTemp);
+      textareaTemp.select();
+      textareaTemp.setSelectionRange(0, 99999);
+      
+      try {
+        const successful = document.execCommand('copy');
+        if (successful) {
+          const originalHTML = botao.innerHTML;
+          botao.innerHTML = "✓ Copiado";
+          botao.style.background = "rgba(0, 168, 89, 0.2)";
+          botao.style.color = "#008E4A";
+          botao.style.borderColor = "#008E4A";
+          
+          setTimeout(() => {
+            botao.innerHTML = "📋 Copiar";
+            botao.style.background = "rgba(0, 70, 166, 0.1)";
+            botao.style.color = "#0046A6";
+            botao.style.borderColor = "rgba(0, 70, 166, 0.3)";
+          }, 2000);
+        }
+      } catch (err) {
+        console.error('Falha ao copiar: ', err);
+        alert("Não foi possível copiar o ponto. Selecione manualmente e use Ctrl+C.");
+      } finally {
+        document.body.removeChild(textareaTemp);
+      }
+    }
+
     // Função principal para processar dados
     function processarDados() {
       const texto = document.getElementById("inputText").value;
@@ -995,20 +1063,35 @@
         tabelaCard.className = "tabela-card";
         tabelaCard.id = `tabela-card-${index}`;
         
-        // Cria o cabeçalho do card com o ponto e botão de copiar
+        // Cria o cabeçalho do card
         const cardHeader = document.createElement("div");
         cardHeader.className = "tabela-card-header";
         
+        // Primeira linha: container para o ponto e o botão de copiar o ponto
+        const pontoContainer = document.createElement("div");
+        pontoContainer.className = "ponto-container";
+        
         const pontoElement = document.createElement("div");
         pontoElement.className = "tabela-card-ponto";
-        pontoElement.textContent = tag.ponto ? `SP ${tag.ponto}` : "SP Vazio";
+        const pontoTexto = tag.ponto ? `SP ${tag.ponto}` : "SP Vazio";
+        pontoElement.textContent = pontoTexto;
         
+        // Botão para copiar apenas o ponto (SP xxxx)
+        const btnCopiarPonto = document.createElement("button");
+        btnCopiarPonto.className = "btn-copy-small";
+        btnCopiarPonto.innerHTML = "📋 -Copiar";
+        btnCopiarPonto.onclick = () => copiarPonto(pontoTexto, btnCopiarPonto);
+        
+        pontoContainer.appendChild(pontoElement);
+        pontoContainer.appendChild(btnCopiarPonto);
+        
+        // Segunda linha: botão para copiar todo o tagueamento
         const btnCopiar = document.createElement("button");
         btnCopiar.className = "btn-copy";
-        btnCopiar.innerHTML = "Copiar Tagueamento";
+        btnCopiar.innerHTML = "Copiar Tagueamento Completo";
         btnCopiar.onclick = () => copiarTexto(saida, btnCopiar);
         
-        cardHeader.appendChild(pontoElement);
+        cardHeader.appendChild(pontoContainer);
         cardHeader.appendChild(btnCopiar);
         
         // Cria a tabela
@@ -1135,4 +1218,3 @@
   </script>
 </body>
 </html>
-
