@@ -878,8 +878,8 @@
       return valor;
     }
 
-    // Processa um único bloco de tagueamento
-    function processarBloco(blocoTexto, indicadorCustom, ultimoPontoCustom, validacaoCustom, pontoOrigemCustom, produtoCustom) {
+    // Processa um único bloco de tagueamento com a lógica completa do [Operacao_Destino]
+    function processarBloco(blocoTexto, indicadorCustom, ultimoPontoCustom, validacaoCustom, pontoOrigemCustom, produtoCustom, operacaoDestinoInputCustom) {
       const tag = {
         event_name: extrairValor("event_name", blocoTexto),
         validacao: extrairValor("Validacao", blocoTexto),
@@ -894,11 +894,22 @@
         produto: extrairValor("Produto", blocoTexto),
       };
 
-      // Aplica o mapeamento em todos os campos
+      // Primeiro: aplica o mapeamento em todos os campos
       for (let key in tag) {
         if (tag[key]) {
           tag[key] = aplicarMapeamento(tag[key]);
         }
+      }
+
+      // *** LOGICA COMPLETA PARA [Operacao_Destino] ***
+      // 1. Se o campo de validação era originalmente [Operacao_Destino] (após mapeamento vira {global:tipoServico})
+      // 2. E o input de [Operacao_Destino] está preenchido, então substitui a validação pelo valor do input
+      if (tag.validacao === "{global:tipoServico}" && operacaoDestinoInputCustom !== "") {
+        tag.validacao = operacaoDestinoInputCustom;
+      }
+      // 3. Caso contrário, se houver um validacaoCustom, usa ele (mantém a funcionalidade original)
+      else if (validacaoCustom !== "") {
+        tag.validacao = validacaoCustom;
       }
 
       // Aplica regra especial para o campo Input
@@ -906,7 +917,7 @@
         tag.input = "{MRES}";
       }
 
-      // Aplica substituição dos campos customizados APENAS se estiverem preenchidos
+      // Aplica substituição dos outros campos customizados APENAS se estiverem preenchidos
       if (indicadorCustom !== "") {
         tag.indicador = indicadorCustom;
       }
@@ -919,15 +930,11 @@
         tag.ponto_origem = pontoOrigemCustom;
       }
       
-      if (validacaoCustom !== "") {
-        tag.validacao = validacaoCustom;
-      }
-      
       if (produtoCustom !== "") {
         tag.produto = produtoCustom;
       }
 
-      // *** CORREÇÃO AQUI: Construção da saída com 12 linhas, incluindo linha 0 vazia ***
+      // Construção da saída com 12 linhas, incluindo linha 0 vazia
       const saida = [
         "",                             // Linha 0: SEMPRE VAZIA (posição 0)
         tag.event_name || "",           // Linha 1: event_name
@@ -959,9 +966,9 @@
       // Extrai múltiplos blocos de tagueamento seguindo a ordem correta
       const blocosTexto = extrairBlocosOrdenados(texto);
       
-      // Processa cada bloco
+      // Processa cada bloco com todos os parâmetros
       const blocosProcessados = blocosTexto.map(blocoTexto => {
-        return processarBloco(blocoTexto, indicadorCustom, ultimoPontoCustom, validacaoCustom, pontoOrigemCustom, produtoCustom);
+        return processarBloco(blocoTexto, indicadorCustom, ultimoPontoCustom, validacaoCustom, pontoOrigemCustom, produtoCustom, operacaoDestinoInputCustom);
       }).filter(bloco => bloco.tag.ponto); // Filtra apenas blocos que têm ponto
 
       // Atualiza o contador de resultados
@@ -1024,8 +1031,7 @@
         // Corpo da tabela
         const tbody = document.createElement("tbody");
         
-        // *** CORREÇÃO AQUI: Adicionando a linha vazia na tabela também ***
-        // Primeiro, adicionamos uma linha para a posição 0 vazia
+        // Adicionando a linha vazia na tabela
         const trVazia = document.createElement("tr");
         trVazia.innerHTML = `
           <td class="campo-nome"></td>
@@ -1033,7 +1039,7 @@
         `;
         tbody.appendChild(trVazia);
         
-        // Depois, adicionamos todas as outras linhas
+        // Adicionando todas as outras linhas
         CAMPOS_ORDEM.forEach(campo => {
           const valor = tag[campo.key] || "";
           const tr = document.createElement("tr");
@@ -1117,8 +1123,8 @@
       }
     });
     
-    // Adiciona evento para processar quando o usuário pressionar Enter nos campos de input
-    const inputs = document.querySelectorAll('#validacaoInput, #indicadorInput, #ultimoPontoInput, #pontoOrigemInput, #produtoInput');
+    // Adiciona evento para processar quando o usuário pressionar Enter em todos os campos de input
+    const inputs = document.querySelectorAll('#validacaoInput, #indicadorInput, #ultimoPontoInput, #pontoOrigemInput, #produtoInput, #operacaoDestinoInput');
     inputs.forEach(input => {
       input.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {
@@ -1128,10 +1134,4 @@
     });
   </script>
 </body>
-
 </html>
-
-
-
-
-
