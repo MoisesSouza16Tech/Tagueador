@@ -1001,7 +1001,7 @@
         
         const pontoElement = document.createElement("div");
         pontoElement.className = "tabela-card-ponto";
-        pontoElement.textContent = tag.ponto || "Sem ponto";
+        pontoElement.textContent = tag.ponto ? `SP ${tag.ponto}` : "SP Vazio";
         
         const btnCopiar = document.createElement("button");
         btnCopiar.className = "btn-copy";
@@ -1135,3 +1135,4 @@
   </script>
 </body>
 </html>
+
