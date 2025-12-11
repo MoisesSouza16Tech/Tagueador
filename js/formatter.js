@@ -1,0 +1,546 @@
+    // Mapeamento dos placeholders para valores globais
+    const MAPPING = {
+      "[Fluxo_Anterior]": "{global:fluxoAnterior}",
+      "[Status_Chamada]": "{global:tipoDesconexao}",
+      "[Ultimo_Ponto]": "{global:ultimoPonto}",
+      "[Time_Stamp]": "",
+      "[Status_Code]": "{global:statusCode}",
+      "[Input_Cliente]": "{MRES}",
+      "[Ultimo_Ponto_Fluxo_Anterior]": "{global:ultimoPontoFluxoAnterior}",
+      "[Operacao_Destino]": "{global:tipoServico}"
+    };
+
+    const CAMPOS_ORDEM = [
+      { key: "event_name", nome: "event_name" },
+      { key: "validacao", nome: "Validacao" },
+      { key: "fluxo", nome: "Fluxo" },
+      { key: "indicador", nome: "Indicador" },
+      { key: "range", nome: "Range" },
+      { key: "ponto", nome: "Ponto" },
+      { key: "ultimo_Ponto", nome: "Ultimo_Ponto" },
+      { key: "input", nome: "Input" },
+      { key: "tentativa", nome: "Tentativa" },
+      { key: "ponto_origem", nome: "Ponto_Origem" },
+      { key: "produto", nome: "Produto" }
+    ];
+
+    // Ordem esperada dos campos nos blocos de tagueamento
+    const ORDEM_CAMPOS_BLOCO = [
+      "event_name", "Validacao", "Fluxo", "Indicador", "Range", 
+      "Ponto", "Ultimo_Ponto", "Input", "Tentativa", 
+      "Ponto_Origem", "Ponto Origem", "Produto", "Timestamp", "Time_Stamp"
+    ];
+
+    // Função para detectar se uma linha é um campo válido na ordem esperada
+    function isCampoValido(linha, campoEsperado) {
+      const chaveSemUnderscore = campoEsperado.replace(/_/g, ' ');
+      
+      // Verifica se a linha começa exatamente com o campo (com ou sem dois pontos)
+      const padroes = [
+        new RegExp("^\\s*" + campoEsperado + "\\s*:\\s*", "i"),
+        new RegExp("^\\s*" + campoEsperado + "\\s+(?!:\\s*)(.+)$", "i"), // Campo sem dois pontos, mas com conteúdo
+        new RegExp("^\\s*" + chaveSemUnderscore + "\\s*:\\s*", "i"),
+        new RegExp("^\\s*" + chaveSemUnderscore + "\\s+(?!:\\s*)(.+)$", "i") // Campo sem dois pontos, mas com conteúdo
+      ];
+      
+      for (const regex of padroes) {
+        if (regex.test(linha)) {
+          return true;
+        }
+      }
+      
+      // Verifica se a linha é exatamente igual ao campo (apenas o nome do campo, sem valor)
+      if (linha.trim().toLowerCase() === campoEsperado.toLowerCase() ||
+          linha.trim().toLowerCase() === chaveSemUnderscore.toLowerCase()) {
+        return true;
+      }
+      
+      return false;
+    }
+
+    // Função para extrair múltiplos blocos de tagueamento seguindo a ordem específica
+    function extrairBlocosOrdenados(texto) {
+      const blocos = [];
+      const linhas = texto.split('\n');
+      let blocoAtual = [];
+      let esperandoCampoIndex = 0;
+      let emBloco = false;
+      
+      for (let i = 0; i < linhas.length; i++) {
+        let linha = linhas[i].trim();
+        
+        // Se a linha estiver vazia, continuamos
+        if (!linha) {
+          // Se estamos em um bloco e encontramos uma linha vazia, isso pode marcar o fim do bloco
+          if (emBloco && blocoAtual.length > 0) {
+            // Verificamos se temos um bloco válido (pelo menos até o campo "Produto")
+            const blocosValidos = filtrarBlocosValidos([blocoAtual.join('\n')]);
+            if (blocosValidos.length > 0) {
+              blocos.push(blocosValidos[0]);
+            }
+            blocoAtual = [];
+            esperandoCampoIndex = 0;
+            emBloco = false;
+          }
+          continue;
+        }
+        
+        // Procura por "event_name:" em qualquer lugar da linha
+        const regexEventName = /event_name\s*:\s*/i;
+        if (regexEventName.test(linha)) {
+          // Se já estamos em um bloco, finalizamos o bloco atual antes de começar um novo
+          if (emBloco && blocoAtual.length > 0) {
+            const blocosValidos = filtrarBlocosValidos([blocoAtual.join('\n')]);
+            if (blocosValidos.length > 0) {
+              blocos.push(blocosValidos[0]);
+            }
+            blocoAtual = [];
+          }
+          
+          // Começa um novo bloco
+          blocoAtual.push(linha);
+          esperandoCampoIndex = 1; // Já temos o event_name
+          emBloco = true;
+          continue;
+        }
+        
+        // Se estamos em um bloco, continua adicionando campos
+        if (emBloco) {
+          // Verifica se a linha corresponde ao próximo campo esperado na ordem
+          if (esperandoCampoIndex < ORDEM_CAMPOS_BLOCO.length) {
+            const campoEsperado = ORDEM_CAMPOS_BLOCO[esperandoCampoIndex];
+            
+            if (isCampoValido(linha, campoEsperado)) {
+              blocoAtual.push(linha);
+              esperandoCampoIndex++;
+              
+              // Se chegamos no último campo (Timestamp ou Time_Stamp), finalizamos o bloco
+              if (campoEsperado === "Timestamp" || campoEsperado === "Time_Stamp") {
+                const blocosValidos = filtrarBlocosValidos([blocoAtual.join('\n')]);
+                if (blocosValidos.length > 0) {
+                  blocos.push(blocosValidos[0]);
+                }
+                blocoAtual = [];
+                esperandoCampoIndex = 0;
+                emBloco = false;
+              }
+            } else {
+              // Se não corresponde ao campo esperado, mas estamos em um bloco,
+              // verificamos se podemos pular para o próximo campo na ordem
+              let encontrou = false;
+              for (let j = esperandoCampoIndex + 1; j < ORDEM_CAMPOS_BLOCO.length; j++) {
+                const proximoCampo = ORDEM_CAMPOS_BLOCO[j];
+                if (isCampoValido(linha, proximoCampo)) {
+                  // Preenchemos os campos faltantes com valores vazios
+                  for (let k = esperandoCampoIndex; k < j; k++) {
+                    const campoFaltante = ORDEM_CAMPOS_BLOCO[k];
+                    blocoAtual.push(campoFaltante + ":");
+                  }
+                  blocoAtual.push(linha);
+                  esperandoCampoIndex = j + 1;
+                  emBloco = true;
+                  encontrou = true;
+                  break;
+                }
+              }
+              
+              // Se não encontrou nenhum campo seguinte, pode ser o fim do bloco
+              if (!encontrou && emBloco && blocoAtual.length > 0) {
+                // Talvez seja um valor de múltiplas linhas para um campo anterior
+                // Por exemplo, "Identificado" e "como:" podem ser conteúdo do campo anterior
+                // Nesse caso, vamos ignorar essas linhas e continuar com o bloco
+              }
+            }
+          } else {
+            // Se já passamos por todos os campos esperados, finalizamos o bloco
+            if (emBloco && blocoAtual.length > 0) {
+              const blocosValidos = filtrarBlocosValidos([blocoAtual.join('\n')]);
+              if (blocosValidos.length > 0) {
+                blocos.push(blocosValidos[0]);
+              }
+              blocoAtual = [];
+              esperandoCampoIndex = 0;
+              emBloco = false;
+            }
+          }
+        }
+      }
+      
+      // Processa o último bloco, se existir
+      if (emBloco && blocoAtual.length > 0) {
+        const blocosValidos = filtrarBlocosValidos([blocoAtual.join('\n')]);
+        if (blocosValidos.length > 0) {
+          blocos.push(blocosValidos[0]);
+        }
+      }
+      
+      return blocos;
+    }
+
+    // Filtra apenas blocos válidos (com campos obrigatórios)
+    function filtrarBlocosValidos(blocosTexto) {
+      return blocosTexto.filter(blocoTexto => {
+        // Um bloco é válido se tiver event_name (em qualquer lugar da linha) e Ponto
+        const temEventName = /event_name\s*:/i.test(blocoTexto);
+        const temPonto = /Ponto\s*:\s*\d+/i.test(blocoTexto) || /Ponto\s+\d+/i.test(blocoTexto);
+        return temEventName && temPonto;
+      });
+    }
+
+    // Função original para extrair valor de uma chave em um texto
+    function extrairValor(chave, texto) {
+      const chaveSemUnderscore = chave.replace(/_/g, ' ');
+      
+      const padroes = [
+        new RegExp("^\\s*" + chave + "\\s*:\\s*(.*)", "i"),
+        new RegExp("^\\s*" + chave + "\\s+(?!:\\s*)(.+)$", "i"), // Campo sem dois pontos
+        new RegExp("^\\s*" + chaveSemUnderscore + "\\s*:\\s*(.*)", "i"),
+        new RegExp("^\\s*" + chaveSemUnderscore + "\\s+(?!:\\s*)(.+)$", "i") // Campo sem dois pontos
+      ];
+      
+      const linhas = texto.split("\n");
+      
+      // Caso especial para event_name que pode estar no meio da linha
+      if (chave.toLowerCase() === "event_name") {
+        for (let linha of linhas) {
+          linha = linha.trim();
+          
+          // Procura por "event_name:" em qualquer lugar da linha
+          const regexEventName = /event_name\s*:\s*(.*)/i;
+          const matchEventName = linha.match(regexEventName);
+          if (matchEventName) {
+            const valor = matchEventName[1] ? matchEventName[1].trim() : "";
+            return valor;
+          }
+        }
+      }
+      
+      // Para outros campos, usa a lógica normal
+      for (let linha of linhas) {
+        linha = linha.trim();
+        
+        for (const regex of padroes) {
+          const match = linha.match(regex);
+          if (match) {
+            const valor = match[1] ? match[1].trim() : "";
+            return valor;
+          }
+        }
+        
+        // Se a linha for exatamente igual à chave (sem valor)
+        if (linha.toLowerCase() === chave.toLowerCase() || 
+            linha.toLowerCase() === chaveSemUnderscore.toLowerCase()) {
+          return "";
+        }
+      }
+      return "";
+    }
+
+    function aplicarMapeamento(valor) {
+      if (MAPPING.hasOwnProperty(valor)) {
+        return MAPPING[valor];
+      }
+      return valor;
+    }
+
+    // Processa um único bloco de tagueamento com a lógica completa do [Operacao_Destino]
+    function processarBloco(blocoTexto, indicadorCustom, ultimoPontoCustom, validacaoCustom, pontoOrigemCustom, produtoCustom, operacaoDestinoInputCustom) {
+      const tag = {
+        event_name: extrairValor("event_name", blocoTexto),
+        validacao: extrairValor("Validacao", blocoTexto),
+        fluxo: extrairValor("Fluxo", blocoTexto),
+        indicador: extrairValor("Indicador", blocoTexto),
+        range: extrairValor("Range", blocoTexto),
+        ponto: extrairValor("Ponto", blocoTexto),
+        ultimo_Ponto: extrairValor("Ultimo_Ponto", blocoTexto),
+        input: extrairValor("Input", blocoTexto),
+        tentativa: extrairValor("Tentativa", blocoTexto),
+        ponto_origem: extrairValor("Ponto_Origem", blocoTexto),
+        produto: extrairValor("Produto", blocoTexto),
+      };
+
+      // Primeiro: aplica o mapeamento em todos os campos
+      for (let key in tag) {
+        if (tag[key]) {
+          tag[key] = aplicarMapeamento(tag[key]);
+        }
+      }
+
+      // *** LOGICA COMPLETA PARA [Operacao_Destino] ***
+      // 1. Se o campo de validação era originalmente [Operacao_Destino] (após mapeamento vira {global:tipoServico})
+      // 2. E o input de [Operacao_Destino] está preenchido, então substitui a validação pelo valor do input
+      if (tag.validacao === "{global:tipoServico}" && operacaoDestinoInputCustom !== "") {
+        tag.validacao = operacaoDestinoInputCustom;
+      }
+      // 3. Caso contrário, se houver um validacaoCustom, usa ele (mantém a funcionalidade original)
+      else if (validacaoCustom !== "") {
+        tag.validacao = validacaoCustom;
+      }
+
+      // Aplica regra especial para o campo Input
+      if (tag.input && tag.input.trim() !== "") {
+        tag.input = "{MRES}";
+      }
+
+      // Aplica substituição dos outros campos customizados APENAS se estiverem preenchidos
+      if (indicadorCustom !== "") {
+        tag.indicador = indicadorCustom;
+      }
+      
+      if (ultimoPontoCustom !== "") {
+        tag.ultimo_Ponto = ultimoPontoCustom;
+      }
+      
+      if (pontoOrigemCustom !== "") {
+        tag.ponto_origem = pontoOrigemCustom;
+      }
+      
+      if (produtoCustom !== "") {
+        tag.produto = produtoCustom;
+      }
+
+      // Construção da saída com 12 linhas, incluindo linha 0 vazia
+      const saida = [
+        "",                             // Linha 0: SEMPRE VAZIA (posição 0)
+        tag.event_name || "",           // Linha 1: event_name
+        tag.validacao || "",            // Linha 2: Validacao
+        tag.fluxo || "",                // Linha 3: Fluxo
+        tag.indicador || "",            // Linha 4: Indicador
+        tag.range || "",                // Linha 5: Range
+        tag.ponto || "",                // Linha 6: Ponto
+        tag.ultimo_Ponto || "",         // Linha 7: Ultimo_Ponto
+        tag.input || "",                // Linha 9: Input
+        tag.tentativa || "",            // Linha 10: Tentativa
+        tag.ponto_origem || "",         // Linha 11: Ponto_Origem
+        tag.produto || ""               // Linha 12: Produto
+      ];
+
+      return { tag, saida: saida.join("\n") };
+    }
+
+    // Função para copiar apenas o ponto (SP xxxx)
+    function copiarPonto(textoPonto, botao) {
+      const textareaTemp = document.createElement("textarea");
+      textareaTemp.value = textoPonto;
+      document.body.appendChild(textareaTemp);
+      textareaTemp.select();
+      textareaTemp.setSelectionRange(0, 99999);
+      
+      try {
+        const successful = document.execCommand('copy');
+        if (successful) {
+          const originalHTML = botao.innerHTML;
+          botao.innerHTML = "✓ Copiado";
+          botao.style.background = "rgba(0, 168, 89, 0.2)";
+          botao.style.color = "#008E4A";
+          botao.style.borderColor = "#008E4A";
+          
+          setTimeout(() => {
+            botao.innerHTML = "📋 Copiar";
+            botao.style.background = "rgba(0, 70, 166, 0.1)";
+            botao.style.color = "#0046A6";
+            botao.style.borderColor = "rgba(0, 70, 166, 0.3)";
+          }, 2000);
+        }
+      } catch (err) {
+        console.error('Falha ao copiar: ', err);
+        alert("Não foi possível copiar o ponto. Selecione manualmente e use Ctrl+C.");
+      } finally {
+        document.body.removeChild(textareaTemp);
+      }
+    }
+
+    // Função principal para processar dados
+    function processarDados() {
+      const texto = document.getElementById("inputText").value;
+      const indicadorCustom = document.getElementById("indicadorInput").value.trim();
+      const ultimoPontoCustom = document.getElementById("ultimoPontoInput").value.trim();
+      const validacaoCustom = document.getElementById("validacaoInput").value.trim();
+      const pontoOrigemCustom = document.getElementById("pontoOrigemInput").value.trim();
+      const produtoCustom = document.getElementById("produtoInput").value.trim();
+      const operacaoDestinoInputCustom = document.getElementById("operacaoDestinoInput").value.trim();
+      
+      // Extrai múltiplos blocos de tagueamento seguindo a ordem correta
+      const blocosTexto = extrairBlocosOrdenados(texto);
+      
+      // Processa cada bloco com todos os parâmetros
+      const blocosProcessados = blocosTexto.map(blocoTexto => {
+        return processarBloco(blocoTexto, indicadorCustom, ultimoPontoCustom, validacaoCustom, pontoOrigemCustom, produtoCustom, operacaoDestinoInputCustom);
+      }).filter(bloco => bloco.tag.ponto); // Filtra apenas blocos que têm ponto
+
+      // Atualiza o contador de resultados
+      const contadorResultados = document.getElementById("contadorResultados");
+      const contadorNumero = document.getElementById("contadorNumero");
+      
+      if (blocosProcessados.length > 0) {
+        contadorNumero.textContent = blocosProcessados.length;
+        contadorResultados.classList.remove("hidden");
+      } else {
+        contadorResultados.classList.add("hidden");
+      }
+
+      // Limpa o container de tabelas
+      const tabelasContainer = document.getElementById("tabelasContainer");
+      tabelasContainer.innerHTML = "";
+
+      // Cria uma tabela para cada bloco processado
+      blocosProcessados.forEach((bloco, index) => {
+        const { tag, saida } = bloco;
+        
+        // Cria o card da tabela
+        const tabelaCard = document.createElement("div");
+        tabelaCard.className = "tabela-card";
+        tabelaCard.id = `tabela-card-${index}`;
+        
+        // Cria o cabeçalho do card
+        const cardHeader = document.createElement("div");
+        cardHeader.className = "tabela-card-header";
+        
+        // Primeira linha: container para o ponto e o botão de copiar o ponto
+        const pontoContainer = document.createElement("div");
+        pontoContainer.className = "ponto-container";
+        
+        const pontoElement = document.createElement("div");
+        pontoElement.className = "tabela-card-ponto";
+        const pontoTexto = tag.ponto ? `SP ${tag.ponto}` : "SP Vazio";
+        pontoElement.textContent = pontoTexto;
+        
+        // Botão para copiar apenas o ponto (SP xxxx)
+        const btnCopiarPonto = document.createElement("button");
+        btnCopiarPonto.className = "btn-copy-small";
+        btnCopiarPonto.innerHTML = "📋 -Copiar";
+        btnCopiarPonto.onclick = () => copiarPonto(pontoTexto, btnCopiarPonto);
+        
+        pontoContainer.appendChild(pontoElement);
+        pontoContainer.appendChild(btnCopiarPonto);
+        
+        // Segunda linha: botão para copiar todo o tagueamento
+        const btnCopiar = document.createElement("button");
+        btnCopiar.className = "btn-copy";
+        btnCopiar.innerHTML = "Copiar Tagueamento Completo";
+        btnCopiar.onclick = () => copiarTexto(saida, btnCopiar);
+        
+        cardHeader.appendChild(pontoContainer);
+        cardHeader.appendChild(btnCopiar);
+        
+        // Cria a tabela
+        const tabelaContainer = document.createElement("div");
+        tabelaContainer.className = "tabela-container";
+        
+        const tabela = document.createElement("table");
+        tabela.className = "tabela-resultado";
+        
+        // Cabeçalho da tabela
+        const thead = document.createElement("thead");
+        const headerRow = document.createElement("tr");
+        headerRow.innerHTML = `
+          <th style="width: 35%">CAMPO</th>
+          <th style="width: 65%">VALOR</th>
+        `;
+        thead.appendChild(headerRow);
+        tabela.appendChild(thead);
+        
+        // Corpo da tabela
+        const tbody = document.createElement("tbody");
+        
+        // Adicionando a linha vazia na tabela
+        const trVazia = document.createElement("tr");
+        trVazia.innerHTML = `
+          <td class="campo-nome"></td>
+          <td class="campo-valor"></td>
+        `;
+        tbody.appendChild(trVazia);
+        
+        // Adicionando todas as outras linhas
+        CAMPOS_ORDEM.forEach(campo => {
+          const valor = tag[campo.key] || "";
+          const tr = document.createElement("tr");
+          const valorClasse = valor ? "" : "campo-vazio";
+          const valorTexto = valor || "(vazio)";
+          
+          tr.innerHTML = `
+            <td class="campo-nome">${campo.nome}:</td>
+            <td class="campo-valor ${valorClasse}">${valorTexto}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+        
+        tabela.appendChild(tbody);
+        tabelaContainer.appendChild(tabela);
+        
+        // Monta o card
+        tabelaCard.appendChild(cardHeader);
+        tabelaCard.appendChild(tabelaContainer);
+        
+        // Adiciona o card ao container
+        tabelasContainer.appendChild(tabelaCard);
+      });
+
+      // Se não houver blocos processados, exibe uma mensagem
+      if (blocosProcessados.length === 0) {
+        const mensagem = document.createElement("div");
+        mensagem.className = "info-banner";
+        mensagem.style.marginTop = "20px";
+        mensagem.textContent = "Nenhum bloco de tagueamento válido foi encontrado no texto.";
+        tabelasContainer.appendChild(mensagem);
+      }
+    }
+
+    // Função para copiar texto
+    function copiarTexto(texto, botao) {
+      const textareaTemp = document.createElement("textarea");
+      textareaTemp.value = texto;
+      document.body.appendChild(textareaTemp);
+      textareaTemp.select();
+      textareaTemp.setSelectionRange(0, 99999);
+      
+      try {
+        const successful = document.execCommand('copy');
+        if (successful) {
+          const originalText = botao.textContent;
+          botao.textContent = "Copiado!";
+          botao.style.background = "linear-gradient(135deg, #00743B 0%, #005A2D 100%)";
+          
+          setTimeout(() => {
+            botao.textContent = originalText;
+            botao.style.background = "linear-gradient(135deg, #00A859 0%, #008E4A 100%)";
+          }, 2000);
+        }
+      } catch (err) {
+        console.error('Falha ao copiar: ', err);
+        alert("Não foi possível copiar o texto. Selecione manualmente e use Ctrl+C.");
+      } finally {
+        document.body.removeChild(textareaTemp);
+      }
+    }
+
+    function limparResultado() {
+      document.getElementById("inputText").value = "";
+      document.getElementById("contadorResultados").classList.add("hidden");
+      document.getElementById("tabelasContainer").innerHTML = "";
+      
+      // Limpa os campos de input
+      document.getElementById("validacaoInput").value = "";
+      document.getElementById("indicadorInput").value = "";
+      document.getElementById("ultimoPontoInput").value = "";
+      document.getElementById("pontoOrigemInput").value = "";
+      document.getElementById("produtoInput").value = "";
+      document.getElementById("operacaoDestinoInput").value = "";
+    }
+    
+    // Adiciona evento para processar quando o usuário pressionar Ctrl+Enter na área de entrada
+    document.getElementById('inputText').addEventListener('keydown', function(e) {
+      if (e.ctrlKey && e.key === 'Enter') {
+        processarDados();
+      }
+    });
+    
+    // Adiciona evento para processar quando o usuário pressionar Enter em todos os campos de input
+    const inputs = document.querySelectorAll('#validacaoInput, #indicadorInput, #ultimoPontoInput, #pontoOrigemInput, #produtoInput, #operacaoDestinoInput');
+    inputs.forEach(input => {
+      input.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          processarDados();
+        }
+      });
+    });
