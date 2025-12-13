@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" href="https://seeklogo.com/images/P/porto-seguro-logo-622816.png" type="image/png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ferramentas Porto Seguro</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+      background: linear-gradient(135deg, #f0f4f8 0%, #e6ecf2 100%);
+      min-height: 100vh;
+      color: #333333;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header com logo e menu suspenso */
+    .main-header {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(0, 70, 166, 0.1);
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 20px rgba(0, 70, 166, 0.08);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .porto-logo {
+      height: 50px;
+      width: auto;
+    }
+
+    .header-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #0046A6;
+    }
+
+    .brand-accent {
+      color: #0016a8;
+      font-weight: 600;
+    }
+
+    /* Menu horizontal */
+    .nav-menu {
+      display: flex;
+      gap: 10px;
+      background: rgba(0, 70, 166, 0.05);
+      border-radius: 12px;
+      padding: 4px;
+      border: 1px solid rgba(0, 70, 166, 0.1);
+    }
+
+    .nav-button {
+      padding: 10px 24px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      background: transparent;
+      color: #0046A6;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .nav-button:hover {
+      background: rgba(0, 70, 166, 0.1);
+    }
+
+    .nav-button.active {
+      background: linear-gradient(135deg, #0046A6 0%, #003580 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(0, 70, 166, 0.2);
+    }
+
+    /* Conteúdo principal */
+    .main-content {
+      flex: 1;
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .welcome-container {
+      text-align: center;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .welcome-title {
+      font-size: clamp(2rem, 4vw, 2.8rem);
+      font-weight: 700;
+      color: #0046A6;
+      margin-bottom: 20px;
+      line-height: 1.2;
+    }
+
+    .welcome-subtitle {
+      color: #666666;
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      margin-bottom: 40px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* Cards das ferramentas */
+    .tools-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+      width: 100%;
+      max-width: 1200px;
+      margin-top: 30px;
+    }
+
+    .tool-card {
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid rgba(0, 70, 166, 0.15);
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 8px 32px rgba(0, 70, 166, 0.08);
+      transition: all 0.3s ease;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .tool-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 40px rgba(0, 70, 166, 0.15);
+      border-color: rgba(0, 70, 166, 0.3);
+    }
+
+    .tool-icon {
+      font-size: 3.5rem;
+      margin-bottom: 20px;
+      color: #00A859;
+    }
+
+    .tool-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #0046A6;
+      margin-bottom: 15px;
+    }
+
+    .tool-description {
+      color: #666666;
+      font-size: 1rem;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .tool-button {
+      padding: 12px 30px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      background: linear-gradient(135deg, #00A859 0%, #008E4A 100%);
+      color: white;
+      text-decoration: none;
+      margin-top: auto;
+    }
+
+    .tool-button:hover {
+      background: linear-gradient(135deg, #008E4A 0%, #00743B 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 168, 89, 0.2);
+    }
+
+    /* Responsividade */
+    @media (max-width: 768px) {
+      .main-header {
+        flex-direction: column;
+        gap: 15px;
+        padding: 15px;
+      }
+
+      .logo-container {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+      }
+
+      .porto-logo {
+        height: 40px;
+      }
+
+      .nav-menu {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .nav-button {
+        padding: 8px 16px;
+        font-size: 13px;
+        flex: 1;
+        justify-content: center;
+      }
+
+      .tools-container {
+        grid-template-columns: 1fr;
+      }
+
+      .tool-card {
+        padding: 20px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .nav-menu {
+        flex-direction: column;
+        gap: 5px;
+        background: transparent;
+        border: none;
+        padding: 0;
+      }
+
+      .nav-button {
+        width: 100%;
+        border: 1px solid rgba(0, 70, 166, 0.1);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.9);
+      }
+
+      .welcome-title {
+        font-size: 1.8rem;
+      }
+
+      .main-content {
+        padding: 20px 15px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Header com logo e menu -->
+  <header class="main-header">
+    <div class="logo-container">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/1/14/Porto_2022.svg" 
+           alt="Porto Seguro" 
+           class="porto-logo"
+           title="Porto Seguro">
+      <div class="header-title">Ferramentas <span class="brand-accent">Porto Seguro</span></div>
+    </div>
+
+    <nav class="nav-menu">
+      <a href="index.html" class="nav-button active">
+        <span>🏠</span> Home
+      </a>
+      <a href="tagueador_porto.html" class="nav-button">
+        <span>🏷️</span> Auto Tagueador
+      </a>
+      <a href="formatador_audios.html" class="nav-button">
+        <span>🎵</span> Formatador de Áudios
+      </a>
+    </nav>
+  </header>
+
+  <!-- Conteúdo principal -->
+  <main class="main-content">
+    <div class="welcome-container">
+      <h1 class="welcome-title">Bem-vindo às Ferramentas Porto Seguro</h1>
+      <p class="welcome-subtitle">
+        Selecione abaixo a ferramenta que você precisa utilizar. Ambas são otimizadas para o workflow da Porto Seguro e trabalham de forma integrada.
+      </p>
+    </div>
+
+    <div class="tools-container">
+      <!-- Card do Auto Tagueador -->
+      <a href="tagueador_porto.html" class="tool-card">
+        <div class="tool-icon">🏷️</div>
+        <h2 class="tool-title">Auto Tagueador</h2>
+        <p class="tool-description">
+          Formate automaticamente os tagueamentos das aplicações. Processa múltiplos blocos de uma vez, aplica substituições personalizadas e gera tabelas organizadas para análise.
+        </p>
+        <span class="tool-button">Acessar Ferramenta</span>
+      </a>
+
+      <!-- Card do Formatador de Áudios -->
+      <a href="formatador_audios.html" class="tool-card">
+        <div class="tool-icon">🎵</div>
+        <h2 class="tool-title">Formatador de Áudios</h2>
+        <p class="tool-description">
+          Extraia e formate informações de áudio de logs de tagueamento. Detecta automaticamente arquivos de áudio, processa o conteúdo e gera caminhos formatados para uso.
+        </p>
+        <span class="tool-button">Acessar Ferramenta</span>
+      </a>
+    </div>
+  </main>
+
+  <script>
+    // Ativar o item de menu correto baseado na página atual
+    document.addEventListener('DOMContentLoaded', function() {
+      const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+      const navButtons = document.querySelectorAll('.nav-button');
+      
+      navButtons.forEach(button => {
+        button.classList.remove('active');
+        
+        const href = button.getAttribute('href');
+        if (currentPage === href || (currentPage === '' && href === 'index.html')) {
+          button.classList.add('active');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
