@@ -1,10 +1,1014 @@
+/* ============================================
+   ESTILOS GLOBAIS (comuns a todas as páginas)
+   ============================================ */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
 body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
-      background: linear-gradient(135deg, #f0f4f8 0%, #e6ecf2 100%);
-      min-height: 100vh;
-      color: #333333;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  background: linear-gradient(135deg, #f0f4f8 0%, #e6ecf2 100%);
+  min-height: 100vh;
+  color: #333333;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header com logo e menu suspenso - COMUM */
+.main-header {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(0, 70, 166, 0.1);
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 20px rgba(0, 70, 166, 0.08);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  width: 100%;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.porto-logo {
+  height: 50px;
+  width: auto;
+}
+
+.header-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #0046A6;
+}
+
+.brand-accent {
+  color: #0016a8;
+  font-weight: 600;
+}
+
+/* Menu horizontal - COMUM */
+.nav-menu {
+  display: flex;
+  gap: 10px;
+  background: rgba(0, 70, 166, 0.05);
+  border-radius: 12px;
+  padding: 4px;
+  border: 1px solid rgba(0, 70, 166, 0.1);
+}
+
+.nav-button {
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+  background: transparent;
+  color: #0046A6;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.nav-button:hover {
+  background: rgba(0, 70, 166, 0.1);
+}
+
+.nav-button.active {
+  background: linear-gradient(135deg, #0046A6 0%, #003580 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 70, 166, 0.2);
+}
+
+/* Container base - COMUM */
+.container {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 70, 166, 0.1);
+  border-radius: 16px;
+  padding: clamp(20px, 3vw, 40px);
+  width: 100%;
+  max-width: 1800px;
+  box-shadow: 0 8px 32px rgba(0, 70, 166, 0.08);
+  margin-top: 30px;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: clamp(1.1rem, 2vw, 1.3rem);
+  font-weight: 600;
+  color: #0046A6;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid rgba(0, 70, 166, 0.1);
+}
+
+textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 12px;
+  border: 1px solid rgba(0, 70, 166, 0.2);
+  border-radius: 10px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 14px;
+  resize: vertical;
+  background: rgba(255, 255, 255, 0.9);
+  color: #333333;
+  transition: all 0.3s;
+}
+
+textarea:focus {
+  border-color: #00A859;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 168, 89, 0.1);
+}
+
+textarea::placeholder {
+  color: #999999;
+}
+
+.info-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(0, 168, 89, 0.08);
+  border: 1px solid rgba(0, 168, 89, 0.2);
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin: 15px 0;
+  color: #006B3F;
+  font-size: 0.85rem;
+}
+
+.info-banner::before {
+  content: "ℹ️";
+  font-size: 1rem;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.input-group label {
+  font-weight: 600;
+  color: #0046A6;
+  font-size: 0.85rem;
+}
+
+input[type="text"] {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 14px;
+  padding: 10px 14px;
+  border: 1px solid rgba(0, 70, 166, 0.2);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #333333;
+  transition: all 0.3s;
+}
+
+input[type="text"]:focus {
+  border-color: #00A859;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 168, 89, 0.1);
+}
+
+.button-group {
+  display: flex;
+  gap: 12px;
+  margin-top: 25px;
+  flex-wrap: wrap;
+}
+
+button {
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  flex: 1;
+  min-width: 150px;
+  justify-content: center;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+}
+
+.btn-primary::before {
+  content: "✨";
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #003580 0%, #00295C 100%);
+}
+
+.btn-danger {
+  background: linear-gradient(15deg, #003580 0%, #0052d7 100%);
+  color: white;
+  border: none;
+}
+
+.btn-danger::before {
+  content: "🗑️";
+}
+
+.btn-danger:hover {
+  background: linear-gradient(135deg, #C00009 0%, #A00007 100%);
+}
+
+.btn-copy {
+  background: linear-gradient(135deg, #00A859 0%, #008E4A 100%);
+  color: white;
+  padding: 8px 16px;
+  font-size: 13px;
+  min-width: auto;
+  border: none;
+  margin: 10px 0 0 0;
+  width: 100%;
+}
+
+.btn-copy::before {
+  content: "📋";
+}
+
+.btn-copy:hover {
+  background: linear-gradient(135deg, #008E4A 0%, #00743B 100%);
+}
+
+.btn-copy-small {
+  background: rgba(0, 70, 166, 0.1);
+  color: #0046A6;
+  border: 1px solid rgba(0, 70, 166, 0.3);
+  padding: 4px 12px;
+  font-size: 11px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: 8px;
+  transition: all 0.2s;
+}
+
+.btn-copy-small:hover {
+  background: rgba(0, 70, 166, 0.2);
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* Contador de resultados - COMUM */
+.contador-resultados {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding: 10px 15px;
+  background: rgba(0, 70, 166, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(0, 70, 166, 0.1);
+}
+
+.contador-texto {
+  font-weight: 600;
+  color: #0046A6;
+}
+
+.contador-numero {
+  font-weight: 700;
+  color: #00A859;
+  background: rgba(0, 168, 89, 0.1);
+  padding: 4px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 168, 89, 0.2);
+}
+
+.counteudo_pagina {
+  padding: 0px 20px;
+}
+
+/* Responsividade - COMUM */
+@media (max-width: 768px) {
+  .main-header {
+    flex-direction: column;
+    gap: 15px;
+    padding: 15px;
+  }
+
+  .logo-container {
+    flex-direction: column;
+    text-align: center;
+    gap: 10px;
+  }
+
+  .porto-logo {
+    height: 40px;
+  }
+
+  .nav-menu {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .nav-button {
+    padding: 8px 16px;
+    font-size: 13px;
+    flex: 1;
+    justify-content: center;
+  }
+
+  .container {
+    padding: 20px;
+    margin-top: 20px;
+  }
+
+  .button-group {
+    flex-direction: column;
+  }
+
+  button {
+    width: 100%;
+    min-width: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-menu {
+    flex-direction: column;
+    gap: 5px;
+    background: transparent;
+    border: none;
+    padding: 0;
+  }
+
+  .nav-button {
+    width: 100%;
+    border: 1px solid rgba(0, 70, 166, 0.1);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.9);
+  }
+
+  .header-title {
+    font-size: 1.2rem;
+  }
+
+  .container {
+    padding: 15px;
+  }
+
+  textarea {
+    min-height: 100px;
+    font-size: 13px;
+  }
+
+  input[type="text"] {
+    font-size: 13px;
+    padding: 8px 12px;
+  }
+
+  button {
+    padding: 10px 20px;
+    font-size: 13px;
+  }
+}
+
+/* ============================================
+   ESTILOS ESPECÍFICOS PARA index.html
+   ============================================ */
+
+/* Apenas para index.html - Conteúdo principal */
+.main-content {
+  flex: 1;
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.welcome-container {
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.welcome-title {
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  font-weight: 700;
+  color: #0046A6;
+  margin-bottom: 20px;
+  line-height: 1.2;
+}
+
+.welcome-subtitle {
+  color: #666666;
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  margin-bottom: 40px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Cards das ferramentas - apenas index.html */
+.tools-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
+  width: 100%;
+  max-width: 1200px;
+  margin-top: 30px;
+}
+
+.tool-card {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(0, 70, 166, 0.15);
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 8px 32px rgba(0, 70, 166, 0.08);
+  transition: all 0.3s ease;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.tool-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 40px rgba(0, 70, 166, 0.15);
+  border-color: rgba(0, 70, 166, 0.3);
+}
+
+.tool-icon {
+  font-size: 3.5rem;
+  margin-bottom: 20px;
+  color: #00A859;
+}
+
+.tool-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0046A6;
+  margin-bottom: 15px;
+}
+
+.tool-description {
+  color: #666666;
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.tool-button {
+  padding: 12px 30px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+  background: linear-gradient(135deg, #00A859 0%, #008E4A 100%);
+  color: white;
+  text-decoration: none;
+  margin-top: auto;
+}
+
+.tool-button:hover {
+  background: linear-gradient(135deg, #008E4A 0%, #00743B 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 168, 89, 0.2);
+}
+
+/* Responsividade específica para index.html */
+@media (max-width: 768px) {
+  .tools-container {
+    grid-template-columns: 1fr;
+  }
+
+  .tool-card {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .welcome-title {
+    font-size: 1.8rem;
+  }
+
+  .main-content {
+    padding: 20px 15px;
+  }
+}
+
+/* ============================================
+   ESTILOS ESPECÍFICOS PARA tagueador_porto.html
+   ============================================ */
+
+/* Apenas para tagueador_porto.html */
+.tagueador .section-title::before {
+  content: "📋";
+  font-size: clamp(1.2rem, 2vw, 1.5rem);
+  color: #00A859;
+}
+
+.tagueador .input-section {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  margin: 25px 0;
+}
+
+@media (min-width: 992px) {
+  .tagueador .input-section {
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+  }
+  
+  .tagueador .input-textarea {
+    min-height: 190px;
+  }
+}
+
+.tagueador .inputs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 768px) {
+  .tagueador .inputs-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Estilo para o container de múltiplas tabelas - AJUSTADO */
+.tagueador .tabelas-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 25px;
+  margin-top: 20px;
+}
+
+/* Para telas grandes: máximo de 3 cards por linha */
+@media (min-width: 1400px) {
+  .tagueador .tabelas-container {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Para telas médias: 2 cards por linha */
+@media (min-width: 992px) and (max-width: 1399px) {
+  .tagueador .tabelas-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Para telas pequenas: 1 card por linha */
+@media (max-width: 991px) {
+  .tagueador .tabelas-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tagueador .tabela-card {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(0, 70, 166, 0.15);
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s, box-shadow 0.3s;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.tagueador .tabela-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.tagueador .tabela-card-header {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(0, 70, 166, 0.1);
+  flex-shrink: 0;
+}
+
+.tagueador .ponto-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.tagueador .tabela-card-ponto {
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: 700;
+  color: #00A859;
+  font-size: 1.1rem;
+  background: rgba(0, 168, 89, 0.1);
+  padding: 4px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 168, 89, 0.2);
+}
+
+.tagueador .tabela-container {
+  overflow-x: auto;
+  margin-bottom: 15px;
+  flex-grow: 1;
+}
+
+.tagueador .tabela-resultado {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 0; /* Permite que a tabela se ajuste ao container */
+}
+
+.tagueador .tabela-resultado th {
+  background: linear-gradient(135deg, #0046A6 0%, #003580 100%);
+  padding: 10px 12px;
+  text-align: left;
+  font-weight: 600;
+  color: white;
+  border-bottom: 2px solid rgba(0, 70, 166, 0.2);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.tagueador .tabela-resultado td {
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(0, 70, 166, 0.1);
+  font-size: 13px;
+  word-break: break-word;
+}
+
+.tagueador .tabela-resultado tr:last-child td {
+  border-bottom: none;
+}
+
+.tagueador .tabela-resultado tr:hover {
+  background-color: rgba(0, 70, 166, 0.03);
+}
+
+.tagueador .tabela-resultado .campo-nome {
+  width: 35%;
+  font-weight: 600;
+  color: #0046A6;
+  font-family: 'Courier New', Courier, monospace;
+  white-space: nowrap;
+}
+
+.tagueador .tabela-resultado .campo-valor {
+  width: 65%;
+  color: #333333;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.tagueador .campo-vazio {
+  color: #999999 !important;
+  font-style: italic;
+}
+
+/* Scrollbar personalizada com cores da Porto */
+.tagueador .tabela-container::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.tagueador .tabela-container::-webkit-scrollbar-track {
+  background: rgba(0, 70, 166, 0.05);
+  border-radius: 4px;
+}
+
+.tagueador .tabela-container::-webkit-scrollbar-thumb {
+  background: rgba(0, 70, 166, 0.3);
+  border-radius: 4px;
+}
+
+.tagueador .tabela-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 70, 166, 0.5);
+}
+
+/* Resultado header específico */
+.tagueador .resultado-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.tagueador .resultado-header::before {
+  content: "📊";
+  font-size: clamp(1.2rem, 2vw, 1.5rem);
+  color: #00A859;
+}
+
+/* Responsividade específica para tagueador */
+@media (max-width: 768px) {
+  .tagueador .tabelas-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .tagueador .tabela-card {
+    padding: 12px;
+  }
+  
+  .tagueador .tabela-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .tagueador .btn-copy {
+    width: 100%;
+    margin: 0;
+    justify-content: center;
+  }
+  
+  .tagueador .ponto-container {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 480px) {
+  .tagueador .tabela-resultado th,
+  .tagueador .tabela-resultado td {
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+  
+  .tagueador .tabela-card-ponto {
+    font-size: 1rem;
+  }
+  
+  .tagueador .btn-copy-small {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+}
+
+/* Para telas muito pequenas */
+@media (max-width: 360px) {
+  .tagueador .tabela-resultado .campo-nome,
+  .tagueador .tabela-resultado .campo-valor {
+    font-size: 11px;
+  }
+}
+
+/* ============================================
+   ESTILOS ESPECÍFICOS PARA formatador_audios.html
+   ============================================ */
+
+/* Apenas para formatador_audios.html */
+.formatador-audio .section-title::before {
+  content: "🎵";
+  font-size: clamp(1.2rem, 2vw, 1.5rem);
+  color: #00A859;
+}
+
+.formatador-audio textarea {
+  min-height: 200px;
+}
+
+.formatador-audio .input-section {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  margin: 25px 0;
+}
+
+@media (min-width: 992px) {
+  .formatador-audio .input-section {
+    grid-template-columns: 2fr 1fr;
+    gap: 30px;
+  }
+}
+
+.formatador-audio .path-inputs {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 15px;
+}
+
+/* Estilo para o container de múltiplos blocos de áudio */
+.formatador-audio .audios-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 25px;
+  margin-top: 20px;
+}
+
+@media (min-width: 1400px) {
+  .formatador-audio .audios-container {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1399px) {
+  .formatador-audio .audios-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 991px) {
+  .formatador-audio .audios-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+.formatador-audio .audio-card {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(0, 70, 166, 0.15);
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s, box-shadow 0.3s;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.formatador-audio .audio-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.formatador-audio .audio-card-header {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(0, 70, 166, 0.1);
+  flex-shrink: 0;
+}
+
+.formatador-audio .audio-title-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.formatador-audio .audio-card-title {
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: 700;
+  color: #0046A6;
+  font-size: 1.1rem;
+  background: rgba(0, 70, 166, 0.1);
+  padding: 4px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 70, 166, 0.2);
+}
+
+.formatador-audio .audio-content {
+  margin: 15px 0;
+  padding: 10px;
+  background: rgba(0, 70, 166, 0.03);
+  border-radius: 8px;
+  border: 1px solid rgba(0, 70, 166, 0.1);
+}
+
+.formatador-audio .audio-field {
+  margin-bottom: 12px;
+  padding: 10px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 70, 166, 0.1);
+}
+
+.formatador-audio .field-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  gap: 20px;
+}
+
+.formatador-audio .field-label {
+  font-weight: 600;
+  color: #0046A6;
+  font-size: 0.9rem;
+}
+
+.formatador-audio .field-value {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.9rem;
+  color: #333333;
+  word-break: break-word;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.formatador-audio .field-copy-btn {
+  background: rgba(0, 70, 166, 0.1);
+  color: #0046A6;
+  border: 1px solid rgba(0, 70, 166, 0.3);
+  padding: 4px 12px;
+  font-size: 11px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.formatador-audio .field-copy-btn:hover {
+  background: rgba(0, 70, 166, 0.2);
+}
+
+/* Resultado header específico */
+.formatador-audio .resultado-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.formatador-audio .resultado-header::before {
+  content: "📊";
+  font-size: clamp(1.2rem, 2vw, 1.5rem);
+  color: #00A859;
+}
+
+/* Responsividade específica para formatador de áudio */
+@media (max-width: 768px) {
+  .formatador-audio .audios-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .formatador-audio .audio-card {
+    padding: 12px;
+  }
+  
+  .formatador-audio .audio-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .formatador-audio .btn-copy {
+    width: 100%;
+    margin: 0;
+    justify-content: center;
+  }
+  
+  .formatador-audio .audio-title-container {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .formatador-audio .field-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .formatador-audio .field-copy-btn {
+    align-self: flex-end;
+  }
+}
+
+@media (max-width: 480px) {
+  .formatador-audio textarea {
+    min-height: 150px;
+  }
+}
