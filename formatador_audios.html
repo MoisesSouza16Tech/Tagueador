@@ -993,20 +993,30 @@
       }
     });
 
-    // Ativar o item de menu correto
+    // Ativar o item de menu correto baseado na página atual - VERSÃO AJUSTADA
     document.addEventListener('DOMContentLoaded', function() {
-      const currentPage = window.location.pathname.split('/').pop();
-      const navButtons = document.querySelectorAll('.nav-button');
-      
-      navButtons.forEach(button => {
-        button.classList.remove('active');
+        const currentPath = window.location.pathname; // Ex: "/tagueador_porto"
+        const navButtons = document.querySelectorAll('.nav-button');
         
-        const href = button.getAttribute('href');
-        if (currentPage === href) {
-          button.classList.add('active');
-        }
-      });
+        navButtons.forEach(button => {
+            button.classList.remove('active');
+            
+            // Obtém o caminho do link, removendo o ".html" se estiver presente
+            let href = button.getAttribute('href');
+            // Remove "index.html" ou ".html" do final do href para comparação
+            href = href.replace('index.html', '').replace('.html', '');
+            
+            // Remove a barra inicial para comparação consistente
+            const buttonPath = href.startsWith('/') ? href.substring(1) : href;
+            const currentPagePath = currentPath === '/' ? '' : currentPath.replace(/^\//, '');
+            
+            // Ativa se o caminho corresponder OU se for a home e o href estiver vazio
+            if (currentPagePath === buttonPath || (currentPath === '/' && href === '')) {
+                button.classList.add('active');
+            }
+        });
     });
   </script>
 </body>
+
 </html>
