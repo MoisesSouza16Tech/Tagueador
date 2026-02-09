@@ -279,10 +279,16 @@
         <span>🏠</span> Home
       </a>
       <a href="tagueador_porto.html" class="nav-button">
-        <span>🏷️</span> Auto Tagueador
+        <span>📊</span> Organizador Log
+      </a>
+      <a href="tagueador_porto.html" class="nav-button">
+        <span>🏷️</span> Auto Tag
       </a>
       <a href="formatador_audios.html" class="nav-button">
-        <span>🎵</span> Formatador de Áudios
+        <span>🎵</span> Áudio Format
+      </a>
+      <a href="compare_script_xml.html" class="nav-button">
+        <span>🔍</span> Comparador
       </a>
     </nav>
   </header>
@@ -307,6 +313,14 @@
         <span class="tool-button">Acessar Ferramenta</span>
       </a>
 
+      <a href="organizador_de_log.html" class="tool-card">
+        <div class="tool-icon">📊</div>
+        <h2 class="tool-title">Organizador Log</h2>
+        <p class="tool-description">
+            A ferramenta permite copiar as informações de um contato e, de forma automática, organizá-las em formato de tabela ou planilha. A partir disso, é possível copiar os dados já estruturados e exportar relatórios em PDF de maneira prática e rápida.        </p>
+        <span class="tool-button">Acessar Ferramenta</span>
+      </a>
+
       <!-- Card do Formatador de Áudios -->
       <a href="formatador_audios.html" class="tool-card">
         <div class="tool-icon">🎵</div>
@@ -316,34 +330,34 @@
         </p>
         <span class="tool-button">Acessar Ferramenta</span>
       </a>
+
+      <!-- Card do Comparador de Scripts -->
+      <a href="comparador_scripts.html" class="tool-card">
+        <div class="tool-icon">🔍</div>
+        <h2 class="tool-title">Comparador de Scripts</h2>
+        <p class="tool-description">
+          Compare scripts URA XML para identificar mudanças. Mostra ActionID, tipo da ação, caption e exatamente o que mudou. Ignora IDs gerados automaticamente e destaca alterações críticas.
+        </p>
+        <span class="tool-button">Acessar Ferramenta</span>
+      </a>
     </div>
   </main>
 
   <script>
-   // Ativar o item de menu correto baseado na página atual - VERSÃO AJUSTADA
-  document.addEventListener('DOMContentLoaded', function() {
-      const currentPath = window.location.pathname; // Ex: "/tagueador_porto"
+    // Ativar o item de menu correto baseado na página atual
+    document.addEventListener('DOMContentLoaded', function() {
+      const currentPage = window.location.pathname.split('/').pop() || 'index.html';
       const navButtons = document.querySelectorAll('.nav-button');
       
       navButtons.forEach(button => {
-          button.classList.remove('active');
-          
-          // Obtém o caminho do link, removendo o ".html" se estiver presente
-          let href = button.getAttribute('href');
-          // Remove "index.html" ou ".html" do final do href para comparação
-          href = href.replace('index.html', '').replace('.html', '');
-          
-          // Remove a barra inicial para comparação consistente
-          const buttonPath = href.startsWith('/') ? href.substring(1) : href;
-          const currentPagePath = currentPath === '/' ? '' : currentPath.replace(/^\//, '');
-          
-          // Ativa se o caminho corresponder OU se for a home e o href estiver vazio
-          if (currentPagePath === buttonPath || (currentPath === '/' && href === '')) {
-              button.classList.add('active');
-          }
+        button.classList.remove('active');
+        
+        const href = button.getAttribute('href');
+        if (currentPage === href || (currentPage === '' && href === 'index.html')) {
+          button.classList.add('active');
+        }
       });
-  });
+    });
   </script>
 </body>
-
 </html>
