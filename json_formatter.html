@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" href="https://seeklogo.com/images/P/porto-seguro-logo-622816.png" type="image/png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JSON Formatter | Porto Seguro</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+      background: linear-gradient(135deg, #f0f4f8 0%, #e6ecf2 100%);
+      min-height: 100vh;
+      color: #333333;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .main-header {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(0, 70, 166, 0.1);
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 20px rgba(0, 70, 166, 0.08);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .logo-container { display: flex; align-items: center; gap: 15px; }
+    .porto-logo { height: 50px; width: auto; }
+    .header-title { font-size: 1.4rem; font-weight: 700; color: #0046A6; }
+    .brand-accent { color: #0016a8; font-weight: 600; }
+
+    .nav-menu { display: flex; gap: 10px; background: rgba(0, 70, 166, 0.05); border-radius: 12px; padding: 4px; border: 1px solid rgba(0, 70, 166, 0.1); }
+    .nav-button { padding: 10px 24px; font-size: 14px; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; transition: all 0.3s; background: transparent; color: #0046A6; text-decoration: none; display: flex; align-items: center; gap: 6px; }
+    .nav-button:hover { background: rgba(0, 70, 166, 0.1); }
+    .nav-button.active { background: linear-gradient(135deg, #0046A6 0%, #003580 100%); color: white; }
+
+    .main-content {
+      flex: 1;
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .tool-container {
+      background: white;
+      width: 100%;
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 8px 32px rgba(0, 70, 166, 0.08);
+      border: 1px solid rgba(0, 70, 166, 0.1);
+    }
+
+    .tool-header { margin-bottom: 25px; text-align: center; }
+    .tool-header h1 { color: #0046A6; margin-bottom: 10px; }
+
+    .json-controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .action-btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary { background: #0046A6; color: white; }
+    .btn-primary:hover { background: #003580; }
+    .btn-secondary { background: #00A859; color: white; }
+    .btn-secondary:hover { background: #008E4A; }
+    .btn-pdf { background: #e11d48; color: white; }
+    .btn-pdf:hover { background: #be123c; }
+    .btn-outline { background: transparent; border: 1px solid #ccc; color: #666; }
+    .btn-outline:hover { background: #f5f5f5; }
+
+    #jsonInput {
+      width: 100%;
+      height: 450px;
+      padding: 15px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      font-family: 'Fira Code', 'Courier New', monospace;
+      font-size: 13px;
+      line-height: 1.5;
+      resize: vertical;
+      background-color: #f8f9fa;
+      color: #2c3e50;
+      outline: none;
+    }
+
+    .status-msg {
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 6px;
+      display: none;
+      font-size: 14px;
+    }
+    .error { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
+    .success { background: #dcfce7; color: #16a34a; border: 1px solid #bbf7d0; }
+
+    @media (max-width: 768px) {
+      .main-header { flex-direction: column; gap: 15px; }
+      .nav-menu { width: 100%; overflow-x: auto; padding: 8px; }
+    }
+  </style>
+</head>
+<body>
+
+ <header class="main-header">
+             <div class="logo-container">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/1/14/Porto_2022.svg" alt="Porto Seguro" class="porto-logo" title="Porto Seguro">
+            <div class="header-title">Auto Tagueador - <span class="brand-accent">Porto Seguro</span></div>
+            </div>
+
+            <nav class="nav-menu">
+            <a class="nav-button" href="/">
+                <span>🏠</span> Home
+            </a>
+            <a class="nav-button" href="/tagueador_porto"><span>🏷️</span> Auto Tagueador</a>
+            
+            <a class="nav-button" href="/formatador_audios">
+                <span>🎵</span> Formatador de Áudios
+            </a>
+<a class="nav-button active" href="#"><span>{ }</span> JSON Formatter</a>
+            </nav>
+        </header>
+
+  <main class="main-content">
+    <div class="tool-container">
+      <div class="tool-header">
+        <h1>Formatador JSON</h1>
+        <p>Organize, valide e exporte seus arquivos JSON de forma profissional.</p>
+      </div>
+
+      <div class="json-controls">
+        <button class="action-btn btn-primary" onclick="formatJSON()">
+          <span>✨</span> Formatar
+        </button>
+        <button class="action-btn btn-secondary" onclick="copyJSON()">
+          <span>📋</span> Copiar
+        </button>
+        <button class="action-btn btn-pdf" onclick="exportPDF()">
+          <span>📄</span> Exportar PDF
+        </button>
+        <button class="action-btn btn-outline" onclick="minifyJSON()">
+          <span>🗜️</span> Minificar
+        </button>
+        <button class="action-btn btn-outline" onclick="clearAll()">
+          <span>🗑️</span> Limpar
+        </button>
+      </div>
+
+      <textarea id="jsonInput" placeholder='Cole seu JSON aqui...' spellcheck="false"></textarea>
+      
+      <div id="statusMsg" class="status-msg"></div>
+    </div>
+  </main>
+
+  <script>
+    const jsonArea = document.getElementById('jsonInput');
+    const statusMsg = document.getElementById('statusMsg');
+
+    function showStatus(text, type) {
+      statusMsg.innerText = text;
+      statusMsg.className = 'status-msg ' + type;
+      statusMsg.style.display = 'block';
+      if (type === 'success') {
+        setTimeout(() => { statusMsg.style.display = 'none'; }, 3000);
+      }
+    }
+
+    function formatJSON() {
+      try {
+        const rawValue = jsonArea.value.trim();
+        if (!rawValue) return;
+        const obj = JSON.parse(rawValue);
+        jsonArea.value = JSON.stringify(obj, null, 4);
+        showStatus('JSON formatado!', 'success');
+      } catch (e) {
+        showStatus('Erro de Sintaxe: ' + e.message, 'error');
+      }
+    }
+
+    function minifyJSON() {
+      try {
+        const rawValue = jsonArea.value.trim();
+        if (!rawValue) return;
+        const obj = JSON.parse(rawValue);
+        jsonArea.value = JSON.stringify(obj);
+        showStatus('JSON minificado!', 'success');
+      } catch (e) {
+        showStatus('Erro ao minificar: ' + e.message, 'error');
+      }
+    }
+
+    function copyJSON() {
+      if (!jsonArea.value) return;
+      jsonArea.select();
+      document.execCommand('copy');
+      showStatus('Copiado para a área de transferência!', 'success');
+    }
+
+    function clearAll() {
+      jsonArea.value = '';
+      statusMsg.style.display = 'none';
+    }
+
+    async function exportPDF() {
+      const { jsPDF } = window.jspdf;
+      const content = jsonArea.value.trim();
+
+      if (!content) {
+        showStatus('Nada para exportar!', 'error');
+        return;
+      }
+
+      try {
+        const doc = new jsPDF();
+        const date = new Date().toLocaleString('pt-BR');
+        
+        // Cabeçalho do PDF
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(16);
+        doc.setTextColor(0, 70, 166); // Azul Porto
+        doc.text("Relatório JSON - Porto Seguro", 20, 20);
+        
+        doc.setFontSize(10);
+        doc.setTextColor(100);
+        doc.setFont("helvetica", "normal");
+        doc.text(`Gerado em: ${date}`, 20, 28);
+        
+        doc.setLineWidth(0.5);
+        doc.setDrawColor(0, 70, 166);
+        doc.line(20, 32, 190, 32);
+
+        // Conteúdo JSON
+        doc.setFont("courier", "normal");
+        doc.setFontSize(9);
+        doc.setTextColor(33);
+        
+        // Quebra automática de texto para não sair da página
+        const splitContent = doc.splitTextToSize(content, 170);
+        doc.text(splitContent, 20, 40);
+
+        doc.save(`json_porto_${Date.now()}.pdf`);
+        showStatus('PDF gerado com sucesso!', 'success');
+      } catch (err) {
+        showStatus('Erro ao gerar PDF: ' + err.message, 'error');
+      }
+    }
+  </script>
+</body>
+</html>
