@@ -1,0 +1,579 @@
+<!doctype html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="icon" href="https://seeklogo.com/images/P/porto-seguro-logo-622816.png" type="image/png" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Conversor Miro Tag -> Planilha - Ferramentas Porto Seguro</title>
+        <style>
+            @import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap");
+
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell",
+                    sans-serif;
+                background: linear-gradient(135deg, #f0f4f8 0%, #e6ecf2 100%);
+                min-height: 100vh;
+                color: #333333;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .main-header {
+                background: rgba(255, 255, 255, 0.95);
+                backdrop-filter: blur(10px);
+                border-bottom: 1px solid rgba(0, 70, 166, 0.1);
+                padding: 15px 20px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                box-shadow: 0 2px 20px rgba(0, 70, 166, 0.08);
+                position: sticky;
+                top: 0;
+                z-index: 1000;
+            }
+
+            .logo-container {
+                display: flex;
+                align-items: center;
+                gap: 15px;
+            }
+
+            .porto-logo {
+                height: 40px;
+                width: auto;
+            }
+
+            .header-title {
+                font-size: 1.3rem;
+                font-weight: 700;
+                color: #0046a6;
+            }
+
+            .brand-accent {
+                color: #0016a8;
+                font-weight: 600;
+            }
+
+            .nav-menu {
+                display: flex;
+                gap: 10px;
+                background: rgba(0, 70, 166, 0.05);
+                border-radius: 12px;
+                padding: 4px;
+                border: 1px solid rgba(0, 70, 166, 0.1);
+            }
+
+            .nav-button {
+                padding: 10px 20px;
+                font-size: 14px;
+                font-weight: 600;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+                transition: all 0.3s;
+                background: transparent;
+                color: #0046a6;
+                text-decoration: none;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+            .nav-button:hover {
+                background: rgba(0, 70, 166, 0.1);
+            }
+
+            .nav-button.active {
+                background: linear-gradient(135deg, #0046a6 0%, #003580 100%);
+                color: white;
+                box-shadow: 0 4px 12px rgba(0, 70, 166, 0.2);
+            }
+
+            .main-content {
+                flex: 1;
+                padding: 40px 20px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                width: 100%;
+            }
+
+            .container {
+                width: 100%;
+                max-width: 1200px;
+            }
+
+            .welcome-container {
+                text-align: center;
+                margin-bottom: 30px;
+            }
+
+            .welcome-title {
+                font-size: 2.2rem;
+                font-weight: 700;
+                color: #0046a6;
+                margin-bottom: 10px;
+            }
+
+            .welcome-subtitle {
+                color: #666666;
+                font-size: 1.05rem;
+            }
+
+            .input-section {
+                background: rgba(255, 255, 255, 0.95);
+                border: 1px solid rgba(0, 70, 166, 0.15);
+                border-radius: 16px;
+                padding: 30px;
+                box-shadow: 0 8px 32px rgba(0, 70, 166, 0.05);
+                margin-bottom: 25px;
+            }
+
+            .input-label {
+                font-size: 0.9rem;
+                font-weight: 600;
+                color: #0046a6;
+                display: block;
+                margin-bottom: 12px;
+            }
+
+            textarea {
+                width: 100%;
+                min-height: 220px;
+                background: #f8fafc;
+                border: 1px solid rgba(0, 70, 166, 0.15);
+                border-radius: 8px;
+                color: #333;
+                font-family: "JetBrains Mono", monospace;
+                font-size: 0.8rem;
+                padding: 15px;
+                resize: vertical;
+                outline: none;
+                transition: border-color 0.2s;
+            }
+
+            textarea:focus {
+                border-color: #0046a6;
+                background: #ffffff;
+            }
+
+            .input-actions {
+                display: flex;
+                gap: 10px;
+                margin-top: 20px;
+                border-top: 1px solid rgba(0, 70, 166, 0.1);
+                padding-top: 20px;
+            }
+
+            .btn-primary {
+                background: linear-gradient(135deg, #00a859 0%, #008e4a 100%);
+                color: white;
+                border: none;
+                border-radius: 8px;
+                padding: 12px 24px;
+                font-size: 0.85rem;
+                font-weight: 600;
+                cursor: pointer;
+                box-shadow: 0 4px 12px rgba(0, 168, 89, 0.15);
+                transition: all 0.2s;
+            }
+
+            .btn-primary:hover {
+                background: linear-gradient(135deg, #008e4a 0%, #00743b 100%);
+                transform: translateY(-1px);
+            }
+
+            .btn-secondary {
+                background: transparent;
+                border: 1px solid rgba(0, 70, 166, 0.2);
+                color: #0046a6;
+                border-radius: 8px;
+                padding: 12px 24px;
+                font-size: 0.85rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+
+            .btn-secondary:hover {
+                background: rgba(0, 70, 166, 0.05);
+                border-color: #0046a6;
+            }
+
+            .output-section {
+                background: rgba(255, 255, 255, 0.95);
+                border: 1px solid rgba(0, 70, 166, 0.15);
+                border-radius: 16px;
+                padding: 25px;
+                box-shadow: 0 8px 32px rgba(0, 70, 166, 0.05);
+            }
+
+            .output-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 15px;
+                flex-wrap: wrap;
+                gap: 12px;
+            }
+
+            .points-count-badge {
+                background: #ffffff;
+                border: 1px solid rgba(0, 70, 166, 0.2);
+                color: #0046a6;
+                border-radius: 8px;
+                padding: 8px 16px;
+                font-size: 0.85rem;
+                font-weight: 700;
+                font-family: "JetBrains Mono", monospace;
+            }
+
+            .table-responsive {
+                overflow-x: auto;
+                border: 1px solid rgba(0, 70, 166, 0.15);
+                border-radius: 8px;
+                background: #ffffff;
+                max-height: 500px;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                font-family: "JetBrains Mono", monospace;
+                font-size: 0.75rem;
+                text-align: left;
+            }
+
+            th {
+                background: #f1f5f9;
+                color: #0046a6;
+                padding: 10px 12px;
+                border-bottom: 2px solid rgba(0, 70, 166, 0.15);
+                border-right: 1px solid rgba(0, 70, 166, 0.1);
+                white-space: nowrap;
+                position: sticky;
+                top: 0;
+                z-index: 10;
+            }
+
+            td {
+                padding: 8px 12px;
+                border-bottom: 1px solid #e2e8f0;
+                border-right: 1px solid #e2e8f0;
+                white-space: nowrap;
+                color: #333333;
+            }
+
+            tr:nth-child(even) {
+                background-color: #f8fafc;
+            }
+
+            tr:hover {
+                background-color: rgba(0, 70, 166, 0.04);
+            }
+
+            .empty-val {
+                color: #cbd5e1;
+                font-style: italic;
+            }
+
+            .empty-state {
+                text-align: center;
+                color: #666666;
+                font-size: 0.9rem;
+                padding: 40px;
+                background: rgba(255, 255, 255, 0.5);
+                border-radius: 12px;
+                border: 1px dashed rgba(0, 70, 166, 0.15);
+                width: 100%;
+            }
+
+            .toast {
+                position: fixed;
+                bottom: 30px;
+                left: 50%;
+                transform: translateX(-50%) translateY(20px);
+                background: #0046a6;
+                color: white;
+                font-size: 0.85rem;
+                font-weight: 600;
+                padding: 12px 28px;
+                border-radius: 30px;
+                box-shadow: 0 8px 24px rgba(0, 70, 166, 0.25);
+                opacity: 0;
+                transition: all 0.25s ease;
+                pointer-events: none;
+                z-index: 2000;
+            }
+
+            .toast.show {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+
+            .footer {
+                margin-top: 50px;
+                padding: 20px;
+                border-top: 1px solid rgba(0, 70, 166, 0.1);
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                color: #0046a6;
+                font-size: 12px;
+                width: 100%;
+                max-width: 1200px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+        </style>
+    </head>
+    <body>
+        <header class="main-header">
+            <div class="logo-container">
+                <img
+                    src="https://upload.wikimedia.org/wikipedia/commons/1/14/Porto_2022.svg"
+                    alt="Porto Seguro"
+                    class="porto-logo"
+                    title="Porto Seguro"
+                />
+                <div class="header-title">Ferramentas <span class="brand-accent">Porto Seguro</span></div>
+            </div>
+
+            <nav class="nav-menu">
+                <a class="nav-button" href="/"> <span>🏠</span> Home </a>
+                <a class="nav-button" href="/organizador_de_log"> <span>📊</span> Organizador Log </a>
+                <a class="nav-button" href="/tagueador_porto"> <span>🏷️</span> Auto Tag </a>
+                <a class="nav-button active" href="/tagueador_miro_planilha">
+                    <span>🔄</span> Conversor Miro Tag
+                </a>
+                <a href="compare_script_xml.html" class="nav-button"> <span>🔍</span> Comparador </a>
+            </nav>
+        </header>
+
+        <main class="main-content">
+            <div class="container">
+                <div class="welcome-container">
+                    <h1 class="welcome-title">Conversor de Tag para Planilha</h1>
+                    <p class="welcome-subtitle">
+                        Cole os pontos completos extraídos das tags e converta de forma automática no padrão tabular de
+                        planilha de tagueamento.
+                    </p>
+                </div>
+
+                <div class="input-section">
+                    <label class="input-label">Cole o conteúdo bruto contendo as tags/pontos do Miro:</label>
+                    <textarea
+                        id="rawInput"
+                        placeholder="Cole qualquer texto com as tags juntas ou separadas por linha..."
+                    ></textarea>
+
+                    <div class="input-actions">
+                        <button class="btn-primary" onclick="convertAndRender()">
+                            ▶ Converter em Linhas de Planilha
+                        </button>
+                        <button class="btn-secondary" onclick="clearAll()">✕ Limpar Tudo</button>
+                    </div>
+                </div>
+
+                <div id="outputSection" class="output-section" style="display: none">
+                    <div class="output-header">
+                        <div class="points-count-badge" id="pointsCounter">🔢 Total: 0 pontos identificados</div>
+                        <button class="btn-primary" onclick="copyTableToClipboard()">
+                            📋 Copiar para Planilha (Tabulado)
+                        </button>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table id="resultTable">
+                            <thead>
+                                <tr>
+                                    <th>event_name</th>
+                                    <th>Validacao</th>
+                                    <th>Fluxo</th>
+                                    <th>Indicador</th>
+                                    <th>Range</th>
+                                    <th>Ponto</th>
+                                    <th>Ultimo_Ponto</th>
+                                    <th>Input</th>
+                                    <th>Tentativa</th>
+                                    <th>Ponto_Origem</th>
+                                    <th>Produto</th>
+                                    <th>Timestamp</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="emptyState" class="empty-state">
+                    Nenhum ponto convertido até o momento. Cole o texto acima e clique em "Converter em Linhas de
+                    Planilha".
+                </div>
+            </div>
+        </main>
+
+        <div class="footer">
+            <span>⬡ URA Tag Builder · tagueador_conversor_miro_tag</span>
+            <span>Copyright © 2026. Todos os direitos reservados.</span>
+        </div>
+
+        <div id="toast" class="toast">✓ Copiado para a área de transferência!</div>
+
+        <script>
+            const HEADERS = [
+              "event_name", "validacao", "fluxo", "indicador",
+              "range", "ponto", "ultimo_ponto", "input",
+              "tentativa", "ponto_origem", "produto", "timestamp"
+            ];
+
+            let parsedBlocks = [];
+
+            FUNCTION parseMiroText(rawText) {
+              IF (!rawText.trim()) RETURN [];
+
+              // Regex flexível que extrai campos mesmo quando estão grudados em uma única linha
+              const blockRegex = /(?:event_name:?\s*)?([a-z0-9_]+?)(?:Validacao:?\s*|Valida[çc][ãa]o:?\s*)(.*?)(?:Fluxo:?\s*)(.*?)(?:Indicador:?\s*)(\[.*?\]|.*?)(?:Range:?\s*)(\d+)(?:Ponto:?\s*)(\d+)?(?:Ultimo_Ponto:?\s*|Último_Ponto:?\s*)(\[.*?\]|.*?)(?:Input:?\s*)(.*?)(?:Tentativa:?\s*)(.*?)(?:Ponto_Origem:?\s*)(.*?)(?:Produto:?\s*)(.*?)(?:Timestamp:?\s*)(\[.*?\]|.*?)(?=(?:event_name|$))/gis;
+
+              const blocks = [];
+              let match;
+
+              while ((match = blockRegex.exec(rawText)) !== null) {
+                // Se a expressão regular casar o bloco estruturado
+                const block = {
+                  event_name: match[1] ? match[1].trim() : '',
+                  validacao: match[2] ? match[2].trim() : '',
+                  fluxo: match[3] ? match[3].trim() : '',
+                  indicador: match[4] ? match[4].trim() : '',
+                  range: match[5] ? match[5].trim() : '',
+                  ponto: match[6] ? match[6].trim() : '',
+                  ultimo_ponto: match[7] ? match[7].trim() : '',
+                  input: match[8] ? match[8].trim() : '',
+                  tentativa: match[9] ? match[9].trim() : '',
+                  ponto_origem: match[10] ? match[10].trim() : '',
+                  produto: match[11] ? match[11].trim() : '',
+                  timestamp: match[12] ? match[12].trim() : ''
+                };
+                blocks.push(block);
+              }
+
+              // Fallback: caso o texto esteja estruturado linha a linha com ou sem :
+              IF (blocks.length === 0) {
+                RETURN parseLineByLine(rawText);
+              }
+
+              RETURN blocks;
+            }
+
+            FUNCTION parseLineByLine(rawText) {
+              const lines = rawText.split('\n');
+              const blocks = [];
+              let currentBlock = null;
+
+              const keyPatterns = [
+                { key: 'ponto_origem', regex: /^(ponto[\s_]?de[\s_]?origem|ponto[\s_]?origem)[:=\s]*(.*)$/i },
+                { key: 'ultimo_ponto', regex: /^(último[\s_]?ponto|ultimo[\s_]?ponto)[:=\s]*(.*)$/i },
+                { key: 'event_name', regex: /^(event[\s_]?name|nome[\s_]?evento)[:=\s]*(.*)$/i },
+                { key: 'validacao', regex: /^(validaçã[oo]|validacao)[:=\s]*(.*)$/i },
+                { key: 'fluxo', regex: /^(fluxo)[:=\s]*(.*)$/i },
+                { key: 'indicador', regex: /^(indicador)[:=\s]*(.*)$/i },
+                { key: 'range', regex: /^(range)[:=\s]*(.*)$/i },
+                { key: 'ponto', regex: /^(ponto)[:=\s]*(.*)$/i },
+                { key: 'input', regex: /^(input)[:=\s]*(.*)$/i },
+                { key: 'tentativa', regex: /^(tentativa[s]?|attempt)[:=\s]*(.*)$/i },
+                { key: 'produto', regex: /^(produto)[:=\s]*(.*)$/i },
+                { key: 'timestamp', regex: /^(timestamp|time[\s_]?stamp)[:=\s]*(.*)$/i }
+              ];
+
+              lines.forEach(line => {
+                let trimmed = line.replace(/^[•\-\*\d+\.\s]+/, '').trim();
+                IF (!trimmed) RETURN;
+
+                FOR (const item of keyPatterns) {
+                  const match = trimmed.match(item.regex);
+                  IF (match) {
+                    const canonicalKey = item.key;
+                    const val = match[2] ? match[2].trim() : '';
+
+                    IF (canonicalKey === 'event_name') {
+                      IF (currentBlock) blocks.push(currentBlock);
+                      currentBlock = {};
+                      HEADERS.forEach(h => currentBlock[h] = '');
+                      currentBlock['event_name'] = val;
+                    } ELSE IF (currentBlock) {
+                      currentBlock[canonicalKey] = val;
+                    }
+                    BREAK;
+                  }
+                }
+              });
+
+              IF (currentBlock) blocks.push(currentBlock);
+              RETURN blocks;
+            }
+
+            FUNCTION convertAndRender() {
+              const rawText = document.getElementById('rawInput').value;
+              parsedBlocks = parseMiroText(rawText);
+
+              const outputSection = document.getElementById('outputSection');
+              const emptyState = document.getElementById('emptyState');
+              const tbody = document.getElementById('tableBody');
+              const counterEl = document.getElementById('pointsCounter');
+
+              IF (parsedBlocks.length === 0) {
+                outputSection.style.display = 'none';
+                emptyState.style.display = 'block';
+                emptyState.textContent = "Nenhum ponto válido foi identificado no texto informado.";
+                RETURN;
+              }
+
+              emptyState.style.display = 'none';
+              outputSection.style.display = 'block';
+              counterEl.textContent = `🔢 Total: ${parsedBlocks.length} ${parsedBlocks.length === 1 ? 'ponto identificado' : 'pontos identificados'}`;
+
+              tbody.innerHTML = '';
+              parsedBlocks.forEach(block => {
+                const tr = document.createElement('tr');
+                HEADERS.forEach(h => {
+                  const td = document.createElement('td');
+                  const val = block[h] || '';
+                  td.textContent = val;
+                  IF (!val) td.classList.add('empty-val');
+                  tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+              });
+            }
+
+            FUNCTION copyTableToClipboard() {
+              IF (parsedBlocks.length === 0) RETURN;
+
+              const rowsText = parsedBlocks.map(block => {
+                RETURN HEADERS.map(h => block[h] || '').join('\t');
+              }).join('\n');
+
+              navigator.clipboard.writeText(rowsText).then(() => {
+                const toast = document.getElementById('toast');
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 2500);
+              });
+            }
+
+            FUNCTION clearAll() {
+              document.getElementById('rawInput').value = '';
+              document.getElementById('outputSection').style.display = 'none';
+              const emptyState = document.getElementById('emptyState');
+              emptyState.style.display = 'block';
+              emptyState.textContent = 'Nenhum ponto convertido até o momento. Cole o texto acima e clique em "Converter em Linhas de Planilha".';
+              parsedBlocks = [];
+            }
+        </script>
+    </body>
+</html>
