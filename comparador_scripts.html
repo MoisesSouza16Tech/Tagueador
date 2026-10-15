@@ -1,0 +1,2070 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" href="https://seeklogo.com/images/P/porto-seguro-logo-622816.png" type="image/png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comparador Inteligente - Porto</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+      background: linear-gradient(135deg, #f0f4f8 0%, #e6ecf2 100%);
+      min-height: 100vh;
+      color: #333333;
+      padding: 0px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 0;
+    }
+
+    .main-header {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(0, 70, 166, 0.1);
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 20px rgba(0, 70, 166, 0.08);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      width: 100%;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .porto-logo {
+      height: 50px;
+      width: auto;
+    }
+
+    .header-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #0046A6;
+    }
+
+    .brand-accent {
+      color: #0016a8;
+      font-weight: 600;
+    }
+
+    .nav-menu {
+      display: flex;
+      gap: 10px;
+      background: rgba(0, 70, 166, 0.05);
+      border-radius: 12px;
+      padding: 4px;
+      border: 1px solid rgba(0, 70, 166, 0.1);
+    }
+
+    .nav-button {
+      padding: 10px 24px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      background: transparent;
+      color: #0046A6;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .nav-button:hover {
+      background: rgba(0, 70, 166, 0.1);
+    }
+
+    .nav-button.active {
+      background: linear-gradient(135deg, #0046A6 0%, #003580 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(0, 70, 166, 0.2);
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(0, 70, 166, 0.1);
+      border-radius: 16px;
+      padding: clamp(20px, 3vw, 40px);
+      width: 100%;
+      max-width: 1800px;
+      box-shadow: 0 8px 32px rgba(0, 70, 166, 0.08);
+      margin-top: 30px;
+      margin-bottom: 30px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: clamp(1.1rem, 2vw, 1.3rem);
+      font-weight: 600;
+      color: #0046A6;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid rgba(0, 70, 166, 0.1);
+    }
+
+    .section-title::before {
+      content: "📋";
+      font-size: clamp(1.2rem, 2vw, 1.5rem);
+      color: #00A859;
+    }
+
+    .input-section {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin: 25px 0;
+    }
+
+    @media (max-width: 992px) {
+      .input-section {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+    }
+
+    .file-input-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .file-input-label {
+      font-weight: 600;
+      color: #0046A6;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .file-input-label::before {
+      content: "📄";
+      font-size: 1rem;
+    }
+
+    .file-input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .file-path-input {
+      width: 100%;
+      padding: 12px 16px;
+      padding-right: 120px;
+      border: 2px dashed rgba(0, 70, 166, 0.2);
+      border-radius: 10px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 14px;
+      background: rgba(255, 255, 255, 0.9);
+      color: #333333;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .file-path-input:hover {
+      border-color: #00A859;
+      background: rgba(0, 168, 89, 0.05);
+    }
+
+    .file-path-input:focus {
+      outline: none;
+      border-color: #00A859;
+      box-shadow: 0 0 0 3px rgba(0, 168, 89, 0.1);
+    }
+
+    .file-browse-btn {
+      position: absolute;
+      right: 8px;
+      padding: 8px 16px;
+      background: linear-gradient(135deg, #0046A6 0%, #003580 100%);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .file-browse-btn:hover {
+      background: linear-gradient(135deg, #003580 0%, #00295C 100%);
+      transform: translateY(-1px);
+    }
+
+    .hidden-file-input {
+      display: none;
+    }
+
+    .info-banner {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(0, 168, 89, 0.08);
+      border: 1px solid rgba(0, 168, 89, 0.2);
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin: 15px 0;
+      color: #006B3F;
+      font-size: 0.85rem;
+    }
+
+    .info-banner::before {
+      content: "ℹ️";
+      font-size: 1rem;
+    }
+
+    .comparison-options {
+      background: rgba(0, 70, 166, 0.05);
+      border: 1px solid rgba(0, 70, 166, 0.1);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 25px 0;
+    }
+
+    .options-title {
+      font-weight: 600;
+      color: #0046A6;
+      margin-bottom: 15px;
+      font-size: 1rem;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 15px;
+    }
+
+    .option-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .option-checkbox {
+      width: 18px;
+      height: 18px;
+      accent-color: #00A859;
+      cursor: pointer;
+    }
+
+    .option-label {
+      font-size: 0.9rem;
+      color: #333333;
+      cursor: pointer;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 25px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 12px 24px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      flex: 1;
+      min-width: 150px;
+      justify-content: center;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      color: white;
+    }
+
+    .btn-primary::before {
+      content: "✨";
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #003580 0%, #00295C 100%);
+    }
+
+    .btn-secondary {
+      background: linear-gradient(135deg, #00A859 0%, #008E4A 100%);
+      color: white;
+    }
+
+    .btn-secondary::before {
+      content: "🔍";
+    }
+
+    .btn-secondary:hover {
+      background: linear-gradient(135deg, #008E4A 0%, #00743B 100%);
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+      color: white;
+      border: none;
+    }
+
+    .btn-danger::before {
+      content: "🗑️";
+    }
+
+    .btn-danger:hover {
+      background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+    }
+
+    .output-section {
+      margin-top: 30px;
+    }
+
+    .comparison-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .comparison-stats {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .stat-item {
+      background: rgba(0, 70, 166, 0.08);
+      border: 1px solid rgba(0, 70, 166, 0.15);
+      border-radius: 8px;
+      padding: 8px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .stat-value {
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: #0046A6;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: #666666;
+      margin-top: 2px;
+    }
+
+    .stat-added .stat-value {
+      color: #00A859;
+    }
+
+    .stat-removed .stat-value {
+      color: #dc2626;
+    }
+
+    .stat-changed .stat-value {
+      color: #f59e0b;
+    }
+
+    .comparison-table-container {
+      overflow-x: auto;
+      border: 1px solid rgba(0, 70, 166, 0.1);
+      border-radius: 10px;
+      background: white;
+      margin-top: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1400px;
+    }
+
+    .comparison-table th {
+      background: linear-gradient(135deg, #0046A6 0%, #003580 100%);
+      padding: 12px 16px;
+      text-align: left;
+      font-weight: 600;
+      color: white;
+      font-size: 13px;
+      white-space: nowrap;
+      position: sticky;
+      top: 0;
+    }
+
+    .comparison-table th:first-child {
+      border-top-left-radius: 9px;
+    }
+
+    .comparison-table th:last-child {
+      border-top-right-radius: 9px;
+    }
+
+    .comparison-table td {
+      padding: 10px 16px;
+      border-bottom: 1px solid rgba(0, 70, 166, 0.1);
+      font-size: 13px;
+      vertical-align: top;
+    }
+
+    .comparison-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .comparison-table tr:hover {
+      background-color: rgba(0, 70, 166, 0.03);
+    }
+
+    .diff-added {
+      background-color: rgba(0, 168, 89, 0.08) !important;
+    }
+
+    .diff-removed {
+      background-color: rgba(220, 38, 38, 0.08) !important;
+    }
+
+    .diff-changed {
+      background-color: rgba(245, 158, 11, 0.08) !important;
+    }
+
+    .action-cell {
+      font-family: 'Courier New', Courier, monospace;
+      font-weight: 600;
+      color: #0046A6;
+    }
+
+    .type-cell {
+      text-transform: uppercase;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .item-cell {
+      font-family: 'Courier New', Courier, monospace;
+    }
+
+    .line-cell {
+      text-align: center;
+      font-family: 'Courier New', Courier, monospace;
+      color: #666666;
+    }
+
+    .value-cell {
+      font-family: 'Courier New', Courier, monospace;
+      max-width: 200px;
+      word-break: break-word;
+    }
+
+    .target-cell {
+      font-size: 12px;
+      color: #666666;
+    }
+
+    .diff-indicator {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 6px;
+    }
+
+    .diff-added .diff-indicator {
+      background-color: #00A859;
+    }
+
+    .diff-removed .diff-indicator {
+      background-color: #dc2626;
+    }
+
+    .diff-changed .diff-indicator {
+      background-color: #f59e0b;
+    }
+
+    .table-filters {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 6px 12px;
+      background: rgba(0, 70, 166, 0.1);
+      border: 1px solid rgba(0, 70, 166, 0.2);
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #0046A6;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-btn:hover {
+      background: rgba(0, 70, 166, 0.2);
+    }
+
+    .filter-btn.active {
+      background: #0046A6;
+      color: white;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s;
+    }
+
+    .modal-overlay.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 1000px;
+      max-height: 80vh;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal-header {
+      padding: 20px;
+      border-bottom: 1px solid rgba(0, 70, 166, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      font-weight: 600;
+      color: #0046A6;
+      font-size: 1.2rem;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: #666666;
+      cursor: pointer;
+      padding: 0;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+    }
+
+    .modal-close:hover {
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    .modal-body {
+      padding: 20px;
+      overflow-y: auto;
+      max-height: calc(80vh - 80px);
+    }
+
+    .diff-details {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .diff-line {
+      padding: 4px 8px;
+      margin: 2px 0;
+      border-radius: 4px;
+      white-space: pre-wrap;
+    }
+
+    .diff-line.added {
+      background-color: rgba(0, 168, 89, 0.1);
+      border-left: 3px solid #00A859;
+    }
+
+    .diff-line.removed {
+      background-color: rgba(220, 38, 38, 0.1);
+      border-left: 3px solid #dc2626;
+    }
+
+    .diff-line.unchanged {
+      color: #666666;
+    }
+
+    .loading-spinner {
+      display: none;
+      text-align: center;
+      padding: 40px;
+    }
+
+    .loading-spinner.show {
+      display: block;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(0, 70, 166, 0.1);
+      border-top-color: #0046A6;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .counteudo_pagina {
+      padding: 0px 20px;
+      width: 100%;
+    }
+
+    .file-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 5px;
+      font-size: 12px;
+      color: #666666;
+    }
+
+    .file-info-icon {
+      color: #0046A6;
+    }
+
+    .file-size {
+      background: rgba(0, 70, 166, 0.1);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Courier New', Courier, monospace;
+    }
+
+    .comparison-summary {
+      background: rgba(0, 70, 166, 0.05);
+      border: 1px solid rgba(0, 70, 166, 0.1);
+      border-radius: 10px;
+      padding: 15px;
+      margin: 20px 0;
+    }
+
+    .summary-title {
+      font-weight: 600;
+      color: #0046A6;
+      margin-bottom: 10px;
+    }
+
+    .summary-content {
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .action-info-card {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(0, 70, 166, 0.1);
+      border-radius: 8px;
+      padding: 12px;
+      margin: 10px 0;
+    }
+
+    .action-id {
+      font-family: 'Courier New', Courier, monospace;
+      font-weight: bold;
+      color: #0046A6;
+      background: rgba(0, 70, 166, 0.1);
+      padding: 2px 8px;
+      border-radius: 4px;
+      display: inline-block;
+      margin-right: 8px;
+    }
+
+    .action-type {
+      font-family: 'Courier New', Courier, monospace;
+      font-weight: bold;
+      color: #00A859;
+      background: rgba(0, 168, 89, 0.1);
+      padding: 2px 8px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+
+    .action-caption {
+      font-weight: 600;
+      color: #333;
+      margin: 5px 0;
+    }
+
+    .parameter-change {
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+      border-radius: 6px;
+      padding: 10px;
+      margin: 8px 0;
+    }
+
+    .parameter-old {
+      color: #dc2626;
+      text-decoration: line-through;
+      font-family: 'Courier New', Courier, monospace;
+    }
+
+    .parameter-new {
+      color: #00A859;
+      font-family: 'Courier New', Courier, monospace;
+      font-weight: bold;
+    }
+
+    .impact-high {
+      color: #dc2626;
+      font-weight: bold;
+      background: rgba(220, 38, 38, 0.1);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .impact-medium {
+      color: #f59e0b;
+      font-weight: bold;
+      background: rgba(245, 158, 11, 0.1);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .impact-low {
+      color: #666666;
+      font-weight: bold;
+      background: rgba(102, 102, 102, 0.1);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .action-details-grid {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 8px 16px;
+      font-size: 12px;
+      margin: 10px 0;
+    }
+
+    .detail-label {
+      font-weight: 600;
+      color: #666;
+    }
+
+    .detail-value {
+      font-family: 'Courier New', Courier, monospace;
+      color: #333;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-top: 0;
+      }
+
+      .container {
+        padding: 20px;
+        margin-top: 20px;
+      }
+
+      .input-section {
+        grid-template-columns: 1fr;
+      }
+
+      .options-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .button-group {
+        flex-direction: column;
+      }
+
+      button {
+        width: 100%;
+        min-width: auto;
+      }
+
+      .porto-logo {
+        height: 40px;
+      }
+
+      .comparison-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .comparison-stats {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .stat-item {
+        flex: 1;
+        min-width: 80px;
+      }
+
+      .comparison-table {
+        min-width: 1200px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .header-title {
+        font-size: 1.2rem;
+      }
+
+      .container {
+        padding: 15px;
+      }
+
+      .file-browse-btn {
+        font-size: 11px;
+        padding: 6px 12px;
+      }
+
+      .file-path-input {
+        font-size: 13px;
+        padding: 10px 14px;
+        padding-right: 100px;
+      }
+
+      button {
+        padding: 10px 20px;
+        font-size: 13px;
+      }
+
+      .comparison-table th,
+      .comparison-table td {
+        padding: 8px 12px;
+        font-size: 12px;
+      }
+    }
+
+    .no-results {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+      font-style: italic;
+    }
+  </style>
+</head>
+
+<body>
+  <header class="main-header">
+    <div class="logo-container">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/1/14/Porto_2022.svg" 
+           alt="Porto Seguro" 
+           class="porto-logo"
+           title="Porto Seguro">
+      <div class="header-title">Comparador Direto - <span class="brand-accent">Porto Seguro</span></div>
+    </div>
+
+    <nav class="nav-menu">
+      <a href="index.html" class="nav-button active">
+        <span>🏠</span> Home
+      </a>
+      <a href="tagueador_porto.html" class="nav-button">
+        <span>🏷️</span> Auto Tag
+      </a>
+      <a href="formatador_audios.html" class="nav-button">
+        <span>🎵</span> Áudio Format
+      </a>
+      <a href="compare_script_xml.html" class="nav-button">
+        <span>🔍</span> Comparador
+      </a>
+    </nav>
+  </header>
+
+  <div class="counteudo_pagina">
+    <div class="container">
+      <div class="section-title">Comparador Direto de Scripts URA</div>
+
+      <div class="info-banner">
+        <strong>Foco na prática:</strong> Mostra ActionID, Tipo da Ação, Caption e exatamente o que mudou. Ignora IDs gerados automaticamente.
+      </div>
+
+      <div class="input-section">
+        <div class="file-input-container">
+          <label class="file-input-label">Script Original (BASE):</label>
+          <div class="file-input-wrapper">
+            <input type="text" class="file-path-input" id="leftFilePath" 
+                   placeholder="Clique ou arraste arquivo XML..." readonly>
+            <button type="button" class="file-browse-btn" onclick="document.getElementById('leftFileInput').click()">
+              Procurar
+            </button>
+          </div>
+          <input type="file" id="leftFileInput" class="hidden-file-input" accept=".xml">
+          <div class="file-info" id="leftFileInfo">
+            <span class="file-info-icon">📄</span>
+            <span id="leftFileName">Nenhum arquivo selecionado</span>
+            <span class="file-size" id="leftFileSize">-</span>
+          </div>
+        </div>
+
+        <div class="file-input-container">
+          <label class="file-input-label">Script Novo (COMPARAR):</label>
+          <div class="file-input-wrapper">
+            <input type="text" class="file-path-input" id="rightFilePath" 
+                   placeholder="Clique ou arraste arquivo XML..." readonly>
+            <button type="button" class="file-browse-btn" onclick="document.getElementById('rightFileInput').click()">
+              Procurar
+            </button>
+          </div>
+          <input type="file" id="rightFileInput" class="hidden-file-input" accept=".xml">
+          <div class="file-info" id="rightFileInfo">
+            <span class="file-info-icon">📄</span>
+            <span id="rightFileName">Nenhum arquivo selecionado</span>
+            <span class="file-size" id="rightFileSize">-</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="comparison-options">
+        <div class="options-title">Opções de Análise:</div>
+        <div class="options-grid">
+          <div class="option-item">
+            <input type="checkbox" id="compareParameters" class="option-checkbox" checked>
+            <label for="compareParameters" class="option-label">Detalhar mudanças em parâmetros</label>
+          </div>
+          <div class="option-item">
+            <input type="checkbox" id="compareCaptions" class="option-checkbox" checked>
+            <label for="compareCaptions" class="option-label">Incluir Captions (Legendas)</label>
+          </div>
+          <div class="option-item">
+            <input type="checkbox" id="showActionIds" class="option-checkbox" checked>
+            <label for="showActionIds" class="option-label">Mostrar ActionIDs</label>
+          </div>
+          <div class="option-item">
+            <input type="checkbox" id="groupSimilar" class="option-checkbox" checked>
+            <label for="groupSimilar" class="option-label">Agrupar ações similares</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="button-group">
+        <button class="btn-secondary" onclick="compareFiles()">
+          Comparar Agora
+        </button>
+        <button class="btn-primary" onclick="clearComparison()">
+          Limpar
+        </button>
+        <button class="btn-danger" onclick="exportResults()">
+          Exportar CSV
+        </button>
+      </div>
+
+      <div class="loading-spinner" id="loadingSpinner">
+        <div class="spinner"></div>
+        <div>Analisando scripts...</div>
+      </div>
+
+      <div class="output-section" id="outputSection" style="display: none;">
+        <div class="section-title resultado-header">📊 Mudanças Identificadas</div>
+        
+        <div class="comparison-summary" id="comparisonSummary">
+          <!-- Resumo será gerado aqui -->
+        </div>
+
+        <div class="comparison-header">
+          <div class="comparison-stats">
+            <div class="stat-item stat-added">
+              <div class="stat-value" id="statAdded">0</div>
+              <div class="stat-label">NOVAS</div>
+            </div>
+            <div class="stat-item stat-removed">
+              <div class="stat-value" id="statRemoved">0</div>
+              <div class="stat-label">REMOVIDAS</div>
+            </div>
+            <div class="stat-item stat-changed">
+              <div class="stat-value" id="statChanged">0</div>
+              <div class="stat-label">MODIFICADAS</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value" id="statTotal">0</div>
+              <div class="stat-label">TOTAL</div>
+            </div>
+          </div>
+          
+          <div class="table-filters">
+            <button class="filter-btn active" onclick="filterResults('all')">Todas</button>
+            <button class="filter-btn" onclick="filterResults('parameters')">Parâmetros</button>
+            <button class="filter-btn" onclick="filterResults('structure')">Estrutura</button>
+            <button class="filter-btn" onclick="filterResults('critical')">Críticas</button>
+          </div>
+        </div>
+
+        <div class="comparison-table-container">
+          <table class="comparison-table" id="comparisonTable">
+            <thead>
+              <tr>
+                <th width="60">Tipo</th>
+                <th width="100">ActionID</th>
+                <th width="120">Tipo da Ação</th>
+                <th width="180">Caption / Legenda</th>
+                <th width="250">O que mudou</th>
+                <th width="200">Valor Original</th>
+                <th width="200">Valor Novo</th>
+                <th width="100">Impacto</th>
+              </tr>
+            </thead>
+            <tbody id="comparisonTableBody">
+              <!-- Resultados serão gerados aqui -->
+            </tbody>
+          </table>
+        </div>
+
+        <div id="detailsContainer" style="margin-top: 30px;">
+          <!-- Detalhes serão exibidos aqui quando clicar em uma linha -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+    let leftFileContent = null;
+    let rightFileContent = null;
+    let comparisonResults = [];
+    let currentFilter = 'all';
+
+    document.addEventListener('DOMContentLoaded', function() {
+      setupFileEvents();
+      setupDragAndDrop();
+      setupKeyboardShortcuts();
+    });
+
+    function setupFileEvents() {
+      ['left', 'right'].forEach(side => {
+        const input = document.getElementById(`${side}FileInput`);
+        const path = document.getElementById(`${side}FilePath`);
+        const name = document.getElementById(`${side}FileName`);
+        const size = document.getElementById(`${side}FileSize`);
+        
+        input.addEventListener('change', function(e) {
+          if (e.target.files.length > 0) {
+            const file = e.target.files[0];
+            path.value = file.name;
+            name.textContent = file.name;
+            size.textContent = formatFileSize(file.size);
+            readFile(file, side);
+          }
+        });
+        
+        path.addEventListener('click', function() {
+          input.click();
+        });
+      });
+    }
+
+    function formatFileSize(bytes) {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    function setupDragAndDrop() {
+      ['left', 'right'].forEach(side => {
+        const dropZone = document.getElementById(`${side}FilePath`);
+        const fileInput = document.getElementById(`${side}FileInput`);
+        
+        dropZone.addEventListener('dragover', function(e) {
+          e.preventDefault();
+          dropZone.style.borderColor = '#00A859';
+          dropZone.style.background = 'rgba(0, 168, 89, 0.1)';
+        });
+        
+        dropZone.addEventListener('dragleave', function() {
+          dropZone.style.borderColor = 'rgba(0, 70, 166, 0.2)';
+          dropZone.style.background = 'rgba(255, 255, 255, 0.9)';
+        });
+        
+        dropZone.addEventListener('drop', function(e) {
+          e.preventDefault();
+          dropZone.style.borderColor = 'rgba(0, 70, 166, 0.2)';
+          dropZone.style.background = 'rgba(255, 255, 255, 0.9)';
+          
+          const files = e.dataTransfer.files;
+          if (files.length > 0) {
+            const file = files[0];
+            const fileName = file.name.toLowerCase();
+            
+            if (!fileName.endsWith('.xml')) {
+              alert('Por favor, selecione apenas arquivos XML.');
+              return;
+            }
+            
+            const name = document.getElementById(`${side}FileName`);
+            const size = document.getElementById(`${side}FileSize`);
+            
+            dropZone.value = file.name;
+            name.textContent = file.name;
+            size.textContent = formatFileSize(file.size);
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+              if (side === 'left') {
+                leftFileContent = e.target.result;
+              } else {
+                rightFileContent = e.target.result;
+              }
+            };
+            reader.readAsText(file);
+            
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            fileInput.files = dataTransfer.files;
+          }
+        });
+      });
+    }
+
+    function setupKeyboardShortcuts() {
+      document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.key === 'Enter') {
+          compareFiles();
+        }
+        if (e.key === 'Escape') {
+          clearComparison();
+        }
+      });
+    }
+
+    function readFile(file, side) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        if (side === 'left') {
+          leftFileContent = e.target.result;
+        } else {
+          rightFileContent = e.target.result;
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    async function compareFiles() {
+      if (!leftFileContent || !rightFileContent) {
+        alert('Selecione ambos os arquivos XML.');
+        return;
+      }
+      
+      document.getElementById('loadingSpinner').classList.add('show');
+      document.getElementById('outputSection').style.display = 'none';
+      document.getElementById('detailsContainer').innerHTML = '';
+      
+      setTimeout(async () => {
+        try {
+          const options = {
+            compareParameters: document.getElementById('compareParameters').checked,
+            compareCaptions: document.getElementById('compareCaptions').checked,
+            showActionIds: document.getElementById('showActionIds').checked,
+            groupSimilar: document.getElementById('groupSimilar').checked
+          };
+          
+          comparisonResults = await analyzeXmlFiles(leftFileContent, rightFileContent, options);
+          
+          displayResults(comparisonResults, options);
+          document.getElementById('loadingSpinner').classList.remove('show');
+          
+        } catch (error) {
+          console.error('Erro:', error);
+          alert('Erro ao comparar: ' + error.message);
+          document.getElementById('loadingSpinner').classList.remove('show');
+        }
+      }, 100);
+    }
+
+    async function analyzeXmlFiles(leftXml, rightXml, options) {
+      const results = [];
+      
+      try {
+        const parser = new DOMParser();
+        const leftDoc = parser.parseFromString(leftXml, 'text/xml');
+        const rightDoc = parser.parseFromString(rightXml, 'text/xml');
+        
+        // Extrair todas as ações com detalhes
+        const leftActions = extractActions(leftDoc);
+        const rightActions = extractActions(rightDoc);
+        
+        // Mapear por conteúdo para encontrar correspondências
+        const leftContentMap = createContentMap(leftActions);
+        const rightContentMap = createContentMap(rightActions);
+        
+        // Encontrar ações que só existem em um dos lados
+        const allContents = new Set([
+          ...Object.keys(leftContentMap),
+          ...Object.keys(rightContentMap)
+        ]);
+        
+        allContents.forEach(contentKey => {
+          const leftMatches = leftContentMap[contentKey] || [];
+          const rightMatches = rightContentMap[contentKey] || [];
+          
+          // Ações novas (só no direito)
+          if (leftMatches.length === 0 && rightMatches.length > 0) {
+            rightMatches.forEach(action => {
+              results.push({
+                type: 'added',
+                category: 'structure',
+                actionId: action.id,
+                actionType: action.type,
+                caption: action.caption,
+                description: 'Ação adicionada',
+                original: '',
+                novo: action.caption || action.type,
+                impact: 'ALTO',
+                details: action
+              });
+            });
+          }
+          
+          // Ações removidas (só no esquerdo)
+          if (leftMatches.length > 0 && rightMatches.length === 0) {
+            leftMatches.forEach(action => {
+              results.push({
+                type: 'removed',
+                category: 'structure',
+                actionId: action.id,
+                actionType: action.type,
+                caption: action.caption,
+                description: 'Ação removida',
+                original: action.caption || action.type,
+                novo: '',
+                impact: 'ALTO',
+                details: action
+              });
+            });
+          }
+          
+          // Ações que existem em ambos - comparar detalhes
+          if (leftMatches.length > 0 && rightMatches.length > 0) {
+            // Comparar parâmetros entre ações pareadas
+            const leftAction = leftMatches[0];
+            const rightAction = rightMatches[0];
+            
+            // Comparar parâmetros
+            if (options.compareParameters) {
+              const paramChanges = compareParameters(leftAction, rightAction);
+              paramChanges.forEach(change => {
+                results.push({
+                  type: 'changed',
+                  category: 'parameters',
+                  actionId: rightAction.id,
+                  actionType: rightAction.type,
+                  caption: rightAction.caption,
+                  description: `Parâmetro ${change.index}: ${change.description}`,
+                  original: change.oldValue,
+                  novo: change.newValue,
+                  impact: determineParameterImpact(change.oldValue, change.newValue, change.isSnippet),
+                  details: change
+                });
+              });
+            }
+          }
+        });
+        
+        // Análise de fluxo (ordem das ações)
+        const flowChanges = analyzeFlowChanges(leftActions, rightActions);
+        results.push(...flowChanges);
+        
+      } catch (error) {
+        console.error('Erro XML:', error);
+        throw new Error('Falha ao processar XML.');
+      }
+      
+      return results;
+    }
+
+    function extractActions(doc) {
+      const actions = [];
+      const actionElements = doc.querySelectorAll('ActionStruct');
+      
+      actionElements.forEach(element => {
+        const id = element.querySelector('ActionID')?.textContent || '';
+        const type = element.querySelector('Action')?.textContent || '';
+        const caption = element.querySelector('Caption')?.textContent || '';
+        
+        // Extrair parâmetros
+        const parameters = [];
+        const paramElements = element.querySelectorAll('Parameters string');
+        paramElements.forEach((param, index) => {
+          parameters.push({
+            index: index,
+            value: param.textContent || '',
+            isVariable: (param.textContent || '').includes('global:') || 
+                       (param.textContent || '').includes('{') ||
+                       (param.textContent || '').startsWith('"')
+          });
+        });
+        
+        // Extrair posição
+        const x = element.querySelector('X')?.textContent || '';
+        const y = element.querySelector('Y')?.textContent || '';
+        
+        actions.push({
+          id: id,
+          type: type,
+          caption: caption,
+          parameters: parameters,
+          position: { x, y },
+          element: element
+        });
+      });
+      
+      return actions;
+    }
+
+    function createContentMap(actions) {
+      const map = {};
+      
+      actions.forEach(action => {
+        // Para SNIPPETs, criar uma chave que permita comparação mesmo com parâmetros diferentes
+        if (action.type === 'SNIPPET') {
+          // Usar tipo + caption + fingerprint simplificado dos primeiros 100 chars
+          let key = action.type + '|' + (action.caption || '');
+          
+          // Adicionar fingerprint baseado no início do conteúdo (se houver parâmetros)
+          if (action.parameters.length > 0 && action.parameters[0].value) {
+            const snippetStart = action.parameters[0].value
+              .substring(0, 100)
+              .replace(/\s+/g, ' ')
+              .replace(/["'](DEV|PROD|TEST|HML|PRD|QA)["']/gi, '[ENV]')
+              .replace(/\d+/g, '[NUM]')
+              .trim();
+            key += '|' + snippetStart;
+          }
+          
+          if (!map[key]) map[key] = [];
+          map[key].push(action);
+        } else {
+          // Para outros tipos, manter a lógica original
+          let key = action.type;
+          
+          if (action.caption) {
+            key += '|' + action.caption;
+          }
+          
+          const paramFingerprint = action.parameters
+            .slice(0, 3)
+            .map(p => {
+              let val = p.value;
+              val = val.replace(/global:\w+/g, 'global:[VAR]');
+              val = val.replace(/\d+/g, '[NUM]');
+              return val;
+            })
+            .join('|');
+          
+          key += '|' + paramFingerprint;
+          
+          if (!map[key]) map[key] = [];
+          map[key].push(action);
+        }
+      });
+      
+      return map;
+    }
+
+    function compareParameters(leftAction, rightAction) {
+      const changes = [];
+      const maxParams = Math.max(leftAction.parameters.length, rightAction.parameters.length);
+      
+      for (let i = 0; i < maxParams; i++) {
+        const leftParam = leftAction.parameters[i];
+        const rightParam = rightAction.parameters[i];
+        
+        // Parâmetro adicionado
+        if (!leftParam && rightParam) {
+          changes.push({
+            index: i,
+            description: 'Adicionado',
+            oldValue: '',
+            newValue: rightParam.value,
+            isVariable: rightParam.isVariable,
+            isSnippet: leftAction.type === 'SNIPPET' || rightAction.type === 'SNIPPET'
+          });
+        }
+        // Parâmetro removido
+        else if (leftParam && !rightParam) {
+          changes.push({
+            index: i,
+            description: 'Removido',
+            oldValue: leftParam.value,
+            newValue: '',
+            isVariable: leftParam.isVariable,
+            isSnippet: leftAction.type === 'SNIPPET' || rightAction.type === 'SNIPPET'
+          });
+        }
+        // Parâmetro modificado - ANÁLISE MELHORADA
+        else if (leftParam && rightParam && leftParam.value !== rightParam.value) {
+          
+          // Para SNIPPETs, fazer análise mais detalhada do conteúdo
+          if ((leftAction.type === 'SNIPPET' || rightAction.type === 'SNIPPET') && 
+              leftParam.value && rightParam.value) {
+            
+            const diffDetails = analyzeSnippetChanges(leftParam.value, rightParam.value);
+            
+            if (diffDetails.hasChanges) {
+              changes.push({
+                index: i,
+                description: diffDetails.description || 'Código modificado',
+                oldValue: diffDetails.oldValue || leftParam.value,
+                newValue: diffDetails.newValue || rightParam.value,
+                isVariable: leftParam.isVariable || rightParam.isVariable,
+                isSnippet: true,
+                detailedChanges: diffDetails.changes
+              });
+            }
+          } else {
+            // Para outros tipos, manter a comparação normal
+            changes.push({
+              index: i,
+              description: 'Modificado',
+              oldValue: leftParam.value,
+              newValue: rightParam.value,
+              isVariable: leftParam.isVariable || rightParam.isVariable,
+              isSnippet: false
+            });
+          }
+        }
+      }
+      
+      return changes;
+    }
+
+    // NOVA FUNÇÃO: Analisar mudanças em snippets de código
+    function analyzeSnippetChanges(oldCode, newCode) {
+      const result = {
+        hasChanges: false,
+        description: '',
+        oldValue: '',
+        newValue: '',
+        changes: []
+      };
+      
+      // Se os códigos são idênticos, não há mudanças
+      if (oldCode === newCode) {
+        return result;
+      }
+      
+      // NORMALIZAÇÃO: Remover espaços extras e normalizar quebras de linha
+      const normalizeCode = (code) => {
+        return code
+          .replace(/\r\n/g, '\n')
+          .replace(/\s+/g, ' ')
+          .trim();
+      };
+      
+      const oldNormalized = normalizeCode(oldCode);
+      const newNormalized = normalizeCode(newCode);
+      
+      // PRIMEIRO: Verificar mudanças específicas de ambiente
+      const envPattern = /(IF\s+ENV\s*=\s*["'])([^"']+)(["'])/gi;
+      
+      let oldEnv = null;
+      let newEnv = null;
+      
+      // Extrair ambiente do código antigo
+      const oldEnvMatch = envPattern.exec(oldCode);
+      if (oldEnvMatch) {
+        oldEnv = oldEnvMatch[2];
+      }
+      
+      // Resetar o regex para o código novo
+      envPattern.lastIndex = 0;
+      const newEnvMatch = envPattern.exec(newCode);
+      if (newEnvMatch) {
+        newEnv = newEnvMatch[2];
+      }
+      
+      // Se encontrou ambiente em ambos e são diferentes
+      if (oldEnv && newEnv && oldEnv !== newEnv) {
+        result.hasChanges = true;
+        result.description = `Ambiente alterado (${oldEnv} → ${newEnv})`;
+        result.oldValue = oldEnv;
+        result.newValue = newEnv;
+        result.changes.push({
+          type: 'environment',
+          description: 'Ambiente do snippet alterado',
+          old: oldEnv,
+          new: newEnv,
+          impact: 'ALTO'
+        });
+        return result;
+      }
+      
+      // SEGUNDO: Verificar mudanças em variáveis PARAMETRIZADOR
+      const varPattern = /(PARAMETRIZADOR\.)([^\s\[]+)/gi;
+      const oldVars = [];
+      const newVars = [];
+      
+      let match;
+      while ((match = varPattern.exec(oldCode)) !== null) {
+        oldVars.push(match[2]);
+      }
+      
+      varPattern.lastIndex = 0;
+      while ((match = varPattern.exec(newCode)) !== null) {
+        newVars.push(match[2]);
+      }
+      
+      // Comparar variáveis
+      for (let i = 0; i < Math.max(oldVars.length, newVars.length); i++) {
+        const oldVar = oldVars[i];
+        const newVar = newVars[i];
+        
+        if (oldVar !== newVar) {
+          result.hasChanges = true;
+          
+          if (oldVar && newVar) {
+            result.description = `Variável alterada (${oldVar} → ${newVar})`;
+            result.oldValue = oldVar;
+            result.newValue = newVar;
+            result.changes.push({
+              type: 'variable',
+              description: `Variável do parametrizador alterada`,
+              old: oldVar,
+              new: newVar,
+              impact: 'ALTO'
+            });
+          } else if (oldVar && !newVar) {
+            result.description = `Variável removida (${oldVar})`;
+            result.oldValue = oldVar;
+            result.newValue = '';
+            result.changes.push({
+              type: 'variable',
+              description: `Variável do parametrizador removida`,
+              old: oldVar,
+              new: '',
+              impact: 'ALTO'
+            });
+          } else if (!oldVar && newVar) {
+            result.description = `Variável adicionada (${newVar})`;
+            result.oldValue = '';
+            result.newValue = newVar;
+            result.changes.push({
+              type: 'variable',
+              description: `Variável do parametrizador adicionada`,
+              old: '',
+              new: newVar,
+              impact: 'ALTO'
+            });
+          }
+          return result;
+        }
+      }
+      
+      // TERCEIRO: Análise linha por linha para mudanças específicas
+      const oldLines = oldCode.split('\n');
+      const newLines = newCode.split('\n');
+      
+      // Procurar a primeira linha diferente
+      for (let i = 0; i < Math.max(oldLines.length, newLines.length); i++) {
+        const oldLine = oldLines[i] || '';
+        const newLine = newLines[i] || '';
+        
+        if (oldLine.trim() !== newLine.trim()) {
+          // Encontrar palavras diferentes dentro da linha
+          const oldWords = oldLine.split(/\s+/);
+          const newWords = newLine.split(/\s+/);
+          
+          // Procurar a primeira palavra diferente
+          for (let j = 0; j < Math.max(oldWords.length, newWords.length); j++) {
+            const oldWord = oldWords[j] || '';
+            const newWord = newWords[j] || '';
+            
+            if (oldWord !== newWord && 
+                (oldWord.length > 1 || newWord.length > 1)) { // Ignorar diferenças triviais
+              
+              // Verificar se é uma mudança importante
+              const importantWords = ['DEV', 'PROD', 'TEST', 'HML', 'PRD', 'QA', 
+                                     'true', 'false', 'TRUE', 'FALSE', '0', '1'];
+              
+              if (importantWords.includes(oldWord.toUpperCase()) || 
+                  importantWords.includes(newWord.toUpperCase())) {
+                
+                result.hasChanges = true;
+                result.description = `Valor alterado (${oldWord} → ${newWord})`;
+                result.oldValue = oldWord;
+                result.newValue = newWord;
+                result.changes.push({
+                  type: 'value',
+                  description: `Valor específico alterado na linha ${i + 1}`,
+                  old: oldWord,
+                  new: newWord,
+                  impact: 'ALTO'
+                });
+                return result;
+              }
+            }
+          }
+          
+          // Se não encontrou palavra específica, mostrar diferença geral da linha
+          result.hasChanges = true;
+          result.description = `Conteúdo modificado na linha ${i + 1}`;
+          result.oldValue = oldLine.substring(0, 50) + (oldLine.length > 50 ? '...' : '');
+          result.newValue = newLine.substring(0, 50) + (newLine.length > 50 ? '...' : '');
+          result.changes.push({
+            type: 'line',
+            description: `Linha ${i + 1} modificada`,
+            old: oldLine,
+            new: newLine,
+            impact: 'MÉDIO'
+          });
+          return result;
+        }
+      }
+      
+      // QUARTO: Se chegou aqui, há mudança mas não identificamos detalhes
+      result.hasChanges = true;
+      result.description = 'Conteúdo do snippet modificado';
+      result.oldValue = oldCode.length > 50 ? oldCode.substring(0, 50) + '...' : oldCode;
+      result.newValue = newCode.length > 50 ? newCode.substring(0, 50) + '...' : newCode;
+      result.changes.push({
+        type: 'general',
+        description: 'Modificação geral no código',
+        old: oldCode,
+        new: newCode,
+        impact: 'MÉDIO'
+      });
+      
+      return result;
+    }
+
+    function determineParameterImpact(oldValue, newValue, isSnippet = false) {
+      if (isSnippet) {
+        // Para snippets, verificar se há mudanças críticas
+        const criticalPatterns = [
+          /DEV|PROD|PRD|HML|QA/i,
+          /true|false/i,
+          /\b0\b|\b1\b/,
+          /global:/i
+        ];
+        
+        for (const pattern of criticalPatterns) {
+          const oldMatch = oldValue.match(pattern);
+          const newMatch = newValue.match(pattern);
+          
+          if (oldMatch && newMatch && oldMatch[0] !== newMatch[0]) {
+            return 'ALTO';
+          }
+        }
+        
+        return 'MÉDIO';
+      }
+      
+      // Código original para outros tipos...
+      const criticalValues = ['0', '1', 'true', 'false', 'True', 'False', 'TRUE', 'FALSE'];
+      
+      if (oldValue.includes('global:') || newValue.includes('global:')) {
+        return 'ALTO';
+      }
+      
+      if (criticalValues.includes(oldValue) || criticalValues.includes(newValue)) {
+        return 'ALTO';
+      }
+      
+      if (!isNaN(oldValue) && !isNaN(newValue)) {
+        return 'ALTO';
+      }
+      
+      return 'MÉDIO';
+    }
+
+    function analyzeFlowChanges(leftActions, rightActions) {
+      const results = [];
+      
+      // Simplificar: comparar sequência de tipos de ações
+      const leftFlow = leftActions.map(a => a.type).join(' → ');
+      const rightFlow = rightActions.map(a => a.type).join(' → ');
+      
+      if (leftFlow !== rightFlow) {
+        results.push({
+          type: 'changed',
+          category: 'structure',
+          actionId: 'FLUXO',
+          actionType: 'FLUXO',
+          caption: 'Sequência de Execução',
+          description: 'Ordem das ações alterada',
+          original: leftFlow.substring(0, 100) + (leftFlow.length > 100 ? '...' : ''),
+          novo: rightFlow.substring(0, 100) + (rightFlow.length > 100 ? '...' : ''),
+          impact: 'ALTO',
+          details: { leftFlow, rightFlow }
+        });
+      }
+      
+      return results;
+    }
+
+    function displayResults(results, options) {
+      const tableBody = document.getElementById('comparisonTableBody');
+      tableBody.innerHTML = '';
+      const detailsContainer = document.getElementById('detailsContainer');
+      detailsContainer.innerHTML = '';
+      
+      // Estatísticas
+      const added = results.filter(r => r.type === 'added').length;
+      const removed = results.filter(r => r.type === 'removed').length;
+      const changed = results.filter(r => r.type === 'changed').length;
+      const total = results.length;
+      
+      document.getElementById('statAdded').textContent = added;
+      document.getElementById('statRemoved').textContent = removed;
+      document.getElementById('statChanged').textContent = changed;
+      document.getElementById('statTotal').textContent = total;
+      
+      // Resumo
+      const summary = document.getElementById('comparisonSummary');
+      let summaryHtml = '<div class="summary-title">📋 Resumo da Análise</div>';
+      
+      if (total === 0) {
+        summaryHtml += '<div class="summary-content">✅ <strong>Nenhuma diferença encontrada!</strong> Os scripts são idênticos.</div>';
+      } else {
+        summaryHtml += '<div class="summary-content">';
+        if (added > 0) summaryHtml += `➕ <strong>${added} ação(ões) nova(s)</strong><br>`;
+        if (removed > 0) summaryHtml += `➖ <strong>${removed} ação(ões) removida(s)</strong><br>`;
+        if (changed > 0) summaryHtml += `✏️ <strong>${changed} alteração(ões) em parâmetros</strong><br>`;
+        
+        // Destacar mudanças críticas
+        const criticalChanges = results.filter(r => r.impact === 'ALTO' && r.type === 'changed');
+        if (criticalChanges.length > 0) {
+          summaryHtml += `<div style="margin-top: 10px; color: #dc2626; font-weight: bold;">
+            ⚠️ <strong>${criticalChanges.length} mudança(s) crítica(s) detectada(s)</strong>
+          </div>`;
+        }
+        
+        summaryHtml += '</div>';
+      }
+      
+      summary.innerHTML = summaryHtml;
+      
+      // Gerar tabela
+      results.forEach((result, index) => {
+        const row = document.createElement('tr');
+        row.className = `diff-${result.type}`;
+        row.setAttribute('data-index', index);
+        row.setAttribute('data-category', result.category);
+        
+        // Ícone do tipo
+        let typeIcon = '❓';
+        if (result.type === 'added') typeIcon = '➕';
+        else if (result.type === 'removed') typeIcon = '➖';
+        else if (result.type === 'changed') typeIcon = '✏️';
+        
+        // Classe de impacto
+        let impactClass = 'impact-medium';
+        if (result.impact === 'ALTO') impactClass = 'impact-high';
+        else if (result.impact === 'BAIXO') impactClass = 'impact-low';
+        
+        // ActionID (mostrar apenas se configurado)
+        const actionIdDisplay = options.showActionIds ? result.actionId : '';
+        
+        // Caption (mostrar apenas se configurado)
+        const captionDisplay = options.compareCaptions ? result.caption : '';
+        
+        row.innerHTML = `
+          <td style="text-align: center; font-size: 16px;">${typeIcon}</td>
+          <td class="action-cell" style="font-weight: bold; color: #0046A6;">${actionIdDisplay}</td>
+          <td><span class="action-type">${result.actionType}</span></td>
+          <td>${escapeHtml(captionDisplay)}</td>
+          <td>${escapeHtml(result.description)}</td>
+          <td class="value-cell">${formatValue(result.original)}</td>
+          <td class="value-cell">${formatValue(result.novo)}</td>
+          <td><span class="${impactClass}">${result.impact}</span></td>
+        `;
+        
+        // Adicionar clique para detalhes
+        row.addEventListener('click', () => showActionDetails(result, index));
+        row.style.cursor = 'pointer';
+        
+        tableBody.appendChild(row);
+      });
+      
+      // Mostrar seção de resultados
+      document.getElementById('outputSection').style.display = 'block';
+      document.getElementById('outputSection').scrollIntoView({ behavior: 'smooth' });
+      
+      // Se houver mudanças críticas, destacar
+      const criticalChanges = results.filter(r => r.impact === 'ALTO' && r.type === 'changed');
+      if (criticalChanges.length > 0) {
+        showCriticalChanges(criticalChanges);
+      }
+    }
+
+    function formatValue(value) {
+      if (!value) return '<em style="color: #999;">(vazio)</em>';
+      if (value.length > 50) {
+        return escapeHtml(value.substring(0, 50)) + '...';
+      }
+      return escapeHtml(value);
+    }
+
+    function showActionDetails(result, index) {
+      const container = document.getElementById('detailsContainer');
+      
+      let detailsHtml = `
+        <div class="action-info-card">
+          <div style="margin-bottom: 15px;">
+            <span class="action-id">[${result.actionId}]</span>
+            <span class="action-type">${result.actionType}</span>
+            <div class="action-caption">${escapeHtml(result.caption || 'Sem caption')}</div>
+          </div>
+      `;
+      
+      if (result.type === 'changed' && result.category === 'parameters') {
+        detailsHtml += `
+          <div class="parameter-change">
+            <strong>🔧 ${result.description}:</strong><br>
+        `;
+        
+        // Se tiver detailedChanges (para SNIPPETs), mostrar cada mudança
+        if (result.details && result.details.detailedChanges) {
+          result.details.detailedChanges.forEach(change => {
+            detailsHtml += `
+              <div style="margin: 5px 0; padding: 5px; border-left: 2px solid ${change.impact === 'ALTO' ? '#dc2626' : '#f59e0b'}">
+                <strong>${change.description}</strong><br>
+                <span class="parameter-old">${escapeHtml(change.old)}</span>
+                <span style="margin: 0 10px;">→</span>
+                <span class="parameter-new">${escapeHtml(change.new)}</span>
+                <span style="margin-left: 10px; color: ${change.impact === 'ALTO' ? '#dc2626' : '#f59e0b'}">
+                  (${change.impact})
+                </span>
+              </div>
+            `;
+          });
+        } else {
+          // Para outras mudanças, mostrar normal
+          detailsHtml += `
+            <span class="parameter-old">${escapeHtml(result.original)}</span><br>
+            <span style="font-size: 20px;">↓</span><br>
+            <span class="parameter-new">${escapeHtml(result.novo)}</span>
+          `;
+        }
+        
+        detailsHtml += `</div>`;
+      }
+      
+      // Mostrar todos os parâmetros da ação
+      if (result.details && result.details.parameters) {
+        detailsHtml += `<div style="margin-top: 15px; font-size: 12px;"><strong>📋 Todos os Parâmetros:</strong></div>`;
+        detailsHtml += `<div class="action-details-grid">`;
+        
+        result.details.parameters.forEach((param, i) => {
+          let value = param.value || '(vazio)';
+          let isCurrent = (result.type === 'changed' && result.details.index === i);
+          
+          detailsHtml += `
+            <div class="detail-label">[${i}]:</div>
+            <div class="detail-value" style="${isCurrent ? 'color: #f59e0b; font-weight: bold;' : ''}">
+              ${escapeHtml(value)}
+            </div>
+          `;
+        });
+        
+        detailsHtml += `</div>`;
+      }
+      
+      detailsHtml += `</div>`;
+      container.innerHTML = detailsHtml;
+    }
+
+    function showCriticalChanges(criticalChanges) {
+      const container = document.getElementById('detailsContainer');
+      
+      let criticalHtml = `
+        <div class="action-info-card" style="border-color: #dc2626; background: rgba(220, 38, 38, 0.05);">
+          <div style="color: #dc2626; font-weight: bold; margin-bottom: 10px;">
+            ⚠️ ATENÇÃO: Mudanças Críticas Detectadas
+          </div>
+      `;
+      
+      criticalChanges.forEach(change => {
+        criticalHtml += `
+          <div style="margin: 10px 0; padding: 10px; border-left: 3px solid #dc2626; background: white;">
+            <strong>[${change.actionId}] ${change.actionType}</strong><br>
+            ${escapeHtml(change.caption || '')}<br>
+            <span style="color: #666; font-size: 12px;">${change.description}</span><br>
+            <span style="color: #dc2626;">${escapeHtml(change.original)}</span> → 
+            <span style="color: #00A859; font-weight: bold;">${escapeHtml(change.novo)}</span>
+          </div>
+        `;
+      });
+      
+      criticalHtml += `</div>`;
+      container.innerHTML = criticalHtml + container.innerHTML;
+    }
+
+    function filterResults(filter) {
+      const rows = document.querySelectorAll('#comparisonTableBody tr');
+      currentFilter = filter;
+      
+      // Atualizar botões de filtro
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.textContent.toLowerCase().includes(filter)) {
+          btn.classList.add('active');
+        }
+      });
+      
+      rows.forEach(row => {
+        if (filter === 'all') {
+          row.style.display = '';
+        } 
+        else if (filter === 'critical') {
+          // Mostrar apenas mudanças com impacto ALTO
+          const impactCell = row.querySelector('td:last-child');
+          if (impactCell && impactCell.textContent.includes('ALTO')) {
+            row.style.display = '';
+          } else {
+            row.style.display = 'none';
+          }
+        }
+        else {
+          const category = row.getAttribute('data-category');
+          if (category === filter) {
+            row.style.display = '';
+          } else {
+            row.style.display = 'none';
+          }
+        }
+      });
+    }
+
+    function clearComparison() {
+      // Limpar inputs
+      ['left', 'right'].forEach(side => {
+        document.getElementById(`${side}FilePath`).value = '';
+        document.getElementById(`${side}FileName`).textContent = 'Nenhum arquivo selecionado';
+        document.getElementById(`${side}FileSize`).textContent = '-';
+        document.getElementById(`${side}FileInput`).value = '';
+      });
+      
+      leftFileContent = null;
+      rightFileContent = null;
+      comparisonResults = [];
+      
+      // Esconder resultados
+      document.getElementById('outputSection').style.display = 'none';
+      document.getElementById('loadingSpinner').classList.remove('show');
+      document.getElementById('detailsContainer').innerHTML = '';
+      
+      // Resetar filtros
+      filterResults('all');
+    }
+
+    function exportResults() {
+      if (comparisonResults.length === 0) {
+        alert('Nenhum resultado para exportar.');
+        return;
+      }
+      
+      let csvContent = 'Tipo,ActionID,Tipo da Ação,Caption,Descrição,Original,Novo,Impacto\n';
+      
+      comparisonResults.forEach(result => {
+        const row = [
+          result.type === 'added' ? 'ADICIONADO' : result.type === 'removed' ? 'REMOVIDO' : 'MODIFICADO',
+          result.actionId,
+          result.actionType,
+          `"${(result.caption || '').replace(/"/g, '""')}"`,
+          `"${(result.description || '').replace(/"/g, '""')}"`,
+          `"${(result.original || '').replace(/"/g, '""')}"`,
+          `"${(result.novo || '').replace(/"/g, '""')}"`,
+          result.impact
+        ];
+        csvContent += row.join(',') + '\n';
+      });
+      
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      const timestamp = new Date().toISOString().slice(0,19).replace(/:/g, '-');
+      link.download = `comparacao_scripts_${timestamp}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Função auxiliar para debug
+    function debugSnippetComparison(oldCode, newCode) {
+      console.log('=== DEBUG Snippet Comparison ===');
+      console.log('Old code:', oldCode);
+      console.log('New code:', newCode);
+      
+      const result = analyzeSnippetChanges(oldCode, newCode);
+      console.log('Analysis result:', result);
+      
+      return result;
+    }
+     // Ativar o item de menu correto
+    document.addEventListener('DOMContentLoaded', function() {
+      const currentPage = window.location.pathname.split('/').pop();
+      const navButtons = document.querySelectorAll('.nav-button');
+      
+      navButtons.forEach(button => {
+        button.classList.remove('active');
+        
+        const href = button.getAttribute('href');
+        if (currentPage === href) {
+          button.classList.add('active');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
