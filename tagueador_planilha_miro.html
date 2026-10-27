@@ -2,12 +2,14 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <link rel="icon" href="https://seeklogo.com/images/P/porto-seguro-logo-622816.png" type="image/png">
+  <link rel="icon" href="img/logo_ura_tools.png" type="image/png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Auto Tagueador - Ferramentas Porto Seguro</title>
-    <!-- Bibliotecas para Exportação -->
+  <title>Auto Tagueador - Ura Tools</title>
+  
+  <!-- Bibliotecas para Exportação -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
   <style>
     @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap');
 
@@ -17,21 +19,37 @@
       padding: 0;
     }
 
+    :root {
+      --azul: #0046A6;
+      --azul-esc: #003580;
+      --verde: #00A859;
+      --verde-esc: #008E4A;
+      --texto: #333333;
+      --muted: #666666;
+    }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+      scroll-behavior: smooth;
+    }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
       background: linear-gradient(135deg, #f0f4f8 0%, #e6ecf2 100%);
       min-height: 100vh;
-      color: #333333;
+      color: var(--texto);
       display: flex;
       flex-direction: column;
+      transition: background 0.3s, color 0.3s;
+      -webkit-font-smoothing: antialiased;
     }
 
-    /* Header com logo e menu */
+    /* ===================== HEADER ===================== */
     .main-header {
       background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(10px);
       border-bottom: 1px solid rgba(0, 70, 166, 0.1);
-      padding: 15px 20px;
+      padding: 12px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -39,6 +57,8 @@
       position: sticky;
       top: 0;
       z-index: 1000;
+      width: 100%;
+      transition: background 0.3s, border-color 0.3s;
     }
 
     .logo-container {
@@ -47,13 +67,13 @@
       gap: 15px;
     }
 
-    .porto-logo {
-      height: 40px;
+    .Ura-logo {
+      height: 46px;
       width: auto;
     }
 
     .header-title {
-      font-size: 1.3rem;
+      font-size: 1.35rem;
       font-weight: 700;
       color: #0046A6;
     }
@@ -63,7 +83,6 @@
       font-weight: 600;
     }
 
-    /* Menu horizontal */
     .nav-menu {
       display: flex;
       gap: 10px;
@@ -74,8 +93,8 @@
     }
 
     .nav-button {
-      padding: 10px 20px;
-      font-size: 14px;
+      padding: 9px 20px;
+      font-size: 13.5px;
       font-weight: 600;
       border: none;
       border-radius: 8px;
@@ -87,6 +106,7 @@
       display: flex;
       align-items: center;
       gap: 6px;
+      font-family: inherit;
     }
 
     .nav-button:hover {
@@ -99,10 +119,14 @@
       box-shadow: 0 4px 12px rgba(0, 70, 166, 0.2);
     }
 
-    /* Conteúdo Principal */
+    #themeToggle {
+      color: #666;
+    }
+
+    /* ===================== CONTEÚDO ===================== */
     .main-content {
       flex: 1;
-      padding: 40px 20px;
+      padding: 30px 20px 50px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -111,41 +135,42 @@
 
     .container {
       width: 100%;
-      max-width: 1200px;
+      max-width: 1400px;
     }
 
     .welcome-container {
       text-align: center;
-      margin-bottom: 30px;
+      margin-bottom: 25px;
     }
 
     .welcome-title {
-      font-size: 2.2rem;
+      font-size: 2.1rem;
       font-weight: 700;
       color: #0046A6;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
 
     .welcome-subtitle {
-      color: #666666;
-      font-size: 1.05rem;
+      color: var(--muted);
+      font-size: 1rem;
     }
 
-    /* Seção de Input/Painel */
+    /* Seção de Entrada */
     .input-section {
       background: rgba(255, 255, 255, 0.95);
       border: 1px solid rgba(0, 70, 166, 0.15);
       border-radius: 16px;
-      padding: 30px;
+      padding: 24px;
       box-shadow: 0 8px 32px rgba(0, 70, 166, 0.05);
       margin-bottom: 25px;
+      transition: background 0.3s, border-color 0.3s;
     }
 
     .input-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
       flex-wrap: wrap;
       gap: 12px;
     }
@@ -174,56 +199,71 @@
       border-radius: 6px;
       cursor: pointer;
       transition: all 0.2s;
+      font-family: inherit;
     }
 
     .mode-btn.active {
-      background: #0046A6;
+      background: linear-gradient(135deg, #0046A6 0%, #003580 100%);
       color: white;
     }
 
     textarea {
       width: 100%;
-      min-height: 120px;
+      min-height: 140px;
       background: #f8fafc;
-      border: 1px solid rgba(0, 70, 166, 0.15);
+      border: 1px solid rgba(0, 70, 166, 0.18);
       border-radius: 8px;
-      color: #333;
+      color: var(--texto);
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.8rem;
-      padding: 15px;
+      font-size: 0.82rem;
+      padding: 14px;
       resize: vertical;
       outline: none;
       transition: border-color 0.2s;
     }
 
     textarea:focus {
-      border-color: #0046A6;
+      border-color: #00A859;
       background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(0, 168, 89, 0.1);
     }
 
     /* Grid do Excel */
+    .excel-scroll-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      padding-bottom: 6px;
+    }
+
     .excel-header {
       display: grid;
-      grid-template-columns: repeat(12, 1fr) 35px;
+      grid-template-columns: repeat(12, minmax(95px, 1fr)) 36px;
       gap: 5px;
       margin-bottom: 8px;
-      padding-right: 5px;
+      min-width: 1200px;
     }
 
     .excel-header span {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.65rem;
+      font-size: 0.68rem;
       font-weight: 700;
       color: #0046A6;
       text-align: center;
       text-overflow: ellipsis;
       white-space: nowrap;
       overflow: hidden;
+      background: rgba(0, 70, 166, 0.05);
+      padding: 4px;
+      border-radius: 4px;
+    }
+
+    .excel-rows-container {
+      min-width: 1200px;
     }
 
     .excel-row {
       display: grid;
-      grid-template-columns: repeat(12, 1fr) 35px;
+      grid-template-columns: repeat(12, minmax(95px, 1fr)) 36px;
       gap: 5px;
       margin-bottom: 6px;
     }
@@ -232,7 +272,7 @@
       background: #f8fafc;
       border: 1px solid rgba(0, 70, 166, 0.15);
       border-radius: 6px;
-      color: #333333;
+      color: var(--texto);
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.75rem;
       padding: 8px 6px;
@@ -244,7 +284,7 @@
     .excel-row input:focus {
       border-color: #00A859;
       background: #ffffff;
-      box-shadow: 0 0 0 2px rgba(0, 168, 89, 0.1);
+      box-shadow: 0 0 0 2px rgba(0, 168, 89, 0.12);
     }
 
     .excel-row input::placeholder {
@@ -254,7 +294,7 @@
 
     .del-row {
       background: transparent;
-      border: 1px solid rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.25);
       color: #ef4444;
       border-radius: 6px;
       cursor: pointer;
@@ -262,6 +302,7 @@
       align-items: center;
       justify-content: center;
       transition: all 0.15s;
+      font-weight: 700;
     }
 
     .del-row:hover {
@@ -271,7 +312,7 @@
 
     .add-row-btn {
       background: transparent;
-      border: 1px dashed rgba(0, 70, 166, 0.3);
+      border: 1px dashed rgba(0, 70, 166, 0.35);
       color: #0046A6;
       border-radius: 8px;
       font-weight: 600;
@@ -280,20 +321,22 @@
       cursor: pointer;
       margin-top: 10px;
       transition: all 0.2s;
+      font-family: inherit;
     }
 
     .add-row-btn:hover {
       border-color: #0046A6;
-      background: rgba(0, 70, 166, 0.02);
+      background: rgba(0, 70, 166, 0.04);
     }
 
-    /* Ações Globais do Painel */
+    /* Ações de Formulário */
     .input-actions {
       display: flex;
       gap: 10px;
-      margin-top: 20px;
+      margin-top: 18px;
       border-top: 1px solid rgba(0, 70, 166, 0.1);
-      padding-top: 20px;
+      padding-top: 18px;
+      flex-wrap: wrap;
     }
 
     .btn-primary {
@@ -301,12 +344,13 @@
       color: white;
       border: none;
       border-radius: 8px;
-      padding: 12px 24px;
+      padding: 11px 22px;
       font-size: 0.85rem;
       font-weight: 600;
       cursor: pointer;
       box-shadow: 0 4px 12px rgba(0, 168, 89, 0.15);
       transition: all 0.2s;
+      font-family: inherit;
     }
 
     .btn-primary:hover {
@@ -316,14 +360,15 @@
 
     .btn-secondary {
       background: transparent;
-      border: 1px solid rgba(0, 70, 166, 0.2);
+      border: 1px solid rgba(0, 70, 166, 0.25);
       color: #0046A6;
       border-radius: 8px;
-      padding: 12px 24px;
+      padding: 11px 22px;
       font-size: 0.85rem;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s;
+      font-family: inherit;
     }
 
     .btn-secondary:hover {
@@ -335,19 +380,20 @@
     .filter-section {
       background: rgba(255, 255, 255, 0.95);
       border: 1px solid rgba(0, 70, 166, 0.15);
-      border-radius: 16px;
-      padding: 20px;
+      border-radius: 14px;
+      padding: 18px 20px;
       box-shadow: 0 4px 20px rgba(0, 70, 166, 0.05);
-      margin-bottom: 25px;
+      margin-bottom: 22px;
       width: 100%;
       animation: fadeIn 0.3s ease;
+      transition: background 0.3s, border-color 0.3s;
     }
 
     .filter-title {
-      font-size: 1.05rem;
+      font-size: 1rem;
       font-weight: 700;
       color: #0046A6;
-      margin-bottom: 15px;
+      margin-bottom: 12px;
       display: flex;
       align-items: center;
       gap: 6px;
@@ -368,18 +414,19 @@
     .filter-group label {
       font-size: 0.8rem;
       font-weight: 600;
-      color: #444444;
+      color: #0046A6;
     }
 
     .filter-group input {
       background: #f8fafc;
-      border: 1px solid rgba(0, 70, 166, 0.15);
+      border: 1px solid rgba(0, 70, 166, 0.18);
       border-radius: 8px;
-      color: #333333;
-      padding: 10px;
+      color: var(--texto);
+      padding: 9px 12px;
       font-size: 0.85rem;
       outline: none;
       transition: all 0.2s;
+      font-family: inherit;
     }
 
     .filter-group input:focus {
@@ -388,32 +435,31 @@
       box-shadow: 0 0 0 2px rgba(0, 70, 166, 0.1);
     }
 
-    /* Painel de Ações de Output */
+    /* Barra de Ações do Output */
     .output-control-panel {
       display: flex;
       justify-content: center;
       align-items: center;
-      gap: 15px;
+      gap: 12px;
       margin-bottom: 25px;
       width: 100%;
       flex-wrap: wrap;
       animation: fadeIn 0.3s ease;
     }
 
-    /* Contador de Pontos Estilizado */
     .points-count-badge {
       background: #ffffff;
       border: 1px solid rgba(0, 70, 166, 0.2);
       color: #0046A6;
       border-radius: 8px;
-      padding: 13px 24px;
-      font-size: 0.9rem;
+      padding: 11px 20px;
+      font-size: 0.85rem;
       font-weight: 700;
       display: flex;
       align-items: center;
       gap: 6px;
       font-family: 'JetBrains Mono', monospace;
-      box-shadow: 0 2px 10px rgba(0, 70, 166, 0.02);
+      box-shadow: 0 2px 8px rgba(0, 70, 166, 0.04);
     }
 
     .btn-copy-all {
@@ -421,46 +467,46 @@
       color: white;
       border: none;
       border-radius: 8px;
-      padding: 14px 32px;
-      font-size: 0.9rem;
+      padding: 12px 24px;
+      font-size: 0.85rem;
       font-weight: 600;
       cursor: pointer;
       box-shadow: 0 4px 15px rgba(0, 70, 166, 0.15);
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       transition: all 0.2s;
+      font-family: inherit;
     }
 
     .btn-copy-all:hover {
       background: linear-gradient(135deg, #003580 0%, #002561 100%);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(0, 70, 166, 0.25);
+      transform: translateY(-1px);
     }
 
     .btn-pdf {
-      background: linear-gradient(135deg, #00A859 0%, #008E4A 100%);
+      background: linear-gradient(135deg, #e11d48 0%, #be123c 100%);
       color: white;
       border: none;
       border-radius: 8px;
-      padding: 14px 32px;
-      font-size: 0.9rem;
+      padding: 12px 24px;
+      font-size: 0.85rem;
       font-weight: 600;
       cursor: pointer;
-      box-shadow: 0 4px 15px rgba(0, 168, 89, 0.15);
+      box-shadow: 0 4px 15px rgba(225, 29, 72, 0.18);
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       transition: all 0.2s;
+      font-family: inherit;
     }
 
     .btn-pdf:hover {
-      background: linear-gradient(135deg, #008E4A 0%, #00743B 100%);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(0, 168, 89, 0.25);
+      background: linear-gradient(135deg, #be123c 0%, #9f1239 100%);
+      transform: translateY(-1px);
     }
 
-    /* Grid Responsivo de Cards (3 em 3) */
+    /* Grid de Cards (3 colunas) */
     .cards-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -472,22 +518,22 @@
     .card {
       background: #ffffff;
       border: 1px solid rgba(0, 70, 166, 0.12);
-      border-left: 6px solid #00A859;
+      border-left: 5px solid #00A859;
       border-radius: 12px;
-      padding: 24px 28px;
+      padding: 20px 22px;
       width: 100%;
-      box-shadow: 0 4px 20px rgba(0, 70, 166, 0.04);
+      box-shadow: 0 4px 16px rgba(0, 70, 166, 0.04);
       cursor: pointer;
       position: relative;
       transition: all 0.2s ease;
-      animation: cardIn 0.4s ease both;
+      animation: cardIn 0.3s ease both;
       display: flex;
       flex-direction: column;
     }
 
     .card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 24px rgba(0, 70, 166, 0.09);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(0, 70, 166, 0.1);
       border-color: rgba(0, 70, 166, 0.25);
     }
 
@@ -495,23 +541,22 @@
       display: inline-block;
       align-self: flex-start;
       font-size: 0.65rem;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
       font-weight: 700;
       background: rgba(0, 168, 89, 0.1);
       color: #008E4A;
       padding: 3px 10px;
       border-radius: 20px;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
       font-family: 'JetBrains Mono', monospace;
     }
 
     .copy-hint {
       position: absolute;
       top: 16px;
-      right: 20px;
-      font-family: -apple-system, sans-serif;
-      font-size: 0.75rem;
+      right: 18px;
+      font-size: 0.72rem;
       font-weight: 600;
       color: #00A859;
       opacity: 0;
@@ -524,11 +569,11 @@
 
     .card-row {
       display: flex;
-      gap: 8px;
-      margin-bottom: 5px;
+      gap: 6px;
+      margin-bottom: 4px;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.8rem;
-      color: #333333;
+      font-size: 0.78rem;
+      color: var(--texto);
       flex-wrap: wrap;
     }
 
@@ -537,12 +582,12 @@
     .field-name {
       font-weight: 700;
       color: #0046A6;
-      min-width: 120px;
+      min-width: 110px;
       flex-shrink: 0;
     }
 
     .field-value {
-      color: #333333;
+      color: var(--texto);
       word-break: break-word;
     }
 
@@ -556,42 +601,40 @@
       font-style: italic;
     }
 
-    /* Estados de Feedback */
     .error {
       color: #ef4444;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       text-align: center;
-      padding: 25px;
+      padding: 20px;
       background: #fef2f2;
-      border-radius: 12px;
+      border-radius: 10px;
       border: 1px solid rgba(239, 68, 68, 0.2);
       width: 100%;
     }
 
     .empty-state {
       text-align: center;
-      color: #666666;
+      color: var(--muted);
       font-size: 0.9rem;
-      padding: 40px;
-      background: rgba(255, 255, 255, 0.5);
+      padding: 35px;
+      background: rgba(255, 255, 255, 0.6);
       border-radius: 12px;
-      border: 1px dashed rgba(0, 70, 166, 0.15);
+      border: 1px dashed rgba(0, 70, 166, 0.2);
       width: 100%;
     }
 
-    /* Toast Notification */
     .toast {
       position: fixed;
-      bottom: 30px;
+      bottom: 25px;
       left: 50%;
       transform: translateX(-50%) translateY(20px);
       background: #0046A6;
       color: white;
       font-size: 0.85rem;
       font-weight: 600;
-      padding: 12px 28px;
+      padding: 10px 24px;
       border-radius: 30px;
-      box-shadow: 0 8px 24px rgba(0,70,166,0.25);
+      box-shadow: 0 8px 24px rgba(0, 70, 166, 0.25);
       opacity: 0;
       transition: all 0.25s ease;
       pointer-events: none;
@@ -603,187 +646,165 @@
       transform: translateX(-50%) translateY(0);
     }
 
-    /* Rodapé */
-    .footer {
-      margin-top: 50px;
-      padding: 20px;
-      border-top: 1px solid rgba(0, 70, 166, 0.1);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      color: #0046A6;
-      font-size: 12px;
-      width: 100%;
-      max-width: 1200px;
-      margin-left: auto;
-      margin-right: auto;
+    /* ===================== MODO ESCURO ===================== */
+    body.dark-mode {
+      background: linear-gradient(135deg, #121619 0%, #1a2229 100%);
+      color: #e0e0e0;
     }
 
-    /* Elemento exclusivo para impressão */
-    .print-only-header {
-      display: none;
+    body.dark-mode .main-header {
+      background: rgba(22, 28, 36, 0.95);
+      border-bottom-color: rgba(255, 255, 255, 0.05);
+      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
     }
 
-    /* Animações */
+    body.dark-mode .header-title,
+    body.dark-mode .welcome-title,
+    body.dark-mode .input-label,
+    body.dark-mode .filter-title,
+    body.dark-mode .filter-group label,
+    body.dark-mode .excel-header span,
+    body.dark-mode .field-name {
+      color: #66a3ff;
+    }
+
+    body.dark-mode .brand-accent { color: #8cbfff; }
+
+    body.dark-mode .nav-menu {
+      background: rgba(255, 255, 255, 0.03);
+      border-color: rgba(255, 255, 255, 0.05);
+    }
+
+    body.dark-mode .nav-button:not(.active) { color: #a0a0a0; }
+    body.dark-mode .nav-button:not(.active):hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #ffffff;
+    }
+
+    body.dark-mode #themeToggle { color: #e0e0e0; }
+
+    body.dark-mode .input-section,
+    body.dark-mode .filter-section,
+    body.dark-mode .card,
+    body.dark-mode .points-count-badge {
+      background: rgba(30, 38, 46, 0.95);
+      border-color: rgba(255, 255, 255, 0.06);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    }
+
+    body.dark-mode textarea,
+    body.dark-mode .excel-row input,
+    body.dark-mode .filter-group input {
+      background: rgba(22, 28, 36, 0.95);
+      border-color: rgba(255, 255, 255, 0.1);
+      color: #e0e0e0;
+    }
+
+    body.dark-mode .excel-header span {
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    body.dark-mode .field-value { color: #d1d5db; }
+    body.dark-mode .field-value.placeholder { color: #8899a6; }
+    body.dark-mode .field-value.empty { color: #556270; }
+
+    body.dark-mode .card-badge {
+      background: rgba(0, 168, 89, 0.18);
+      color: #4ade80;
+    }
+
+    body.dark-mode .btn-secondary {
+      border-color: rgba(255, 255, 255, 0.15);
+      color: #8cbfff;
+    }
+
+    body.dark-mode .add-row-btn {
+      border-color: rgba(102, 163, 255, 0.3);
+      color: #66a3ff;
+    }
+
+    body.dark-mode .empty-state {
+      background: rgba(255, 255, 255, 0.02);
+      border-color: rgba(255, 255, 255, 0.1);
+      color: #8899a6;
+    }
+
+    /* ===================== RESPONSIVO ===================== */
+    @media (max-width: 1200px) {
+      .cards-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 768px) {
+      .main-header { flex-direction: column; gap: 12px; }
+      .nav-menu { width: 100%; justify-content: center; }
+      .filter-grid { grid-template-columns: 1fr; }
+      .cards-grid { grid-template-columns: 1fr; }
+      .output-control-panel { flex-direction: column; }
+      .output-control-panel > * { width: 100%; justify-content: center; }
+    }
+
     @keyframes cardIn {
-      from { opacity: 0; transform: translateY(12px); }
+      from { opacity: 0; transform: translateY(10px); }
       to   { opacity: 1; transform: translateY(0); }
     }
     @keyframes fadeIn {
       from { opacity: 0; }
       to   { opacity: 1; }
     }
-
-    /* Responsividade */
-    @media (max-width: 1200px) {
-      .cards-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-
-    @media (max-width: 992px) {
-      .excel-header { display: none; }
-      .excel-row {
-        grid-template-columns: 1fr 1fr;
-        background: #f1f5f9;
-        padding: 12px;
-        border-radius: 8px;
-        position: relative;
-        gap: 8px;
-        margin-bottom: 15px;
-      }
-      .excel-row input { padding: 6px; }
-      .del-row {
-        grid-column: span 2;
-        padding: 8px;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .main-header { flex-direction: column; gap: 15px; text-align: center; }
-      .nav-menu { width: 100%; justify-content: center; }
-      .filter-grid { grid-template-columns: 1fr; }
-      .cards-grid { grid-template-columns: 1fr; }
-      .output-control-panel { flex-direction: column; align-items: stretch; }
-      .points-count-badge { justify-content: center; }
-    }
-
-    /* Configuração Exclusiva de Impressão / PDF */
-    @media print {
-      body {
-        background: #ffffff !important;
-        color: #000000 !important;
-      }
-      .main-header, .input-section, .output-control-panel, .filter-section, .footer, .add-row-btn, .del-row, .copy-hint, .nav-menu, .welcome-container {
-        display: none !important;
-      }
-      .print-only-header {
-        display: block !important;
-        margin-bottom: 25px;
-        border-bottom: 2px solid #0046A6;
-        padding-bottom: 10px;
-      }
-      .print-only-header h2 {
-        color: #0046A6;
-        font-size: 1.5rem;
-        margin-bottom: 4px;
-      }
-      .print-only-header p {
-        font-size: 0.85rem;
-        color: #555555;
-      }
-      .main-content {
-        padding: 0 !important;
-        margin: 0 !important;
-        display: block !important;
-      }
-      .container {
-        max-width: 100% !important;
-      }
-      .cards-grid {
-        display: grid !important;
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 15px !important;
-        width: 100% !important;
-      }
-      .card {
-        border: 1px solid #cbd5e1 !important;
-        box-shadow: none !important;
-        page-break-inside: avoid !important;
-        background: #ffffff !important;
-        transform: none !important;
-        padding: 15px !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-      }
-      .card-badge {
-        background: #00A859 !important;
-        color: #ffffff !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-      }
-      .field-name {
-        color: #0046A6 !important;
-      }
-    }
   </style>
 </head>
 <body>
 
+  <!-- Header -->
   <header class="main-header">
     <div class="logo-container">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/1/14/Porto_2022.svg" 
-           alt="Porto Seguro" 
-           class="porto-logo"
-           title="Porto Seguro">
-      <div class="header-title">Ferramentas <span class="brand-accent">Porto Seguro</span></div>
+      <img src="img/logo_ura_tools.png" alt="Ura Tools" class="Ura-logo" title="Ura Tools">
+      <div class="header-title">Auto Tagueador - <span class="brand-accent">Ura Tools</span></div>
     </div>
 
     <nav class="nav-menu">
-       <a class='nav-button' href=''>
-            <span>🏠</span> Home
-        </a>
-        <a class='nav-button' href='/links_uteis.html'>
-            <span>🔗</span> Link's Uteis
-        </a>
-        <!-- Botão de Modo Escuro adicionado aqui -->
-        <button id="themeToggle" class="nav-button">
-            <span id="themeIcon">🌙</span> <span id="themeText">Escuro</span>
-        </button>
+      <a href="index.html" class="nav-button">
+        <span>🏠</span> Home
+      </a>
+      <a href="links_uteis.html" class="nav-button">
+        <span>🔗</span> Link's Uteis
+      </a>
+      <button id="themeToggle" class="nav-button" type="button">
+        <span id="themeIcon">🌙</span> <span id="themeText">Escuro</span>
+      </button>
     </nav>
   </header>
 
+  <!-- Conteúdo -->
   <main class="main-content">
     <div class="container">
       
-      <div class="print-only-header">
-        <h2>Relatório de Tagueamento Automatizado - URA Porto Seguro</h2>
-        <p>Exportado em: <span id="printDate"></span></p>
-      </div>
-
       <div class="welcome-container">
-        <h1 class="welcome-title">Auto Tagueador</h1>
-        <p class="welcome-subtitle">Estruture, filtre e valide de forma automatizada as tags dos fluxos de URA.</p>
+        <h1 class="welcome-title">Auto Tagueador de Fluxo</h1>
+        <p class="welcome-subtitle">Estruture, filtre e valide blocos de tagueamento com exportação profissional.</p>
       </div>
 
+      <!-- Área de Input -->
       <div class="input-section">
         <div class="input-header">
           <label class="input-label" id="inputLabelText">Cole as colunas diretamente do Excel — uma linha por bloco</label>
           <div class="mode-toggle">
-            <button class="mode-btn active" id="btnTab" onclick="setMode('tab')">📋 Colunas Excel</button>
-            <button class="mode-btn" id="btnRaw" onclick="setMode('raw')">🔗 String Raw</button>
+            <button class="mode-btn active" id="btnTab" type="button" onclick="setMode('tab')">📋 Colunas Excel</button>
+            <button class="mode-btn" id="btnRaw" type="button" onclick="setMode('raw')">🔗 String Raw</button>
           </div>
         </div>
 
         <div id="modeTab">
-          <div class="excel-header">
-            <span>event_name</span><span>Validacao</span><span>Fluxo</span><span>Indicador</span>
-            <span>Range</span><span>Ponto</span><span>Ultimo_Ponto</span><span>Input</span>
-            <span>Tentativa</span><span>Ponto_Origem</span><span>Produto</span><span>Timestamp</span>
-            <span></span>
+          <div class="excel-scroll-wrapper">
+            <div class="excel-header">
+              <span>event_name</span><span>Validacao</span><span>Fluxo</span><span>Indicador</span>
+              <span>Range</span><span>Ponto</span><span>Ultimo_Ponto</span><span>Input</span>
+              <span>Tentativa</span><span>Ponto_Origem</span><span>Produto</span><span>Timestamp</span>
+              <span></span>
+            </div>
+            <div id="excelRows" class="excel-rows-container"></div>
           </div>
-          <div id="excelRows"></div>
-          <button class="add-row-btn" onclick="addExcelRow()">+ Adicionar Linha</button>
+          <button class="add-row-btn" type="button" onclick="addExcelRow()">+ Adicionar Linha</button>
         </div>
 
         <div id="modeRaw" style="display:none">
@@ -791,11 +812,12 @@
         </div>
 
         <div class="input-actions">
-          <button class="btn-primary" onclick="processInput()">▶ Processar Fluxo</button>
-          <button class="btn-secondary" onclick="clearAll()">✕ Limpar Tudo</button>
+          <button class="btn-primary" type="button" onclick="processInput()">▶ Processar Fluxo</button>
+          <button class="btn-secondary" type="button" onclick="clearAll()">✕ Limpar Tudo</button>
         </div>
       </div>
 
+      <!-- Filtros -->
       <div id="filterSection" class="filter-section" style="display: none;">
         <div class="filter-title">🔍 Filtrar Blocos Estruturados</div>
         <div class="filter-grid">
@@ -814,27 +836,24 @@
         </div>
       </div>
 
+      <!-- Barra de Controle do Output -->
       <div id="outputControlPanel" class="output-control-panel" style="display: none;">
         <div class="points-count-badge" id="pointsCounter">
           🔢 Total: 0 pontos
         </div>
-        <button class="btn-copy-all" onclick="copyAllBlocks()">
+        <button class="btn-copy-all" type="button" onclick="copyAllBlocks()">
           📋 Copiar Todos os Tagueamentos
         </button>
-        <button class="btn-pdf" onclick="generatePDF()">
-          📄 Gerar PDF do Fluxo
+        <button class="btn-pdf" type="button" id="btnGerarPdf" onclick="generatePDF()">
+          📄 Exportar PDF do Fluxo
         </button>
       </div>
 
+      <!-- Cards de Saída -->
       <div id="output"></div>
 
     </div>
   </main>
-
-  <div class="footer">
-    <span>⬡ URA Tag Builder · Workflow Otimizado</span>
-    <span>Copyright © 2026. Todos os direitos reservados.</span>
-  </div>
 
   <div id="toast" class="toast">✓ Copiado para a área de transferência</div>
 
@@ -865,6 +884,36 @@
     let rowCounter = 0;
     let currentlyRenderedBlocks = [];
 
+    /* ================= TEMA CLARO / ESCURO ================= */
+    document.addEventListener('DOMContentLoaded', () => {
+      const themeToggle = document.getElementById('themeToggle');
+      const themeIcon   = document.getElementById('themeIcon');
+      const themeText   = document.getElementById('themeText');
+      const body        = document.body;
+
+      function aplicarTema(escuro) {
+        body.classList.toggle('dark-mode', escuro);
+        themeIcon.textContent = escuro ? '☀️' : '🌙';
+        themeText.textContent = escuro ? 'Claro' : 'Escuro';
+      }
+
+      aplicarTema(localStorage.getItem('theme') === 'dark');
+
+      themeToggle.addEventListener('click', () => {
+        const escuro = !body.classList.contains('dark-mode');
+        localStorage.setItem('theme', escuro ? 'dark' : 'light');
+        aplicarTema(escuro);
+      });
+
+      const currentPage = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
+      document.querySelectorAll('a.nav-button').forEach(botao => {
+        const href = (botao.getAttribute('href') || '').toLowerCase();
+        if (!href) return;
+        botao.classList.toggle('active', href === currentPage);
+      });
+    });
+
+    /* ================= PARSER RAW ================= */
     function tokenize(raw) {
       const str = raw.replace(/\s+/g, '');
       const tokens = [];
@@ -1014,7 +1063,7 @@
         const v = vals[c] !== undefined ? vals[c].replace(/"/g, '&quot;') : '';
         inputs += `<input type="text" value="${v}" placeholder="${COL_PLACEHOLDERS[c] || ''}" data-col="${c}" onpaste="handlePaste(event, '${id}', ${c})">`;
       }
-      inputs += `<button class="del-row" onclick="document.getElementById('${id}').remove()" title="Remover Linha">✕</button>`;
+      inputs += `<button class="del-row" type="button" onclick="document.getElementById('${id}').remove()" title="Remover Linha">✕</button>`;
       div.innerHTML = inputs;
       container.appendChild(div);
     }
@@ -1148,10 +1197,10 @@
       blockStore[storeKey] = FIELDS.map(f => `${f.label}: ${block[f.key] || ''}`).join('\n');
 
       const badge = `Ponto ${block.ponto || '—'}`;
-      const delay = (index % 3) * 0.08;
+      const delay = (index % 3) * 0.05;
 
       return `<div class="card" style="animation-delay:${delay}s" onclick="copyCard(${storeKey})">
-        <span class="copy-hint">⎘ Clique para copiar bloco</span>
+        <span class="copy-hint">⎘ Copiar bloco</span>
         <div class="card-badge">${badge}</div>
         ${rows}
       </div>`;
@@ -1161,7 +1210,6 @@
       const out = document.getElementById('output');
       const counterEl = document.getElementById('pointsCounter');
       
-      // Atualiza o contador de pontos dinamicamente baseado nos filtros aplicados
       if (currentlyRenderedBlocks.length === blocks.length) {
         counterEl.innerHTML = `🔢 Total: ${blocks.length} ${blocks.length === 1 ? 'ponto' : 'pontos'}`;
       } else {
@@ -1197,12 +1245,88 @@
       triggerClipboardCopy(entireFlowText, '✓ Todos os tagueamentos foram copiados de uma vez!');
     }
 
+    /* ================= GERAÇÃO ROBUSTA DE PDF (SEM CORTE) ================= */
     function generatePDF() {
-      const dateSpan = document.getElementById('printDate');
-      if (dateSpan) {
-        dateSpan.textContent = new Date().toLocaleString('pt-BR');
+      const cardsGrid = document.querySelector('.cards-grid');
+      if (!cardsGrid || currentlyRenderedBlocks.length === 0) {
+        alert('Nenhum dado para exportar em PDF.');
+        return;
       }
-      window.print();
+
+      const btn = document.getElementById('btnGerarPdf');
+      const originalText = btn.textContent;
+      btn.textContent = '⏳ Gerando PDF...';
+
+      // Cria container isolado com formatação garantida para A4 Paisagem
+      const printContainer = document.createElement('div');
+      printContainer.style.position = 'fixed';
+      printContainer.style.left = '-9999px';
+      printContainer.style.top = '0';
+      printContainer.style.width = '1120px';
+      printContainer.style.background = '#ffffff';
+      printContainer.style.color = '#000000';
+      printContainer.style.padding = '25px';
+      printContainer.style.fontFamily = 'Arial, sans-serif';
+
+      // Cabeçalho do Documento
+      const headerDiv = document.createElement('div');
+      headerDiv.style.borderBottom = '2px solid #0046A6';
+      headerDiv.style.paddingBottom = '8px';
+      headerDiv.style.marginBottom = '20px';
+      headerDiv.innerHTML = `
+        <h2 style="color: #0046A6; font-size: 18px; margin: 0 0 4px 0;">Relatório de Tagueamento Automatizado - Ura Tools</h2>
+        <p style="color: #666; font-size: 11px; margin: 0;">Exportado em: ${new Date().toLocaleString('pt-BR')} | Total de pontos: ${currentlyRenderedBlocks.length}</p>
+      `;
+      printContainer.appendChild(headerDiv);
+
+      // Grid para o PDF em 2 colunas para nunca quebrar ou vazar
+      const gridClone = document.createElement('div');
+      gridClone.style.display = 'grid';
+      gridClone.style.gridTemplateColumns = '1fr 1fr';
+      gridClone.style.gap = '15px';
+      gridClone.style.width = '100%';
+
+      const cards = cardsGrid.querySelectorAll('.card');
+      cards.forEach(c => {
+        const cardClone = c.cloneNode(true);
+        // Remove hint de cópia interativo
+        const hint = cardClone.querySelector('.copy-hint');
+        if (hint) hint.remove();
+
+        // Estilos limpos para impressão
+        cardClone.style.border = '1px solid #cbd5e1';
+        cardClone.style.borderLeft = '5px solid #00A859';
+        cardClone.style.borderRadius = '8px';
+        cardClone.style.padding = '12px 14px';
+        cardClone.style.background = '#ffffff';
+        cardClone.style.boxShadow = 'none';
+        cardClone.style.transform = 'none';
+        cardClone.style.pageBreakInside = 'avoid';
+        cardClone.style.fontSize = '10px';
+
+        gridClone.appendChild(cardClone);
+      });
+
+      printContainer.appendChild(gridClone);
+      document.body.appendChild(printContainer);
+
+      const opt = {
+        margin: [10, 10, 10, 10],
+        filename: `Tagueamentos_Fluxo_${Date.now()}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, logging: false },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+      };
+
+      html2pdf().set(opt).from(printContainer).save().then(() => {
+        document.body.removeChild(printContainer);
+        btn.textContent = originalText;
+      }).catch(err => {
+        console.error(err);
+        document.body.removeChild(printContainer);
+        alert('Erro ao gerar PDF. Tente novamente.');
+        btn.textContent = originalText;
+      });
     }
 
     function triggerClipboardCopy(text, successMessage) {
