@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" href="img/logo_ura_tools.png" type="image/png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Link's Úteis - Ura Tools</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --azul: #0046A6;
+      --azul-esc: #003580;
+      --verde: #00A859;
+      --verde-esc: #008E4A;
+      --texto: #333333;
+      --muted: #6b7280;
+      --borda: rgba(0, 70, 166, 0.12);
+    }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+      background: linear-gradient(135deg, #f0f4f8 0%, #e6ecf2 100%);
+      min-height: 100vh;
+      color: var(--texto);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow-x: hidden;
+      transition: background 0.3s, color 0.3s;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ===================== HEADER ===================== */
+    .main-header {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(0, 70, 166, 0.1);
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 20px rgba(0, 70, 166, 0.08);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      width: 100%;
+      transition: background 0.3s, border-color 0.3s;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .Ura-logo {
+      height: 50px;
+      width: auto;
+    }
+
+    .header-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #0046A6;
+    }
+
+    .brand-accent {
+      color: #0016a8;
+      font-weight: 600;
+    }
+
+    .nav-menu {
+      display: flex;
+      gap: 10px;
+      background: rgba(0, 70, 166, 0.05);
+      border-radius: 12px;
+      padding: 4px;
+      border: 1px solid rgba(0, 70, 166, 0.1);
+    }
+
+    .nav-button {
+      padding: 10px 24px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      background: transparent;
+      color: #0046A6;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: inherit;
+    }
+
+    .nav-button:hover {
+      background: rgba(0, 70, 166, 0.1);
+    }
+
+    .nav-button.active {
+      background: linear-gradient(135deg, #0046A6 0%, #003580 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(0, 70, 166, 0.2);
+    }
+
+    #themeToggle {
+      color: #666;
+    }
+
+    #themeToggle:hover {
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    /* ===================== CONTAINER ===================== */
+    .counteudo_pagina {
+      width: 100%;
+      max-width: 1800px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(0, 70, 166, 0.1);
+      border-radius: 16px;
+      padding: clamp(20px, 3vw, 40px);
+      width: 100%;
+      box-shadow: 0 8px 32px rgba(0, 70, 166, 0.08);
+      margin-top: 30px;
+      transition: background 0.3s, border-color 0.3s;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: clamp(1.1rem, 2vw, 1.3rem);
+      font-weight: 600;
+      color: #0046A6;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid rgba(0, 70, 166, 0.1);
+    }
+
+    .section-title::before {
+      content: "🔗";
+      font-size: clamp(1.2rem, 2vw, 1.5rem);
+    }
+
+    .page-sub {
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.55;
+      max-width: 75ch;
+      margin-bottom: 22px;
+    }
+
+    .page-sub strong {
+      color: #0046A6;
+      font-weight: 600;
+    }
+
+    /* ===================== BUSCA ===================== */
+    .toolbar {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .search {
+      position: relative;
+      flex: 1;
+      min-width: 240px;
+    }
+
+    .search::before {
+      content: "🔍";
+      position: absolute;
+      left: 13px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 14px;
+      opacity: 0.65;
+      pointer-events: none;
+      line-height: 1;
+    }
+
+    .search input {
+      width: 100%;
+      padding: 12px 46px 12px 40px;
+      border: 1px solid rgba(0, 70, 166, 0.2);
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 14px;
+      background: rgba(255, 255, 255, 0.9);
+      color: var(--texto);
+      transition: all 0.3s;
+    }
+
+    .search input::placeholder {
+      color: #999999;
+    }
+
+    .search input:focus {
+      border-color: var(--verde);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(0, 168, 89, 0.1);
+    }
+
+    .search input::-webkit-search-cancel-button {
+      display: none;
+    }
+
+    .search__clear {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+      color: var(--muted);
+      padding: 7px 9px;
+      border-radius: 7px;
+      font-family: inherit;
+      transition: background 0.2s, color 0.2s;
+      display: none;
+    }
+
+    .search__clear:hover {
+      background: rgba(0, 70, 166, 0.08);
+      color: #0046A6;
+    }
+
+    .search__clear.is-visible {
+      display: block;
+    }
+
+    /* ===================== CHIPS ===================== */
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 70, 166, 0.18);
+      background: rgba(255, 255, 255, 0.9);
+      color: #0046A6;
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s;
+      white-space: nowrap;
+    }
+
+    .chip:hover {
+      background: rgba(0, 70, 166, 0.08);
+      transform: translateY(-1px);
+    }
+
+    .chip.active {
+      background: linear-gradient(135deg, #0046A6 0%, #003580 100%);
+      color: #ffffff;
+      border-color: transparent;
+      box-shadow: 0 4px 12px rgba(0, 70, 166, 0.25);
+    }
+
+    .chip__count {
+      font-size: 11px;
+      font-weight: 700;
+      background: rgba(0, 0, 0, 0.08);
+      border-radius: 999px;
+      padding: 1px 7px;
+      line-height: 1.5;
+    }
+
+    .chip.active .chip__count {
+      background: rgba(255, 255, 255, 0.24);
+    }
+
+    /* ===================== CONTADOR ===================== */
+    .contador-resultados {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding: 10px 15px;
+      background: rgba(0, 70, 166, 0.05);
+      border-radius: 8px;
+      border: 1px solid rgba(0, 70, 166, 0.1);
+    }
+
+    .contador-texto {
+      font-weight: 600;
+      color: #0046A6;
+      font-size: 0.9rem;
+    }
+
+    .contador-numero {
+      font-weight: 700;
+      color: #00A859;
+      background: rgba(0, 168, 89, 0.1);
+      padding: 4px 12px;
+      border-radius: 6px;
+      border: 1px solid rgba(0, 168, 89, 0.2);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ===================== GRID DE CARDS ===================== */
+    .links-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 20px;
+    }
+
+    .link-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 18px 18px 16px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid rgba(0, 70, 166, 0.12);
+      border-left: 3px solid var(--cat, #0046A6);
+      box-shadow: 0 4px 14px rgba(0, 70, 166, 0.06);
+      transition: transform 0.28s, box-shadow 0.28s, background 0.3s, border-color 0.3s;
+      animation: cardIn 0.35s ease both;
+    }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    .link-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 26px rgba(0, 70, 166, 0.14);
+    }
+
+    .link-card__top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .link-card__icon {
+      width: 40px;
+      height: 40px;
+      display: grid;
+      place-items: center;
+      font-size: 1.15rem;
+      line-height: 1;
+      border-radius: 11px;
+      background: var(--cat-bg, rgba(0, 70, 166, 0.1));
+      border: 1px solid var(--cat-borda, rgba(0, 70, 166, 0.18));
+      flex-shrink: 0;
+    }
+
+    .link-card__badges {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .link-card__badge {
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--cat, #0046A6);
+      background: var(--cat-bg, rgba(0, 70, 166, 0.1));
+      border: 1px solid var(--cat-borda, rgba(0, 70, 166, 0.18));
+      padding: 4px 9px;
+      border-radius: 999px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .link-card__badge--login {
+      font-size: 10px;
+      letter-spacing: 0.04em;
+      color: #b45309;
+      background: rgba(245, 158, 11, 0.12);
+      border-color: rgba(245, 158, 11, 0.3);
+    }
+
+    .link-card__title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #0046A6;
+      line-height: 1.3;
+      overflow-wrap: anywhere;
+    }
+
+    .link-card__desc {
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.5;
+      flex-grow: 1;
+    }
+
+    .link-card__url {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 11.5px;
+      color: var(--muted);
+      background: rgba(0, 70, 166, 0.05);
+      border-radius: 6px;
+      padding: 5px 9px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .link-card__actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .btn-open {
+      flex: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 9px 12px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 600;
+      text-decoration: none;
+      color: #ffffff;
+      background: linear-gradient(135deg, #0046A6 0%, #003580 100%);
+      box-shadow: 0 4px 12px rgba(0, 70, 166, 0.22);
+      transition: all 0.25s;
+      white-space: nowrap;
+    }
+
+    .btn-open:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(0, 70, 166, 0.3);
+    }
+
+    .btn-open.is-disabled {
+      background: rgba(0, 0, 0, 0.06);
+      color: #9ca3af;
+      box-shadow: none;
+      cursor: not-allowed;
+      transform: none;
+      font-weight: 500;
+    }
+
+    .btn-copy-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      padding: 9px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(0, 70, 166, 0.25);
+      background: rgba(0, 70, 166, 0.06);
+      color: #0046A6;
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s;
+      white-space: nowrap;
+    }
+
+    .btn-copy-link:hover {
+      background: rgba(0, 70, 166, 0.14);
+      transform: translateY(-1px);
+    }
+
+    /* ===================== ESTADO VAZIO ===================== */
+    .empty-state {
+      padding: 50px 20px;
+      text-align: center;
+      color: var(--muted);
+      border: 1px dashed rgba(0, 70, 166, 0.2);
+      border-radius: 12px;
+      background: rgba(0, 70, 166, 0.02);
+    }
+
+    .empty-state[hidden] {
+      display: none;
+    }
+
+    .empty-state__icon {
+      font-size: 2rem;
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    .empty-state__title {
+      font-weight: 700;
+      color: #0046A6;
+      margin-bottom: 4px;
+    }
+
+    .empty-state__text {
+      font-size: 0.85rem;
+    }
+
+    /* ===================== FOOTER ===================== */
+    .page-footer {
+      margin-top: 34px;
+      padding-top: 18px;
+      border-top: 1px solid rgba(0, 70, 166, 0.1);
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    /* ============================
+       MODO ESCURO
+       ============================ */
+    body.dark-mode {
+      background: linear-gradient(135deg, #121619 0%, #1a2229 100%);
+      color: #e0e0e0;
+    }
+
+    body.dark-mode .main-header {
+      background: rgba(22, 28, 36, 0.95);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    body.dark-mode .header-title,
+    body.dark-mode .section-title,
+    body.dark-mode .contador-texto,
+    body.dark-mode .empty-state__title,
+    body.dark-mode .page-sub strong {
+      color: #66a3ff;
+    }
+
+    body.dark-mode .brand-accent {
+      color: #8cbfff;
+    }
+
+    body.dark-mode .nav-menu {
+      background: rgba(255, 255, 255, 0.03);
+      border-color: rgba(255, 255, 255, 0.05);
+    }
+
+    body.dark-mode .nav-button:not(.active) {
+      color: #a0a0a0;
+    }
+
+    body.dark-mode .nav-button:not(.active):hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #ffffff;
+    }
+
+    body.dark-mode #themeToggle {
+      color: #e0e0e0;
+    }
+
+    body.dark-mode .container {
+      background: rgba(30, 38, 46, 0.95);
+      border-color: rgba(255, 255, 255, 0.05);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    }
+
+    body.dark-mode .section-title {
+      border-bottom-color: rgba(255, 255, 255, 0.07);
+    }
+
+    body.dark-mode .page-sub,
+    body.dark-mode .page-footer,
+    body.dark-mode .link-card__desc,
+    body.dark-mode .empty-state {
+      color: #9fb0c0;
+    }
+
+    body.dark-mode .search input {
+      background: rgba(22, 28, 36, 0.9);
+      border-color: rgba(255, 255, 255, 0.1);
+      color: #e0e0e0;
+    }
+
+    body.dark-mode .search input::placeholder {
+      color: #666;
+    }
+
+    body.dark-mode .search__clear:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #e0e0e0;
+    }
+
+    body.dark-mode .chip {
+      background: rgba(30, 38, 46, 0.9);
+      border-color: rgba(255, 255, 255, 0.08);
+      color: #a9c0e0;
+    }
+
+    body.dark-mode .chip:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    body.dark-mode .chip.active {
+      background: linear-gradient(135deg, #0052d7 0%, #003580 100%);
+      color: #ffffff;
+    }
+
+    body.dark-mode .chip__count {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    body.dark-mode .contador-resultados {
+      background: rgba(255, 255, 255, 0.03);
+      border-color: rgba(255, 255, 255, 0.05);
+    }
+
+    body.dark-mode .link-card {
+      background: rgba(30, 38, 46, 0.95);
+      border-color: rgba(255, 255, 255, 0.06);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    }
+
+    body.dark-mode .link-card:hover {
+      box-shadow: 0 12px 26px rgba(0, 0, 0, 0.4);
+    }
+
+    body.dark-mode .link-card__title {
+      color: #66a3ff;
+    }
+
+    body.dark-mode .link-card__url {
+      background: rgba(255, 255, 255, 0.05);
+      color: #9fb0c0;
+    }
+
+    body.dark-mode .btn-copy-link {
+      color: #66a3ff;
+      border-color: rgba(102, 163, 255, 0.3);
+      background: rgba(102, 163, 255, 0.1);
+    }
+
+    body.dark-mode .btn-copy-link:hover {
+      background: rgba(102, 163, 255, 0.2);
+    }
+
+    body.dark-mode .btn-open.is-disabled {
+      background: rgba(255, 255, 255, 0.05);
+      color: #7b8794;
+    }
+
+    body.dark-mode .link-card__badge--login {
+      color: #fbbf24;
+      background: rgba(251, 191, 36, 0.14);
+      border-color: rgba(251, 191, 36, 0.3);
+    }
+
+    body.dark-mode .empty-state {
+      border-color: rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    body.dark-mode .page-footer {
+      border-top-color: rgba(255, 255, 255, 0.07);
+    }
+
+    /* cores por categoria */
+    .link-card[data-cat="ura"]    { --cat:#00A859; --cat-bg:rgba(0,168,89,.10);  --cat-borda:rgba(0,168,89,.22); }
+    .link-card[data-cat="dev"]    { --cat:#0046A6; --cat-bg:rgba(0,70,166,.10);  --cat-borda:rgba(0,70,166,.22); }
+    .link-card[data-cat="docs"]   { --cat:#7c3aed; --cat-bg:rgba(124,58,237,.10);--cat-borda:rgba(124,58,237,.22); }
+    .link-card[data-cat="design"] { --cat:#e11d48; --cat-bg:rgba(225,29,72,.10); --cat-borda:rgba(225,29,72,.22); }
+    .link-card[data-cat="prod"]   { --cat:#d97706; --cat-bg:rgba(217,119,6,.12); --cat-borda:rgba(217,119,6,.25); }
+    .link-card[data-cat="utils"]  { --cat:#0891b2; --cat-bg:rgba(8,145,178,.10); --cat-borda:rgba(8,145,178,.22); }
+
+    body.dark-mode .link-card[data-cat="ura"]    { --cat:#4ade80; --cat-bg:rgba(74,222,128,.12);  --cat-borda:rgba(74,222,128,.25); }
+    body.dark-mode .link-card[data-cat="dev"]    { --cat:#66a3ff; --cat-bg:rgba(102,163,255,.12); --cat-borda:rgba(102,163,255,.25); }
+    body.dark-mode .link-card[data-cat="docs"]   { --cat:#c4a3ff; --cat-bg:rgba(196,163,255,.12); --cat-borda:rgba(196,163,255,.25); }
+    body.dark-mode .link-card[data-cat="design"] { --cat:#ff8fa3; --cat-bg:rgba(255,143,163,.12); --cat-borda:rgba(255,143,163,.25); }
+    body.dark-mode .link-card[data-cat="prod"]   { --cat:#fbbf24; --cat-bg:rgba(251,191,36,.12);  --cat-borda:rgba(251,191,36,.25); }
+    body.dark-mode .link-card[data-cat="utils"]  { --cat:#67e8f9; --cat-bg:rgba(103,232,249,.12); --cat-borda:rgba(103,232,249,.25); }
+
+    /* ===================== RESPONSIVO ===================== */
+    @media (max-width: 768px) {
+      .counteudo_pagina { padding: 0 15px; }
+      .container { padding: 20px; margin-top: 20px; }
+      .Ura-logo { height: 40px; }
+      .main-header { flex-direction: column; gap: 15px; }
+      .nav-menu { width: 100%; justify-content: center; }
+      .links-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 480px) {
+      .header-title { font-size: 1.2rem; }
+      .container { padding: 15px; }
+      .search input { font-size: 13px; padding: 10px 42px 10px 36px; }
+      .chip { font-size: 11.5px; padding: 7px 12px; }
+      .nav-menu { flex-direction: column; gap: 5px; background: transparent; border: none; }
+      .nav-button {
+        width: 100%;
+        justify-content: center;
+        border: 1px solid rgba(0, 70, 166, 0.1);
+        background: rgba(255, 255, 255, 0.9);
+      }
+      body.dark-mode .nav-button {
+        background: rgba(30, 38, 46, 0.9);
+        border-color: rgba(255, 255, 255, 0.1);
+      }
+      .link-card__actions { flex-wrap: wrap; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Header com menu de navegação -->
+  <header class="main-header">
+    <div class="logo-container">
+      <img src="img/logo_ura_tools.png"
+           alt="Ura Tools"
+           class="Ura-logo"
+           title="Ura Tools">
+      <div class="header-title">Central de Links - <span class="brand-accent">Ura Tools</span></div>
+    </div>
+
+    <nav class="nav-menu">
+      <a href="index.html" class="nav-button">
+        <span>🏠</span> Home
+      </a>
+      <a href="links_uteis.html" class="nav-button active">
+        <span>🔗</span> Link's Uteis
+      </a>
+      <button id="themeToggle" class="nav-button" type="button">
+        <span id="themeIcon">🌙</span> <span id="themeText">Escuro</span>
+      </button>
+    </nav>
+  </header>
+
+  <div class="counteudo_pagina">
+    <div class="container">
+      <h1 class="section-title">Link's Úteis</h1>
+      <p class="page-sub">
+        Acessos rápidos às ferramentas e documentações do time.
+        Use a busca para encontrar em segundos, filtre por categoria ou copie o endereço de um link.
+      </p>
+
+      <div class="toolbar">
+        <div class="search">
+          <input
+            type="search"
+            id="searchInput"
+            placeholder="Buscar por nome, descrição, categoria ou endereço..."
+            aria-label="Buscar links úteis"
+            autocomplete="off">
+          <button class="search__clear" id="clearSearch" type="button" aria-label="Limpar busca">✕</button>
+        </div>
+      </div>
+
+      <div class="chips" id="chips" role="group" aria-label="Filtrar por categoria"></div>
+
+      <div class="contador-resultados">
+        <div class="contador-texto">Links encontrados</div>
+        <div class="contador-numero" id="contadorNumero" aria-live="polite">0</div>
+      </div>
+
+      <div class="links-grid" id="linksGrid"></div>
+
+      <div class="empty-state" id="emptyState" hidden>
+        <span class="empty-state__icon" aria-hidden="true">🔎</span>
+        <p class="empty-state__title">Nenhum link encontrado</p>
+        <p class="empty-state__text">Tente outro termo de busca ou selecione a categoria "Todos".</p>
+      </div>
+
+      <div class="page-footer">
+        Os links abrem em uma nova aba. Para adicionar, remover ou editar atalhos,
+        altere a lista <strong>LINKS</strong> no script desta página.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ================= TEMA CLARO / ESCURO ================= */
+    document.addEventListener('DOMContentLoaded', () => {
+      const themeToggle = document.getElementById('themeToggle');
+      const themeIcon = document.getElementById('themeIcon');
+      const themeText = document.getElementById('themeText');
+      const body = document.body;
+
+      if (localStorage.getItem('theme') === 'dark') {
+        body.classList.add('dark-mode');
+        themeIcon.textContent = '☀️';
+        themeText.textContent = 'Claro';
+      }
+
+      themeToggle.addEventListener('click', () => {
+        body.classList.toggle('dark-mode');
+        if (body.classList.contains('dark-mode')) {
+          localStorage.setItem('theme', 'dark');
+          themeIcon.textContent = '☀️';
+          themeText.textContent = 'Claro';
+        } else {
+          localStorage.setItem('theme', 'light');
+          themeIcon.textContent = '🌙';
+          themeText.textContent = 'Escuro';
+        }
+      });
+    });
+
+    /* ================= LINK'S ÚTEIS ================= */
+    (function () {
+      'use strict';
+
+      /* ------------------------------------------------------------
+         👉 EDITE AQUI: basta adicionar / remover / alterar objetos.
+         cat      -> ura | dev | docs | design | prod | utils
+         url      -> link completo (https://...) ou caminho relativo
+         login    -> true para exibir o selo "Login"
+         pendente -> true para exibir o card como "link a definir"
+      ------------------------------------------------------------ */
+      const LINKS = [
+        /* ---------- URA / INTERNO ---------- */
+        {
+          cat: 'ura',
+          icon: '⚙️',
+          titulo: 'Parametrizador',
+          desc: 'Parametrização das aplicações do ambiente C2X. Acesso com login.',
+          url: 'https://par1.c2x.com.br/login.aspx',
+          login: true
+        },
+        {
+          cat: 'ura',
+          icon: '☎️',
+          titulo: 'Nice CXone',
+          desc: 'Plataforma de contact center NICE CXone. Acesso com login.',
+          url: 'https://cxone.niceincontact.com/auth/authorize',
+          login: true
+        },
+
+        /* ---------- DOCUMENTAÇÃO ---------- */
+        {
+          cat: 'docs',
+          icon: '📊',
+          titulo: 'Documentações Miro',
+          desc: 'Planilha com as documentações do Miro (aba 1657665289).',
+          url: 'https://docs.google.com/spreadsheets/d/1Ih3Z0moX87rzNOJanAzpMAnc_1Tu98zkl3A0fjZTRXY/edit?hl=pt-BR&gid=1657665289#gid=1657665289',
+          login: true
+        },
+        {
+          cat: 'docs',
+          icon: '🗺️',
+          titulo: 'Mapas de Tagueamento',
+          desc: 'Pasta no Google Drive com os mapas de tagueamento das aplicações.',
+          url: 'https://drive.google.com/drive/folders/156IzIYdmq4dhuViKar-2NbAxF3FeSuJP',
+          login: true
+        }
+      ];
+
+      const CATEGORIAS = {
+        ura:    { nome: 'Ura / Interno',   icone: '🏢' },
+        dev:    { nome: 'Desenvolvimento', icone: '💻' },
+        docs:   { nome: 'Documentação',    icone: '📚' },
+        design: { nome: 'Design & Imagens',icone: '🎨' },
+        prod:   { nome: 'Produtividade',   icone: '⚡' },
+        utils:  { nome: 'Utilitários',     icone: '🧰' }
+      };
+
+      const ORDEM_CATS = Object.keys(CATEGORIAS);
+
+      /* ---------- elementos ---------- */
+      const grid       = document.getElementById('linksGrid');
+      const chipsEl    = document.getElementById('chips');
+      const contador   = document.getElementById('contadorNumero');
+      const emptyState = document.getElementById('emptyState');
+      const buscaInput = document.getElementById('searchInput');
+      const clearBtn   = document.getElementById('clearSearch');
+
+      let busca = '';
+      let categoriaAtiva = 'todas';
+
+      /* ---------- helpers ---------- */
+      function normalizar(valor) {
+        return String(valor || '')
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '');
+      }
+
+      function urlExibicao(link) {
+        if (link.pendente) return 'link a definir';
+        try {
+          const u = new URL(link.url, location.href);
+          if (u.protocol === 'file:' || !/^https?:/i.test(link.url)) return link.url;
+          const host = u.host.replace(/^www\./, '');
+          const path = u.pathname === '/' ? '' : u.pathname.replace(/\/$/, '');
+          const exibicao = host + path;
+          return exibicao.length > 68 ? exibicao.slice(0, 65) + '…' : exibicao;
+        } catch (e) {
+          return link.url;
+        }
+      }
+
+      function copiarLink(link, botao) {
+        let texto = link.url;
+        if (/^https?:/i.test(link.url)) {
+          try { texto = new URL(link.url).href; } catch (e) { /* mantém original */ }
+        }
+
+        const finalizar = () => {
+          botao.textContent = '✅ Copiado!';
+          setTimeout(() => { botao.textContent = '📋 Copiar'; }, 1800);
+        };
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(texto).then(finalizar).catch(() => fallbackCopy(texto, finalizar));
+        } else {
+          fallbackCopy(texto, finalizar);
+        }
+      }
+
+      function fallbackCopy(texto, cb) {
+        const tmp = document.createElement('textarea');
+        tmp.value = texto;
+        tmp.style.position = 'fixed';
+        tmp.style.opacity = '0';
+        document.body.appendChild(tmp);
+        tmp.select();
+        try { document.execCommand('copy'); } catch (e) { /* silencioso */ }
+        tmp.remove();
+        cb();
+      }
+
+      /* ---------- criação de card ---------- */
+      function criarCard(link) {
+        const cat = CATEGORIAS[link.cat] || { nome: 'Outros', icone: '🔗' };
+
+        const card = document.createElement('article');
+        card.className = 'link-card';
+        card.dataset.cat = link.cat;
+
+        const top = document.createElement('div');
+        top.className = 'link-card__top';
+
+        const icone = document.createElement('span');
+        icone.className = 'link-card__icon';
+        icone.setAttribute('aria-hidden', 'true');
+        icone.textContent = link.icon || cat.icone;
+
+        const badges = document.createElement('div');
+        badges.className = 'link-card__badges';
+
+        const badge = document.createElement('span');
+        badge.className = 'link-card__badge';
+        badge.textContent = cat.nome;
+        badges.appendChild(badge);
+
+        if (link.login) {
+          const badgeLogin = document.createElement('span');
+          badgeLogin.className = 'link-card__badge link-card__badge--login';
+          badgeLogin.textContent = '🔒 Login';
+          badges.appendChild(badgeLogin);
+        }
+
+        top.append(icone, badges);
+
+        const titulo = document.createElement('h3');
+        titulo.className = 'link-card__title';
+        titulo.textContent = link.titulo;
+
+        const desc = document.createElement('p');
+        desc.className = 'link-card__desc';
+        desc.textContent = link.desc;
+
+        const url = document.createElement('span');
+        url.className = 'link-card__url';
+        url.textContent = urlExibicao(link);
+        url.title = urlExibicao(link);
+
+        const acoes = document.createElement('div');
+        acoes.className = 'link-card__actions';
+
+        if (link.pendente) {
+          const span = document.createElement('span');
+          span.className = 'btn-open is-disabled';
+          span.textContent = 'Link a definir';
+          acoes.appendChild(span);
+        } else {
+          const abrir = document.createElement('a');
+          abrir.className = 'btn-open';
+          abrir.href = link.url;
+          abrir.target = '_blank';
+          abrir.rel = 'noopener noreferrer';
+          abrir.textContent = 'Abrir ↗';
+
+          const copiar = document.createElement('button');
+          copiar.type = 'button';
+          copiar.className = 'btn-copy-link';
+          copiar.textContent = '📋 Copiar';
+          copiar.addEventListener('click', () => copiarLink(link, copiar));
+
+          acoes.append(abrir, copiar);
+        }
+
+        card.append(top, titulo, desc, url, acoes);
+        return card;
+      }
+
+      /* ---------- filtro ---------- */
+      function obterFiltrados() {
+        const termo = normalizar(busca);
+
+        return LINKS
+          .map((link, indice) => ({ link, indice }))
+          .filter(({ link }) => {
+            if (categoriaAtiva !== 'todas' && link.cat !== categoriaAtiva) return false;
+            if (!termo) return true;
+
+            const alvo = normalizar([
+              link.titulo,
+              link.desc,
+              link.url,
+              (CATEGORIAS[link.cat] || {}).nome
+            ].join(' '));
+
+            return alvo.indexOf(termo) !== -1;
+          })
+          .sort((a, b) => {
+            const diff = ORDEM_CATS.indexOf(a.link.cat) - ORDEM_CATS.indexOf(b.link.cat);
+            return diff !== 0 ? diff : a.indice - b.indice;
+          })
+          .map(item => item.link);
+      }
+
+      /* ---------- render ---------- */
+      function renderizar() {
+        const lista = obterFiltrados();
+
+        grid.innerHTML = '';
+        const frag = document.createDocumentFragment();
+        lista.forEach(link => frag.appendChild(criarCard(link)));
+        grid.appendChild(frag);
+
+        contador.textContent = lista.length;
+        emptyState.hidden = lista.length !== 0;
+      }
+
+      /* ---------- chips ---------- */
+      function montarChips() {
+        const frag = document.createDocumentFragment();
+
+        const criarChip = (rotulo, valor, total, icone) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'chip' + (valor === categoriaAtiva ? ' active' : '');
+          btn.dataset.cat = valor;
+
+          const texto = document.createElement('span');
+          texto.textContent = icone ? icone + ' ' + rotulo : rotulo;
+
+          const qtd = document.createElement('span');
+          qtd.className = 'chip__count';
+          qtd.textContent = total;
+
+          btn.append(texto, qtd);
+          btn.addEventListener('click', () => {
+            categoriaAtiva = valor;
+            chipsEl.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            renderizar();
+          });
+
+          return btn;
+        };
+
+        frag.appendChild(criarChip('Todos', 'todas', LINKS.length, '🗂️'));
+
+        ORDEM_CATS.forEach(cat => {
+          const total = LINKS.filter(l => l.cat === cat).length;
+          if (!total) return;
+          frag.appendChild(criarChip(CATEGORIAS[cat].nome, cat, total, CATEGORIAS[cat].icone));
+        });
+
+        chipsEl.innerHTML = '';
+        chipsEl.appendChild(frag);
+      }
+
+      /* ---------- busca ---------- */
+      buscaInput.addEventListener('input', () => {
+        busca = buscaInput.value;
+        clearBtn.classList.toggle('is-visible', busca.length > 0);
+        renderizar();
+      });
+
+      buscaInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          buscaInput.value = '';
+          busca = '';
+          clearBtn.classList.remove('is-visible');
+          renderizar();
+        }
+      });
+
+      clearBtn.addEventListener('click', () => {
+        buscaInput.value = '';
+        busca = '';
+        clearBtn.classList.remove('is-visible');
+        renderizar();
+        buscaInput.focus();
+      });
+
+      /* ---------- init ---------- */
+      montarChips();
+      renderizar();
+    })();
+  </script>
+</body>
+</html>
