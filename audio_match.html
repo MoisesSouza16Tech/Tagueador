@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <link rel="icon" href="img/logo_ura_tools.png" type="image/png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Audio Converter & Transcriber (NICE CXone) - Ura Tools</title>
+  <title>Audio Converter & Editor (NICE CXone) - Ura Tools</title>
 
   <!-- JSZip para baixar múltiplos áudios convertidos de uma vez -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -362,7 +362,7 @@
       accent-color: #00A859;
     }
 
-    /* Barra de Progresso do Modelo Local */
+    /* Barra de Status e Progresso do Modelo Local */
     .model-status-box {
       background: rgba(124, 58, 237, 0.08);
       border: 1px solid rgba(124, 58, 237, 0.25);
@@ -551,7 +551,7 @@
 
     .audio-item__grid {
       display: grid;
-      grid-template-columns: 1fr 1fr 1.25fr;
+      grid-template-columns: 1.2fr 1fr 1.25fr;
       gap: 16px;
       align-items: stretch;
     }
@@ -620,6 +620,46 @@
       width: 100%;
       height: 36px;
       margin-top: auto;
+    }
+
+    /* Controles de Edição Profissional */
+    .editor-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.6);
+      border: 1px solid rgba(0, 70, 166, 0.1);
+      border-radius: 8px;
+      padding: 8px;
+      margin-top: 4px;
+    }
+
+    .waveform-canvas {
+      width: 100%;
+      height: 40px;
+      background: #111827;
+      border-radius: 4px;
+    }
+
+    .editor-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      font-size: 0.75rem;
+    }
+
+    .editor-row label {
+      font-weight: 600;
+      color: var(--muted);
+      min-width: 65px;
+    }
+
+    .editor-row input[type="number"] {
+      width: 60px;
+      padding: 3px 6px;
+      border: 1px solid rgba(0, 70, 166, 0.2);
+      border-radius: 4px;
+      font-size: 0.75rem;
     }
 
     .transcript-area {
@@ -786,7 +826,8 @@
     body.dark-mode .spec-pill,
     body.dark-mode .settings-panel,
     body.dark-mode .batch-toolbar,
-    body.dark-mode .panel-box {
+    body.dark-mode .panel-box,
+    body.dark-mode .editor-controls {
       background: rgba(255, 255, 255, 0.03);
       border-color: rgba(255, 255, 255, 0.07);
     }
@@ -802,6 +843,7 @@
     body.dark-mode .transcript-area,
     body.dark-mode .meta-tag,
     body.dark-mode .counter-pill,
+    body.dark-mode .editor-row input[type="number"],
     body.dark-mode .btn-mini:not(.btn-mini--green):not(.btn-mini--purple) {
       background: rgba(22, 28, 36, 0.95);
       border-color: rgba(255, 255, 255, 0.12);
@@ -812,11 +854,6 @@
     body.dark-mode .free-badge {
       color: #4ade80;
       border-color: rgba(74, 222, 128, 0.35);
-    }
-
-    body.dark-mode .model-status-box {
-      color: #c4b5fd;
-      background: rgba(124, 58, 237, 0.18);
     }
 
     body.dark-mode .btn-clear {
@@ -862,7 +899,7 @@
       <div class="section-title">
         <div class="section-title-left">
           <span>🎧</span>
-          <span>Conversor & Transcritor de Áudio — Padrão Studio NICE CXone</span>
+          <span>Conversor, Editor & Transcritor de Áudio — Padrão Studio NICE CXone</span>
         </div>
       </div>
 
@@ -911,7 +948,7 @@
           <div class="dropzone__icon">🎙️</div>
           <div class="dropzone__title">Arraste seus arquivos de áudio aqui ou clique para selecionar</div>
           <div class="dropzone__sub">
-            Suba 1 ou vários arquivos (<strong>.wav, .mp3, .ogg, .m4a, .flac</strong>). Converte para <strong>WAV CCITT μ-Law 8kHz Mono 64kbps</strong> e transcreve gratuitamente!
+            Suba 1 ou vários arquivos (<strong>.wav, .mp3, .ogg, .m4a, .flac</strong>). Edite, remova chiados e converta para <strong>WAV CCITT μ-Law 8kHz Mono 64kbps</strong>!
           </div>
           <button type="button" class="dropzone__btn">Selecionar Arquivos de Áudio</button>
           <input type="file" id="fileInput" multiple accept="audio/*,.wav,.mp3,.ogg,.m4a,.aac,.flac" style="display:none">
@@ -932,13 +969,13 @@
               <option value="local_tiny" selected>🆓 IA Local no Navegador — Whisper Tiny (Grátis, Rápido, Sem Chave)</option>
               <option value="local_base">🆓 IA Local no Navegador — Whisper Base (Grátis, Maior Precisão, Sem Chave)</option>
               <option value="groq">⚡ Groq Cloud API — Whisper Large v3 Turbo (Chave Grátis em console.groq.com)</option>
-              <option value="openai">🔑 OpenAI API Oficial — whisper-1 / gpt-4o-mini-transcribe</option>
+              <option value="openai">🔑 OpenAI API Oficial — whisper-1</option>
             </select>
           </div>
 
           <!-- Barra de status de download do modelo local -->
           <div class="model-status-box" id="modelStatusBox">
-            <div id="modelStatusText">Baixando modelo Whisper para o navegador (só na 1ª vez)...</div>
+            <div id="modelStatusText">Baixando modelo Whisper para o navegador...</div>
             <div class="progress-bar-wrap">
               <div class="progress-bar-fill" id="modelProgressBar"></div>
             </div>
@@ -948,7 +985,7 @@
           <div class="setting-row" id="apiKeyRow" style="display:none;">
             <label for="apiKeyInput">
               <span id="apiKeyLabel">🔑 Chave da API:</span>
-              <a href="https://console.groq.com/keys" target="_blank" rel="noopener" id="apiKeyHelpLink">Criar chave grátis na Groq ↗</a>
+              <a href="https://console.groq.com/keys" target="_blank" rel="noopener" id="apiKeyHelpLink">Pegar chave grátis na Groq ↗</a>
             </label>
             <input type="password" id="apiKeyInput" placeholder="Cole sua chave gsk_... ou sk-...">
           </div>
@@ -961,7 +998,7 @@
           <div class="checkbox-group">
             <label class="checkbox-label">
               <input type="checkbox" id="chkNormalize" checked>
-              <span>Normalizar volume (evita áudios baixos na URA)</span>
+              <span>Normalizar volume + Filtro Anti-Chiado URA (3.4kHz Low-Pass)</span>
             </label>
             <label class="checkbox-label">
               <input type="checkbox" id="chkSanitizeName" checked>
@@ -1003,7 +1040,7 @@
       <!-- Lista de Áudios -->
       <div id="audioList" class="audio-list">
         <div class="empty-queue" id="emptyState">
-          Nenhum áudio carregado ainda. Selecione ou arraste um ou mais arquivos acima para converter e transcrever.
+          Nenhum áudio carregado ainda. Selecione ou arraste um ou mais arquivos acima para editar, converter e transcrever.
         </div>
       </div>
 
@@ -1041,7 +1078,6 @@
     const apiKeyLabel    = document.getElementById('apiKeyLabel');
     const apiKeyHelpLink = document.getElementById('apiKeyHelpLink');
 
-    // Salva chave no navegador para não precisar redigitar
     apiKeyInput.value = localStorage.getItem('ura_stt_api_key') || '';
     apiKeyInput.addEventListener('input', () => {
       localStorage.setItem('ura_stt_api_key', apiKeyInput.value.trim());
@@ -1069,7 +1105,7 @@
     });
 
     /* =========================================================
-       2) CODIFICADOR BINÁRIO: WAV CCITT μ-Law (8kHz, 8-bit, Mono, 64kbps)
+       2) CODIFICADOR BINÁRIO ANTI-CHIADO: WAV CCITT μ-Law (8kHz, 8-bit, Mono, 64kbps)
        ========================================================= */
     const TARGET_SAMPLE_RATE = 8000;
 
@@ -1101,8 +1137,8 @@
           const abs = Math.abs(samplesFloat32[i]);
           if (abs > maxPeak) maxPeak = abs;
         }
-        if (maxPeak > 0.001 && maxPeak < 0.92) {
-          gain = 0.92 / maxPeak;
+        if (maxPeak > 0.001) {
+          gain = 0.88 / maxPeak; // Normalização segura
         }
       }
 
@@ -1149,7 +1185,7 @@
       return new Blob([buffer], { type: 'audio/wav' });
     }
 
-    async function decodeAndResampleMono(file, targetRate) {
+    async function decodeAndResampleMono(file, targetRate, trimStart = 0, trimEnd = 0, fadeIn = 0, fadeOut = 0) {
       const arrayBuffer = await file.arrayBuffer();
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
       const tempCtx = new AudioCtx();
@@ -1161,58 +1197,97 @@
         if (tempCtx.close) await tempCtx.close();
       }
 
-      const originalMeta = {
-        sampleRate: decodedBuffer.sampleRate,
-        channels: decodedBuffer.numberOfChannels,
-        duration: decodedBuffer.duration
-      };
+      const totalDuration = decodedBuffer.duration;
+      const startSec = Math.max(0, trimStart);
+      const endSec = trimEnd > startSec && trimEnd <= totalDuration ? trimEnd : totalDuration;
+      const effectiveDuration = Math.max(0.1, endSec - startSec);
 
-      const lengthOriginal = decodedBuffer.length;
+      const startSample = Math.floor(startSec * decodedBuffer.sampleRate);
+      const endSample = Math.floor(endSec * decodedBuffer.sampleRate);
+      const slicedLength = Math.max(1, endSample - startSample);
+
       const monoOriginalBuffer = new AudioBuffer({
-        length: lengthOriginal,
+        length: slicedLength,
         numberOfChannels: 1,
         sampleRate: decodedBuffer.sampleRate
       });
 
       const monoData = monoOriginalBuffer.getChannelData(0);
       const numCh = decodedBuffer.numberOfChannels;
+
       for (let ch = 0; ch < numCh; ch++) {
         const chData = decodedBuffer.getChannelData(ch);
-        for (let i = 0; i < lengthOriginal; i++) {
-          monoData[i] += chData[i] / numCh;
+        for (let i = 0; i < slicedLength; i++) {
+          monoData[i] += chData[i + startSample] / numCh;
         }
       }
 
-      const targetLength = Math.max(1, Math.ceil(decodedBuffer.duration * targetRate));
+      // Aplicação de Fade In / Fade Out
+      if (fadeIn > 0) {
+        const fadeSamples = Math.min(slicedLength, Math.floor(fadeIn * decodedBuffer.sampleRate));
+        for (let i = 0; i < fadeSamples; i++) {
+          monoData[i] *= (i / fadeSamples);
+        }
+      }
+      if (fadeOut > 0) {
+        const fadeSamples = Math.min(slicedLength, Math.floor(fadeOut * decodedBuffer.sampleRate));
+        for (let i = 0; i < fadeSamples; i++) {
+          monoData[slicedLength - 1 - i] *= (i / fadeSamples);
+        }
+      }
+
+      const targetLength = Math.max(1, Math.ceil(effectiveDuration * targetRate));
       const offlineCtx = new OfflineAudioContext(1, targetLength, targetRate);
+      
       const source = offlineCtx.createBufferSource();
       source.buffer = monoOriginalBuffer;
-      source.connect(offlineCtx.destination);
+
+      // FILTRO LOW-PASS PARA CORTAR CHIADOS DE TELEFONIA
+      const lowpass = offlineCtx.createBiquadFilter();
+      lowpass.type = "lowpass";
+      lowpass.frequency.value = 3400; 
+
+      source.connect(lowpass);
+      lowpass.connect(offlineCtx.destination);
       source.start(0);
 
       const renderedBuffer = await offlineCtx.startRendering();
       return {
-        originalMeta,
+        originalMeta: {
+          sampleRate: decodedBuffer.sampleRate,
+          channels: decodedBuffer.numberOfChannels,
+          duration: totalDuration
+        },
         samples: renderedBuffer.getChannelData(0),
-        duration: renderedBuffer.duration
+        duration: renderedBuffer.duration,
+        rawBuffer: decodedBuffer
       };
     }
 
-    async function convertFileToCXoneMuLaw(file, normalize = true) {
-      const { originalMeta, samples, duration } = await decodeAndResampleMono(file, TARGET_SAMPLE_RATE);
+    async function convertFileToCXoneMuLaw(item, normalize = true) {
+      const { originalMeta, samples, duration, rawBuffer } = await decodeAndResampleMono(
+        item.file,
+        TARGET_SAMPLE_RATE,
+        item.trimStart,
+        item.trimEnd,
+        item.fadeIn,
+        item.fadeOut
+      );
+
       const wavBlob = encodeWAVMuLaw(samples, normalize);
 
       return {
         originalMeta,
         convertedBlob: wavBlob,
         convertedSize: wavBlob.size,
-        duration
+        duration,
+        rawBuffer
       };
     }
 
     /* =========================================================
-       3) MOTOR DE TRANSCRIÇÃO GRATUITO NO NAVEGADOR (WHISPER WASM)
-          + SUPORTE A GROQ CLOUD E OPENAI API
+       3) MOTOR DE TRANSCRIÇÃO GRATUITO NO NAVEGADOR (WHISPER LOCAL)
+          + SUPORTE A GROQ E OPENAI API
        ========================================================= */
     let transformersPipeline = null;
     let loadedModelName = null;
@@ -1231,10 +1306,14 @@
       const progBar    = document.getElementById('modelProgressBar');
 
       statusBox.classList.add('show');
-      statusText.textContent = `Carregando IA Gratuita (${modelId}) no navegador...`;
+      statusText.textContent = `Carregando IA Local (${modelId}) no navegador...`;
       progBar.style.width = '10%';
 
-      const { pipeline } = await import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2');
+      const { pipeline, env } = await import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2');
+
+      env.allowLocalModels = false;
+      env.useBrowserCache = true;
+      env.allowRemoteModels = true;
 
       transformersPipeline = await pipeline('automatic-speech-recognition', modelId, {
         progress_callback: (info) => {
@@ -1263,11 +1342,9 @@
       btn.disabled = true;
 
       try {
-        // OPÇÃO 1: IA LOCAL GRATUITA (Sem Chave, direto no navegador)
         if (engine === 'local_tiny' || engine === 'local_base') {
           const transcriber = await getLocalWhisperTranscriber(engine);
-          // O Whisper espera áudio Float32 em 16000 Hz
-          const { samples } = await decodeAndResampleMono(item.file, 16000);
+          const { samples } = await decodeAndResampleMono(item.file, 16000, item.trimStart, item.trimEnd);
 
           const output = await transcriber(samples, {
             language: 'portuguese',
@@ -1283,10 +1360,9 @@
           return;
         }
 
-        // OPÇÃO 2 E 3: GROQ CLOUD (GRÁTIS COM CHAVE) OU OPENAI
         const apiKey = apiKeyInput.value.trim();
         if (!apiKey) {
-          alert('Informe sua chave de API no painel de configurações ou mude o motor para "🆓 IA Local no Navegador (Grátis, Sem Chave)".');
+          alert('Informe sua chave de API no painel de configurações ou mude o motor para "🆓 IA Local no Navegador".');
           apiKeyInput.focus();
           return;
         }
@@ -1327,7 +1403,35 @@
     }
 
     /* =========================================================
-       4) FILA E INTERFACE DOS CARDS
+       4) RENDERIZADOR DE ONDA DE ÁUDIO (WAVEFORM CANVAS)
+       ========================================================= */
+    function drawWaveform(canvas, audioBuffer) {
+      if (!canvas || !audioBuffer) return;
+      const ctx = canvas.getContext('2d');
+      const width = canvas.width = canvas.clientWidth;
+      const height = canvas.height = canvas.clientHeight;
+      
+      const data = audioBuffer.getChannelData(0);
+      const step = Math.ceil(data.length / width);
+      const amp = height / 2;
+
+      ctx.clearRect(0, 0, width, height);
+      ctx.fillStyle = '#00A859';
+
+      for (let i = 0; i < width; i++) {
+        let min = 1.0;
+        let max = -1.0;
+        for (let j = 0; j < step; j++) {
+          const datum = data[(i * step) + j];
+          if (datum < min) min = datum;
+          if (datum > max) max = datum;
+        }
+        ctx.fillRect(i, (1 + min) * amp, 1, Math.max(1, (max - min) * amp));
+      }
+    }
+
+    /* =========================================================
+       5) FILA E INTERFACE DOS CARDS
        ========================================================= */
     const audioQueue = [];
     let itemIdCounter = 1;
@@ -1436,7 +1540,11 @@
           convertedBlob: null,
           convertedUrl: null,
           convertedSize: 0,
-          transcript: ''
+          transcript: '',
+          trimStart: 0,
+          trimEnd: 0,
+          fadeIn: 0,
+          fadeOut: 0
         };
         audioQueue.push(item);
         newItems.push(item);
@@ -1464,23 +1572,41 @@
             <input type="text" class="audio-item__name-input" id="name-${item.id}" value="${item.outputName}" title="Nome final do arquivo WAV">
           </div>
           <div class="mini-actions">
-            <button type="button" class="btn-mini" id="btn-conv-${item.id}">⚡ Converter p/ CXone</button>
+            <button type="button" class="btn-mini" id="btn-conv-${item.id}">⚡ Aplicar Edição & Converter</button>
             <button type="button" class="btn-mini btn-mini--green" id="btn-dl-${item.id}" style="display:none">⬇️ Baixar WAV μ-Law</button>
             <button type="button" class="btn-mini btn-mini--danger" id="btn-del-${item.id}">✕ Remover</button>
           </div>
         </div>
 
         <div class="audio-item__grid">
-          <!-- Coluna 1: Original -->
+          <!-- Coluna 1: Original + Editor Profissional -->
           <div class="panel-box">
             <div class="panel-box__title">
-              <span>📥 Áudio Original</span>
+              <span>📥 Áudio Original & Editor</span>
               <span>${formatBytes(item.file.size)}</span>
             </div>
             <div class="meta-tags" id="orig-meta-${item.id}">
               <span class="meta-tag">Arquivo: ${item.file.name}</span>
             </div>
+            
             <audio controls preload="metadata" src="${item.originalUrl}"></audio>
+
+            <!-- Painel de Corte, Fade-In e Fade-Out -->
+            <div class="editor-controls">
+              <canvas class="waveform-canvas" id="canvas-${item.id}"></canvas>
+              <div class="editor-row">
+                <label>Corte Início:</label>
+                <input type="number" id="trim-start-${item.id}" value="0" min="0" step="0.1">s
+                <label style="margin-left:auto">Corte Fim:</label>
+                <input type="number" id="trim-end-${item.id}" value="0" min="0" step="0.1">s
+              </div>
+              <div class="editor-row">
+                <label>Fade In:</label>
+                <input type="number" id="fade-in-${item.id}" value="0" min="0" max="5" step="0.1">s
+                <label style="margin-left:auto">Fade Out:</label>
+                <input type="number" id="fade-out-${item.id}" value="0" min="0" max="5" step="0.1">s
+              </div>
+            </div>
           </div>
 
           <!-- Coluna 2: Convertido NICE CXone -->
@@ -1509,7 +1635,7 @@
                 <button type="button" class="btn-mini" id="btn-copy-txt-${item.id}" title="Copiar Nome + Transcrição">📋 Copiar</button>
               </div>
             </div>
-            <textarea class="transcript-area" id="txt-${item.id}" placeholder="Clique em '✨ Transcrever Áudio' para extrair a fala gratuitamente com IA..."></textarea>
+            <textarea class="transcript-area" id="txt-${item.id}" placeholder="Clique em '✨ Transcrever Áudio' para gerar a transcrição do arquivo..."></textarea>
           </div>
         </div>
       `;
@@ -1523,10 +1649,14 @@
         item.outputName = v || `audio_${item.id}.wav`;
       });
 
+      // Eventos dos Controles de Edição
+      document.getElementById(`trim-start-${item.id}`).addEventListener('change', (e) => item.trimStart = parseFloat(e.target.value) || 0);
+      document.getElementById(`trim-end-${item.id}`).addEventListener('change', (e) => item.trimEnd = parseFloat(e.target.value) || 0);
+      document.getElementById(`fade-in-${item.id}`).addEventListener('change', (e) => item.fadeIn = parseFloat(e.target.value) || 0);
+      document.getElementById(`fade-out-${item.id}`).addEventListener('change', (e) => item.fadeOut = parseFloat(e.target.value) || 0);
+
       const txtArea = document.getElementById(`txt-${item.id}`);
-      txtArea.addEventListener('input', () => {
-        item.transcript = txtArea.value;
-      });
+      txtArea.addEventListener('input', () => item.transcript = txtArea.value);
 
       document.getElementById(`btn-conv-${item.id}`).addEventListener('click', () => convertSingleItem(item));
       document.getElementById(`btn-dl-${item.id}`).addEventListener('click', () => downloadSingleItem(item));
@@ -1546,13 +1676,14 @@
       const convAudio  = document.getElementById(`conv-audio-${item.id}`);
       const btnDl      = document.getElementById(`btn-dl-${item.id}`);
       const cardEl     = document.getElementById(`audio-item-${item.id}`);
+      const canvas     = document.getElementById(`canvas-${item.id}`);
 
       try {
         badgeEl.textContent = '⏳ Convertendo...';
         badgeEl.className = 'audio-item__badge badge-pending';
 
         const normalize = document.getElementById('chkNormalize').checked;
-        const res = await convertFileToCXoneMuLaw(item.file, normalize);
+        const res = await convertFileToCXoneMuLaw(item, normalize);
 
         if (item.convertedUrl) URL.revokeObjectURL(item.convertedUrl);
         item.originalMeta  = res.originalMeta;
@@ -1560,10 +1691,20 @@
         item.convertedSize = res.convertedSize;
         item.convertedUrl  = URL.createObjectURL(res.convertedBlob);
 
+        // Atualiza campo de corte fim se for a 1a vez
+        const trimEndInput = document.getElementById(`trim-end-${item.id}`);
+        if (trimEndInput && parseFloat(trimEndInput.value) === 0) {
+          trimEndInput.value = res.originalMeta.duration.toFixed(1);
+          item.trimEnd = res.originalMeta.duration;
+        }
+
+        // Desenha a forma de onda no Canvas
+        if (res.rawBuffer) drawWaveform(canvas, res.rawBuffer);
+
         origMetaEl.innerHTML = `
           <span class="meta-tag">${(res.originalMeta.sampleRate / 1000).toFixed(1)} kHz</span>
           <span class="meta-tag">${res.originalMeta.channels} ${res.originalMeta.channels > 1 ? 'Canais (Estéreo)' : 'Canal (Mono)'}</span>
-          <span class="meta-tag">⏱️ ${formatDuration(res.originalMeta.duration)}</span>
+          <span class="meta-tag">⏱️ ${formatDuration(res.duration)}</span>
         `;
 
         convSizeEl.textContent = formatBytes(res.convertedSize);
@@ -1662,7 +1803,7 @@
     }
 
     /* =========================================================
-       5) AÇÕES EM LOTE
+       6) AÇÕES EM LOTE
        ========================================================= */
     btnConvertAll.addEventListener('click', async () => {
       for (const item of audioQueue) {
