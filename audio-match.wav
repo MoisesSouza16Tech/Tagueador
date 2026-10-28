@@ -1,0 +1,1750 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" href="img/logo_ura_tools.png" type="image/png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Audio Converter & Transcriber (NICE CXone) - Ura Tools</title>
+
+  <!-- JSZip para baixar múltiplos áudios convertidos de uma vez -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --azul: #0046A6;
+      --azul-esc: #003580;
+      --verde: #00A859;
+      --verde-esc: #008E4A;
+      --roxo: #7c3aed;
+      --laranja: #f59e0b;
+      --vermelho: #dc2626;
+      --texto: #333333;
+      --muted: #666666;
+    }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+      background: linear-gradient(135deg, #f0f4f8 0%, #e6ecf2 100%);
+      min-height: 100vh;
+      color: var(--texto);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: background 0.3s, color 0.3s;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ===================== HEADER ===================== */
+    .main-header {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(0, 70, 166, 0.1);
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 20px rgba(0, 70, 166, 0.08);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      width: 100%;
+      transition: background 0.3s, border-color 0.3s;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .Ura-logo {
+      height: 46px;
+      width: auto;
+    }
+
+    .header-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #0046A6;
+    }
+
+    .brand-accent {
+      color: #0016a8;
+      font-weight: 600;
+    }
+
+    .nav-menu {
+      display: flex;
+      gap: 10px;
+      background: rgba(0, 70, 166, 0.05);
+      border-radius: 12px;
+      padding: 4px;
+      border: 1px solid rgba(0, 70, 166, 0.1);
+    }
+
+    .nav-button {
+      padding: 9px 20px;
+      font-size: 13.5px;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      background: transparent;
+      color: #0046A6;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: inherit;
+    }
+
+    .nav-button:hover {
+      background: rgba(0, 70, 166, 0.1);
+    }
+
+    .nav-button.active {
+      background: linear-gradient(135deg, #0046A6 0%, #003580 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(0, 70, 166, 0.2);
+    }
+
+    #themeToggle {
+      color: #666;
+    }
+
+    /* ===================== CONTAINER ===================== */
+    .conteudo_pagina {
+      padding: 0 20px;
+      width: 100%;
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(0, 70, 166, 0.1);
+      border-radius: 16px;
+      padding: clamp(20px, 2.5vw, 35px);
+      width: 100%;
+      box-shadow: 0 8px 32px rgba(0, 70, 166, 0.08);
+      margin-top: 25px;
+      margin-bottom: 35px;
+      transition: background 0.3s, border-color 0.3s;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      font-size: clamp(1.15rem, 2vw, 1.35rem);
+      font-weight: 700;
+      color: #0046A6;
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid rgba(0, 70, 166, 0.1);
+    }
+
+    .section-title-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* ===================== ESPECIFICAÇÕES NICE CXONE ===================== */
+    .specs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .spec-pill {
+      background: linear-gradient(135deg, rgba(0, 70, 166, 0.06) 0%, rgba(0, 168, 89, 0.06) 100%);
+      border: 1px solid rgba(0, 70, 166, 0.15);
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .spec-pill__icon {
+      font-size: 1.35rem;
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: rgba(0, 70, 166, 0.1);
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+
+    .spec-pill__label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .spec-pill__value {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: #0046A6;
+      font-family: 'Courier New', monospace;
+    }
+
+    /* ===================== UPLOAD ZONE & CONFIGURAÇÕES ===================== */
+    .top-workspace {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: 24px;
+      margin-bottom: 22px;
+    }
+
+    @media (max-width: 992px) {
+      .top-workspace {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .dropzone {
+      border: 2px dashed rgba(0, 70, 166, 0.3);
+      border-radius: 14px;
+      padding: 32px 20px;
+      text-align: center;
+      background: rgba(0, 70, 166, 0.02);
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 240px;
+    }
+
+    .dropzone:hover,
+    .dropzone.dragover {
+      border-color: #00A859;
+      background: rgba(0, 168, 89, 0.06);
+      transform: translateY(-2px);
+    }
+
+    .dropzone__icon {
+      font-size: 2.8rem;
+      line-height: 1;
+    }
+
+    .dropzone__title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #0046A6;
+    }
+
+    .dropzone__sub {
+      font-size: 0.83rem;
+      color: var(--muted);
+      max-width: 44ch;
+      line-height: 1.45;
+    }
+
+    .dropzone__btn {
+      margin-top: 6px;
+      padding: 9px 20px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #0046A6 0%, #003580 100%);
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.85rem;
+      border: none;
+      cursor: pointer;
+    }
+
+    .settings-panel {
+      background: rgba(0, 70, 166, 0.03);
+      border: 1px solid rgba(0, 70, 166, 0.12);
+      border-radius: 14px;
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .settings-title {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: #0046A6;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .free-badge {
+      background: rgba(0, 168, 89, 0.15);
+      color: #00743B;
+      font-size: 0.7rem;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-weight: 700;
+    }
+
+    .setting-row {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .setting-row label {
+      font-size: 0.79rem;
+      font-weight: 600;
+      color: var(--texto);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .setting-row label a {
+      color: #0046A6;
+      font-size: 0.74rem;
+      text-decoration: underline;
+    }
+
+    .setting-row input[type="text"],
+    .setting-row input[type="password"],
+    .setting-row select {
+      padding: 8px 11px;
+      border-radius: 8px;
+      border: 1px solid rgba(0, 70, 166, 0.2);
+      font-size: 0.82rem;
+      font-family: inherit;
+      background: rgba(255, 255, 255, 0.95);
+      color: var(--texto);
+      width: 100%;
+    }
+
+    .checkbox-group {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      margin-top: 2px;
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.81rem;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .checkbox-label input {
+      width: 16px;
+      height: 16px;
+      accent-color: #00A859;
+    }
+
+    /* Barra de Progresso do Modelo Local */
+    .model-status-box {
+      background: rgba(124, 58, 237, 0.08);
+      border: 1px solid rgba(124, 58, 237, 0.25);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 0.78rem;
+      color: #5b21b6;
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .model-status-box.show {
+      display: flex;
+    }
+
+    .progress-bar-wrap {
+      width: 100%;
+      height: 6px;
+      background: rgba(124, 58, 237, 0.15);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #7c3aed, #00A859);
+      transition: width 0.2s;
+    }
+
+    /* ===================== BARRA DE AÇÕES EM LOTE ===================== */
+    .batch-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      background: rgba(0, 70, 166, 0.05);
+      border: 1px solid rgba(0, 70, 166, 0.12);
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+
+    .batch-left,
+    .batch-right {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .btn {
+      padding: 10px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.25s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: inherit;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    }
+
+    .btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.14);
+    }
+
+    .btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-convert {
+      background: linear-gradient(135deg, #00A859 0%, #008E4A 100%);
+      color: #fff;
+    }
+
+    .btn-zip {
+      background: linear-gradient(135deg, #0046A6 0%, #003580 100%);
+      color: #fff;
+    }
+
+    .btn-transcribe {
+      background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+      color: #fff;
+    }
+
+    .btn-csv {
+      background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
+      color: #fff;
+    }
+
+    .btn-clear {
+      background: rgba(255, 255, 255, 0.9);
+      color: #b3261e;
+      border: 1px solid rgba(179, 38, 30, 0.3);
+      box-shadow: none;
+    }
+
+    .counter-pill {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #0046A6;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 7px 13px;
+      border-radius: 8px;
+      border: 1px solid rgba(0, 70, 166, 0.18);
+    }
+
+    /* ===================== LISTA DE CARDS DE ÁUDIO ===================== */
+    .audio-list {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+
+    .audio-item {
+      background: rgba(255, 255, 255, 0.98);
+      border: 1px solid rgba(0, 70, 166, 0.16);
+      border-left: 5px solid #0046A6;
+      border-radius: 14px;
+      padding: 18px 20px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+      transition: all 0.25s;
+    }
+
+    .audio-item.is-converted {
+      border-left-color: #00A859;
+    }
+
+    .audio-item__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(0, 70, 166, 0.1);
+      margin-bottom: 14px;
+    }
+
+    .audio-item__title-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .audio-item__badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .badge-pending {
+      background: rgba(245, 158, 11, 0.15);
+      color: #b45309;
+    }
+
+    .badge-ready {
+      background: rgba(0, 168, 89, 0.15);
+      color: #00743B;
+    }
+
+    .audio-item__name-input {
+      font-family: 'Courier New', monospace;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: #0046A6;
+      padding: 5px 10px;
+      border: 1px solid rgba(0, 70, 166, 0.25);
+      border-radius: 6px;
+      background: rgba(0, 70, 166, 0.03);
+      min-width: 260px;
+    }
+
+    .audio-item__grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1.25fr;
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    @media (max-width: 1100px) {
+      .audio-item__grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel-box {
+      background: rgba(0, 70, 166, 0.025);
+      border: 1px solid rgba(0, 70, 166, 0.1);
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .panel-box--cxone {
+      background: rgba(0, 168, 89, 0.04);
+      border-color: rgba(0, 168, 89, 0.22);
+    }
+
+    .panel-box__title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #0046A6;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .panel-box--cxone .panel-box__title {
+      color: #00743B;
+    }
+
+    .meta-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.75rem;
+    }
+
+    .meta-tag {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(0, 70, 166, 0.15);
+      padding: 3px 7px;
+      border-radius: 5px;
+      color: var(--texto);
+    }
+
+    .meta-tag--ok {
+      border-color: rgba(0, 168, 89, 0.35);
+      color: #00743B;
+      font-weight: 700;
+    }
+
+    audio {
+      width: 100%;
+      height: 36px;
+      margin-top: auto;
+    }
+
+    .transcript-area {
+      width: 100%;
+      min-height: 82px;
+      padding: 9px 11px;
+      border-radius: 8px;
+      border: 1px solid rgba(0, 70, 166, 0.2);
+      font-family: inherit;
+      font-size: 0.84rem;
+      line-height: 1.45;
+      resize: vertical;
+      background: rgba(255, 255, 255, 0.95);
+      color: var(--texto);
+    }
+
+    .transcript-area:focus {
+      outline: none;
+      border-color: #00A859;
+      box-shadow: 0 0 0 2px rgba(0, 168, 89, 0.12);
+    }
+
+    .mini-actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .btn-mini {
+      padding: 5px 10px;
+      font-size: 11.5px;
+      font-weight: 600;
+      border-radius: 6px;
+      border: 1px solid rgba(0, 70, 166, 0.22);
+      background: rgba(255, 255, 255, 0.9);
+      color: #0046A6;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .btn-mini:hover:not(:disabled) {
+      background: rgba(0, 70, 166, 0.1);
+    }
+
+    .btn-mini:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
+
+    .btn-mini--purple {
+      background: #7c3aed;
+      color: #fff;
+      border-color: transparent;
+    }
+
+    .btn-mini--purple:hover:not(:disabled) {
+      background: #6d28d9;
+    }
+
+    .btn-mini--green {
+      background: #00A859;
+      color: #fff;
+      border-color: transparent;
+    }
+
+    .btn-mini--green:hover:not(:disabled) {
+      background: #008E4A;
+    }
+
+    .btn-mini--danger {
+      color: #dc2626;
+      border-color: rgba(220, 38, 38, 0.25);
+    }
+
+    .btn-mini.is-recording {
+      background: #dc2626;
+      color: #fff;
+      border-color: transparent;
+      animation: pulseRec 1.2s infinite;
+    }
+
+    @keyframes pulseRec {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    .empty-queue {
+      text-align: center;
+      padding: 45px 20px;
+      color: var(--muted);
+      border: 1px dashed rgba(0, 70, 166, 0.2);
+      border-radius: 12px;
+      background: rgba(0, 70, 166, 0.015);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #0046A6;
+      color: #fff;
+      padding: 10px 22px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s;
+      z-index: 3000;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ===================== MODO ESCURO ===================== */
+    body.dark-mode {
+      background: linear-gradient(135deg, #121619 0%, #1a2229 100%);
+      color: #e0e0e0;
+    }
+
+    body.dark-mode .main-header {
+      background: rgba(22, 28, 36, 0.95);
+      border-bottom-color: rgba(255, 255, 255, 0.05);
+    }
+
+    body.dark-mode .header-title,
+    body.dark-mode .section-title,
+    body.dark-mode .spec-pill__value,
+    body.dark-mode .dropzone__title,
+    body.dark-mode .settings-title,
+    body.dark-mode .panel-box__title,
+    body.dark-mode .setting-row label a {
+      color: #66a3ff;
+    }
+
+    body.dark-mode .brand-accent { color: #8cbfff; }
+
+    body.dark-mode .nav-menu {
+      background: rgba(255, 255, 255, 0.03);
+      border-color: rgba(255, 255, 255, 0.05);
+    }
+
+    body.dark-mode .nav-button:not(.active) { color: #a0a0a0; }
+    body.dark-mode .nav-button:not(.active):hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #ffffff;
+    }
+
+    body.dark-mode #themeToggle { color: #e0e0e0; }
+
+    body.dark-mode .container,
+    body.dark-mode .audio-item {
+      background: rgba(30, 38, 46, 0.95);
+      border-color: rgba(255, 255, 255, 0.07);
+    }
+
+    body.dark-mode .spec-pill,
+    body.dark-mode .settings-panel,
+    body.dark-mode .batch-toolbar,
+    body.dark-mode .panel-box {
+      background: rgba(255, 255, 255, 0.03);
+      border-color: rgba(255, 255, 255, 0.07);
+    }
+
+    body.dark-mode .dropzone {
+      background: rgba(255, 255, 255, 0.02);
+      border-color: rgba(102, 163, 255, 0.3);
+    }
+
+    body.dark-mode .setting-row input,
+    body.dark-mode .setting-row select,
+    body.dark-mode .audio-item__name-input,
+    body.dark-mode .transcript-area,
+    body.dark-mode .meta-tag,
+    body.dark-mode .counter-pill,
+    body.dark-mode .btn-mini:not(.btn-mini--green):not(.btn-mini--purple) {
+      background: rgba(22, 28, 36, 0.95);
+      border-color: rgba(255, 255, 255, 0.12);
+      color: #e0e0e0;
+    }
+
+    body.dark-mode .meta-tag--ok,
+    body.dark-mode .free-badge {
+      color: #4ade80;
+      border-color: rgba(74, 222, 128, 0.35);
+    }
+
+    body.dark-mode .model-status-box {
+      color: #c4b5fd;
+      background: rgba(124, 58, 237, 0.18);
+    }
+
+    body.dark-mode .btn-clear {
+      background: rgba(255, 255, 255, 0.05);
+      color: #ff8f8a;
+      border-color: rgba(255, 143, 138, 0.3);
+    }
+
+    @media (max-width: 768px) {
+      .conteudo_pagina { padding: 0 12px; }
+      .main-header { flex-direction: column; gap: 12px; }
+      .nav-menu { width: 100%; justify-content: center; flex-wrap: wrap; }
+      .batch-toolbar { flex-direction: column; align-items: stretch; }
+      .batch-left, .batch-right { width: 100%; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===================== HEADER ===================== -->
+  <header class="main-header">
+    <div class="logo-container">
+      <img src="img/logo_ura_tools.png" alt="Ura Tools" class="Ura-logo" title="Ura Tools">
+      <div class="header-title">Audio Converter CXone - <span class="brand-accent">Ura Tools</span></div>
+    </div>
+
+    <nav class="nav-menu">
+      <a href="index.html" class="nav-button">
+        <span>🏠</span> Home
+      </a>
+      <a href="links_uteis.html" class="nav-button">
+        <span>🔗</span> Link's Uteis
+      </a>
+      <button id="themeToggle" class="nav-button" type="button">
+        <span id="themeIcon">🌙</span> <span id="themeText">Escuro</span>
+      </button>
+    </nav>
+  </header>
+
+  <!-- ===================== CONTEÚDO PRINCIPAL ===================== -->
+  <main class="conteudo_pagina">
+    <div class="container">
+      <div class="section-title">
+        <div class="section-title-left">
+          <span>🎧</span>
+          <span>Conversor & Transcritor de Áudio — Padrão Studio NICE CXone</span>
+        </div>
+      </div>
+
+      <!-- Especificações Técnicas Obrigatórias do Studio NICE CXone -->
+      <div class="specs-grid" aria-label="Propriedades do padrão Studio NICE CXone">
+        <div class="spec-pill">
+          <div class="spec-pill__icon">📦</div>
+          <div>
+            <div class="spec-pill__label">Formato de Áudio</div>
+            <div class="spec-pill__value">WAV (CCITT μ-Law)</div>
+          </div>
+        </div>
+        <div class="spec-pill">
+          <div class="spec-pill__icon">⚡</div>
+          <div>
+            <div class="spec-pill__label">Taxa de Bits</div>
+            <div class="spec-pill__value">64 kbps</div>
+          </div>
+        </div>
+        <div class="spec-pill">
+          <div class="spec-pill__icon">🎚️</div>
+          <div>
+            <div class="spec-pill__label">Tamanho da Amostra</div>
+            <div class="spec-pill__value">8 bits (G.711)</div>
+          </div>
+        </div>
+        <div class="spec-pill">
+          <div class="spec-pill__icon">🔊</div>
+          <div>
+            <div class="spec-pill__label">Canais</div>
+            <div class="spec-pill__value">1 (Mono)</div>
+          </div>
+        </div>
+        <div class="spec-pill">
+          <div class="spec-pill__icon">🌊</div>
+          <div>
+            <div class="spec-pill__label">Taxa de Amostragem</div>
+            <div class="spec-pill__value">8 kHz (8000 Hz)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Área de Upload + Configurações -->
+      <div class="top-workspace">
+        <div class="dropzone" id="dropzone">
+          <div class="dropzone__icon">🎙️</div>
+          <div class="dropzone__title">Arraste seus arquivos de áudio aqui ou clique para selecionar</div>
+          <div class="dropzone__sub">
+            Suba 1 ou vários arquivos (<strong>.wav, .mp3, .ogg, .m4a, .flac</strong>). Converte para <strong>WAV CCITT μ-Law 8kHz Mono 64kbps</strong> e transcreve gratuitamente!
+          </div>
+          <button type="button" class="dropzone__btn">Selecionar Arquivos de Áudio</button>
+          <input type="file" id="fileInput" multiple accept="audio/*,.wav,.mp3,.ogg,.m4a,.aac,.flac" style="display:none">
+        </div>
+
+        <div class="settings-panel">
+          <div class="settings-title">
+            <span>⚙️ Opções de Conversão & Transcrição</span>
+            <span class="free-badge">100% Gratuito Disponível</span>
+          </div>
+
+          <!-- Seletor do Motor de Transcrição -->
+          <div class="setting-row">
+            <label for="engineSelect">
+              <span>🤖 Motor de Transcrição Speech-to-Text:</span>
+            </label>
+            <select id="engineSelect">
+              <option value="local_tiny" selected>🆓 IA Local no Navegador — Whisper Tiny (Grátis, Rápido, Sem Chave)</option>
+              <option value="local_base">🆓 IA Local no Navegador — Whisper Base (Grátis, Maior Precisão, Sem Chave)</option>
+              <option value="groq">⚡ Groq Cloud API — Whisper Large v3 Turbo (Chave Grátis em console.groq.com)</option>
+              <option value="openai">🔑 OpenAI API Oficial — whisper-1 / gpt-4o-mini-transcribe</option>
+            </select>
+          </div>
+
+          <!-- Barra de status de download do modelo local -->
+          <div class="model-status-box" id="modelStatusBox">
+            <div id="modelStatusText">Baixando modelo Whisper para o navegador (só na 1ª vez)...</div>
+            <div class="progress-bar-wrap">
+              <div class="progress-bar-fill" id="modelProgressBar"></div>
+            </div>
+          </div>
+
+          <!-- Campo de API Key (só aparece se escolher Groq ou OpenAI) -->
+          <div class="setting-row" id="apiKeyRow" style="display:none;">
+            <label for="apiKeyInput">
+              <span id="apiKeyLabel">🔑 Chave da API:</span>
+              <a href="https://console.groq.com/keys" target="_blank" rel="noopener" id="apiKeyHelpLink">Criar chave grátis na Groq ↗</a>
+            </label>
+            <input type="password" id="apiKeyInput" placeholder="Cole sua chave gsk_... ou sk-...">
+          </div>
+
+          <div class="setting-row">
+            <label for="prefixInput">Prefixo automático nos nomes (opcional):</label>
+            <input type="text" id="prefixInput" placeholder="Ex: audio_">
+          </div>
+
+          <div class="checkbox-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="chkNormalize" checked>
+              <span>Normalizar volume (evita áudios baixos na URA)</span>
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" id="chkSanitizeName" checked>
+              <span>Padronizar nome (minúsculas, sem acentos/espaços)</span>
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" id="chkAutoConvert" checked>
+              <span>Converter p/ CXone automaticamente ao adicionar</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Barra de Ações em Lote -->
+      <div class="batch-toolbar">
+        <div class="batch-left">
+          <span class="counter-pill" id="queueCounter">0 arquivos na fila</span>
+          <button type="button" class="btn btn-convert" id="btnConvertAll" disabled>
+            ⚡ Converter Todos p/ CXone
+          </button>
+          <button type="button" class="btn btn-zip" id="btnDownloadZip" disabled>
+            📦 Baixar Todos (.ZIP)
+          </button>
+        </div>
+
+        <div class="batch-right">
+          <button type="button" class="btn btn-transcribe" id="btnTranscribeAll" disabled>
+            📝 Transcrever Todos os Áudios
+          </button>
+          <button type="button" class="btn btn-csv" id="btnExportCsv" disabled>
+            📊 Exportar Planilha (Áudio + Texto)
+          </button>
+          <button type="button" class="btn btn-clear" id="btnClearAll" disabled>
+            🗑️ Limpar Fila
+          </button>
+        </div>
+      </div>
+
+      <!-- Lista de Áudios -->
+      <div id="audioList" class="audio-list">
+        <div class="empty-queue" id="emptyState">
+          Nenhum áudio carregado ainda. Selecione ou arraste um ou mais arquivos acima para converter e transcrever.
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <div id="toast" class="toast">✓ Ação concluída</div>
+
+  <script type="module">
+    /* =========================================================
+       1) TEMA CLARO / ESCURO E CONFIGURAÇÃO DE MOTOR
+       ========================================================= */
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon   = document.getElementById('themeIcon');
+    const themeText   = document.getElementById('themeText');
+    const body        = document.body;
+
+    function aplicarTema(escuro) {
+      body.classList.toggle('dark-mode', escuro);
+      themeIcon.textContent = escuro ? '☀️' : '🌙';
+      themeText.textContent = escuro ? 'Claro' : 'Escuro';
+    }
+
+    aplicarTema(localStorage.getItem('theme') === 'dark');
+
+    themeToggle.addEventListener('click', () => {
+      const escuro = !body.classList.contains('dark-mode');
+      localStorage.setItem('theme', escuro ? 'dark' : 'light');
+      aplicarTema(escuro);
+    });
+
+    const engineSelect   = document.getElementById('engineSelect');
+    const apiKeyRow      = document.getElementById('apiKeyRow');
+    const apiKeyInput    = document.getElementById('apiKeyInput');
+    const apiKeyLabel    = document.getElementById('apiKeyLabel');
+    const apiKeyHelpLink = document.getElementById('apiKeyHelpLink');
+
+    // Salva chave no navegador para não precisar redigitar
+    apiKeyInput.value = localStorage.getItem('ura_stt_api_key') || '';
+    apiKeyInput.addEventListener('input', () => {
+      localStorage.setItem('ura_stt_api_key', apiKeyInput.value.trim());
+    });
+
+    engineSelect.addEventListener('change', () => {
+      const val = engineSelect.value;
+      if (val === 'groq') {
+        apiKeyRow.style.display = 'flex';
+        apiKeyLabel.textContent = '🔑 Chave Groq API (Gratuita):';
+        apiKeyInput.placeholder = 'gsk_...';
+        apiKeyHelpLink.href = 'https://console.groq.com/keys';
+        apiKeyHelpLink.textContent = 'Pegar chave grátis na Groq ↗';
+        apiKeyHelpLink.style.display = 'inline';
+      } else if (val === 'openai') {
+        apiKeyRow.style.display = 'flex';
+        apiKeyLabel.textContent = '🔑 Chave OpenAI API:';
+        apiKeyInput.placeholder = 'sk-...';
+        apiKeyHelpLink.href = 'https://platform.openai.com/api-keys';
+        apiKeyHelpLink.textContent = 'Pegar chave na OpenAI ↗';
+        apiKeyHelpLink.style.display = 'inline';
+      } else {
+        apiKeyRow.style.display = 'none';
+      }
+    });
+
+    /* =========================================================
+       2) CODIFICADOR BINÁRIO: WAV CCITT μ-Law (8kHz, 8-bit, Mono, 64kbps)
+       ========================================================= */
+    const TARGET_SAMPLE_RATE = 8000;
+
+    function linearToMuLawSample(sample) {
+      const BIAS = 0x84;
+      const CLIP = 32635;
+
+      let sign = (sample >> 8) & 0x80;
+      if (sign !== 0) sample = -sample;
+      if (sample > CLIP) sample = CLIP;
+
+      sample = sample + BIAS;
+
+      let exponent = 7;
+      for (let expMask = 0x4000; (sample & expMask) === 0 && exponent > 0; exponent--, expMask >>= 1) {}
+
+      const mantissa = (sample >> (exponent + 3)) & 0x0F;
+      const ulawByte = ~(sign | (exponent << 4) | mantissa) & 0xFF;
+      return ulawByte;
+    }
+
+    function encodeWAVMuLaw(samplesFloat32, normalize = true) {
+      const numSamples = samplesFloat32.length;
+
+      let gain = 1.0;
+      if (normalize && numSamples > 0) {
+        let maxPeak = 0;
+        for (let i = 0; i < numSamples; i++) {
+          const abs = Math.abs(samplesFloat32[i]);
+          if (abs > maxPeak) maxPeak = abs;
+        }
+        if (maxPeak > 0.001 && maxPeak < 0.92) {
+          gain = 0.92 / maxPeak;
+        }
+      }
+
+      const dataSize = numSamples;
+      const buffer = new ArrayBuffer(58 + dataSize);
+      const view = new DataView(buffer);
+
+      function writeStr(offset, str) {
+        for (let i = 0; i < str.length; i++) {
+          view.setUint8(offset + i, str.charCodeAt(i));
+        }
+      }
+
+      writeStr(0, 'RIFF');
+      view.setUint32(4, 50 + dataSize, true);
+      writeStr(8, 'WAVE');
+
+      writeStr(12, 'fmt ');
+      view.setUint32(16, 18, true);
+      view.setUint16(20, 7, true);                   // 7 = CCITT μ-Law
+      view.setUint16(22, 1, true);                   // 1 = Mono
+      view.setUint32(24, TARGET_SAMPLE_RATE, true);  // 8000 Hz
+      view.setUint32(28, TARGET_SAMPLE_RATE, true);  // 8000 bytes/s = 64 kbps
+      view.setUint16(32, 1, true);
+      view.setUint16(34, 8, true);                   // 8 bits
+      view.setUint16(36, 0, true);
+
+      writeStr(38, 'fact');
+      view.setUint32(42, 4, true);
+      view.setUint32(46, numSamples, true);
+
+      writeStr(50, 'data');
+      view.setUint32(54, dataSize, true);
+
+      let offset = 58;
+      for (let i = 0; i < numSamples; i++) {
+        let s = samplesFloat32[i] * gain;
+        if (s > 1) s = 1;
+        else if (s < -1) s = -1;
+        const pcm16 = s < 0 ? Math.round(s * 32768) : Math.round(s * 32767);
+        view.setUint8(offset++, linearToMuLawSample(pcm16));
+      }
+
+      return new Blob([buffer], { type: 'audio/wav' });
+    }
+
+    async function decodeAndResampleMono(file, targetRate) {
+      const arrayBuffer = await file.arrayBuffer();
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      const tempCtx = new AudioCtx();
+
+      let decodedBuffer;
+      try {
+        decodedBuffer = await tempCtx.decodeAudioData(arrayBuffer);
+      } finally {
+        if (tempCtx.close) await tempCtx.close();
+      }
+
+      const originalMeta = {
+        sampleRate: decodedBuffer.sampleRate,
+        channels: decodedBuffer.numberOfChannels,
+        duration: decodedBuffer.duration
+      };
+
+      const lengthOriginal = decodedBuffer.length;
+      const monoOriginalBuffer = new AudioBuffer({
+        length: lengthOriginal,
+        numberOfChannels: 1,
+        sampleRate: decodedBuffer.sampleRate
+      });
+
+      const monoData = monoOriginalBuffer.getChannelData(0);
+      const numCh = decodedBuffer.numberOfChannels;
+      for (let ch = 0; ch < numCh; ch++) {
+        const chData = decodedBuffer.getChannelData(ch);
+        for (let i = 0; i < lengthOriginal; i++) {
+          monoData[i] += chData[i] / numCh;
+        }
+      }
+
+      const targetLength = Math.max(1, Math.ceil(decodedBuffer.duration * targetRate));
+      const offlineCtx = new OfflineAudioContext(1, targetLength, targetRate);
+      const source = offlineCtx.createBufferSource();
+      source.buffer = monoOriginalBuffer;
+      source.connect(offlineCtx.destination);
+      source.start(0);
+
+      const renderedBuffer = await offlineCtx.startRendering();
+      return {
+        originalMeta,
+        samples: renderedBuffer.getChannelData(0),
+        duration: renderedBuffer.duration
+      };
+    }
+
+    async function convertFileToCXoneMuLaw(file, normalize = true) {
+      const { originalMeta, samples, duration } = await decodeAndResampleMono(file, TARGET_SAMPLE_RATE);
+      const wavBlob = encodeWAVMuLaw(samples, normalize);
+
+      return {
+        originalMeta,
+        convertedBlob: wavBlob,
+        convertedSize: wavBlob.size,
+        duration
+      };
+    }
+
+    /* =========================================================
+       3) MOTOR DE TRANSCRIÇÃO GRATUITO NO NAVEGADOR (WHISPER WASM)
+          + SUPORTE A GROQ CLOUD E OPENAI API
+       ========================================================= */
+    let transformersPipeline = null;
+    let loadedModelName = null;
+
+    async function getLocalWhisperTranscriber(modelChoice) {
+      const modelId = modelChoice === 'local_base'
+        ? 'Xenova/whisper-base'
+        : 'Xenova/whisper-tiny';
+
+      if (transformersPipeline && loadedModelName === modelId) {
+        return transformersPipeline;
+      }
+
+      const statusBox  = document.getElementById('modelStatusBox');
+      const statusText = document.getElementById('modelStatusText');
+      const progBar    = document.getElementById('modelProgressBar');
+
+      statusBox.classList.add('show');
+      statusText.textContent = `Carregando IA Gratuita (${modelId}) no navegador...`;
+      progBar.style.width = '10%';
+
+      const { pipeline } = await import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2');
+
+      transformersPipeline = await pipeline('automatic-speech-recognition', modelId, {
+        progress_callback: (info) => {
+          if (info.status === 'progress' && info.progress) {
+            progBar.style.width = `${Math.round(info.progress)}%`;
+            statusText.textContent = `Baixando modelo de voz gratuito (${Math.round(info.progress)}%)...`;
+          } else if (info.status === 'ready') {
+            progBar.style.width = '100%';
+            statusText.textContent = '✓ Modelo Whisper Local pronto no navegador!';
+            setTimeout(() => statusBox.classList.remove('show'), 2500);
+          }
+        }
+      });
+
+      loadedModelName = modelId;
+      return transformersPipeline;
+    }
+
+    async function transcribeAudioItem(item) {
+      const engine = engineSelect.value;
+      const btn = document.getElementById(`btn-whisper-${item.id}`);
+      const txtEl = document.getElementById(`txt-${item.id}`);
+      const oldText = btn.textContent;
+
+      btn.textContent = '⏳ Transcrevendo...';
+      btn.disabled = true;
+
+      try {
+        // OPÇÃO 1: IA LOCAL GRATUITA (Sem Chave, direto no navegador)
+        if (engine === 'local_tiny' || engine === 'local_base') {
+          const transcriber = await getLocalWhisperTranscriber(engine);
+          // O Whisper espera áudio Float32 em 16000 Hz
+          const { samples } = await decodeAndResampleMono(item.file, 16000);
+
+          const output = await transcriber(samples, {
+            language: 'portuguese',
+            task: 'transcribe',
+            chunk_length_s: 30,
+            stride_length_s: 5
+          });
+
+          const textResult = (output && output.text ? output.text : '').trim();
+          txtEl.value = textResult;
+          item.transcript = textResult;
+          showToast(`✓ Transcrito gratuitamente: ${item.outputName}`);
+          return;
+        }
+
+        // OPÇÃO 2 E 3: GROQ CLOUD (GRÁTIS COM CHAVE) OU OPENAI
+        const apiKey = apiKeyInput.value.trim();
+        if (!apiKey) {
+          alert('Informe sua chave de API no painel de configurações ou mude o motor para "🆓 IA Local no Navegador (Grátis, Sem Chave)".');
+          apiKeyInput.focus();
+          return;
+        }
+
+        const isGroq = engine === 'groq';
+        const endpoint = isGroq
+          ? 'https://api.groq.com/openai/v1/audio/transcriptions'
+          : 'https://api.openai.com/v1/audio/transcriptions';
+        const modelName = isGroq ? 'whisper-large-v3-turbo' : 'whisper-1';
+
+        const formData = new FormData();
+        formData.append('file', item.file);
+        formData.append('model', modelName);
+        formData.append('language', 'pt');
+
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${apiKey}` },
+          body: formData
+        });
+
+        if (!response.ok) {
+          const errJson = await response.json().catch(() => ({}));
+          throw new Error(errJson.error?.message || `HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+        txtEl.value = (data.text || '').trim();
+        item.transcript = txtEl.value;
+        showToast(`✓ Transcrição concluída: ${item.outputName}`);
+      } catch (err) {
+        console.error(err);
+        alert('Erro ao transcrever: ' + err.message);
+      } finally {
+        btn.textContent = oldText;
+        btn.disabled = false;
+      }
+    }
+
+    /* =========================================================
+       4) FILA E INTERFACE DOS CARDS
+       ========================================================= */
+    const audioQueue = [];
+    let itemIdCounter = 1;
+
+    const dropzone       = document.getElementById('dropzone');
+    const fileInput      = document.getElementById('fileInput');
+    const audioListEl    = document.getElementById('audioList');
+    const emptyStateEl   = document.getElementById('emptyState');
+    const queueCounterEl = document.getElementById('queueCounter');
+
+    const btnConvertAll    = document.getElementById('btnConvertAll');
+    const btnDownloadZip   = document.getElementById('btnDownloadZip');
+    const btnTranscribeAll = document.getElementById('btnTranscribeAll');
+    const btnExportCsv     = document.getElementById('btnExportCsv');
+    const btnClearAll      = document.getElementById('btnClearAll');
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2600);
+    }
+
+    function formatBytes(bytes) {
+      if (!bytes) return '0 B';
+      const k = 1024;
+      const sizes = ['B', 'KB', 'MB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+    }
+
+    function formatDuration(sec) {
+      if (!sec && sec !== 0) return '--:--';
+      const m = Math.floor(sec / 60);
+      const s = (sec % 60).toFixed(1).padStart(4, '0');
+      return `${m}:${s}s`;
+    }
+
+    function formatOutputName(originalFileName) {
+      const base = originalFileName.replace(/\.[^/.]+$/, '');
+      const sanitize = document.getElementById('chkSanitizeName').checked;
+      const prefix = document.getElementById('prefixInput').value.trim();
+
+      let clean = base;
+      if (sanitize) {
+        clean = clean
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .toLowerCase()
+          .replace(/[^a-z0-9_]+/g, '_')
+          .replace(/^_+|_+$/g, '');
+      }
+
+      if (prefix && !clean.toLowerCase().startsWith(prefix.toLowerCase())) {
+        clean = prefix + clean;
+      }
+
+      return (clean || 'audio_convertido') + '.wav';
+    }
+
+    function updateToolbarState() {
+      const total = audioQueue.length;
+      const convertedCount = audioQueue.filter(i => i.convertedBlob).length;
+
+      queueCounterEl.textContent = `${total} ${total === 1 ? 'arquivo na fila' : 'arquivos na fila'} (${convertedCount} convertido${convertedCount === 1 ? '' : 's'})`;
+
+      emptyStateEl.style.display = total === 0 ? 'block' : 'none';
+      btnConvertAll.disabled    = total === 0;
+      btnDownloadZip.disabled   = convertedCount === 0;
+      btnTranscribeAll.disabled = total === 0;
+      btnExportCsv.disabled     = total === 0;
+      btnClearAll.disabled      = total === 0;
+    }
+
+    dropzone.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length) handleFiles(e.target.files);
+      fileInput.value = '';
+    });
+
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.classList.add('dragover');
+    });
+
+    dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('dragover');
+      if (e.dataTransfer.files.length) handleFiles(e.dataTransfer.files);
+    });
+
+    async function handleFiles(fileList) {
+      const autoConvert = document.getElementById('chkAutoConvert').checked;
+      const newItems = [];
+
+      for (const file of Array.from(fileList)) {
+        const id = itemIdCounter++;
+        const item = {
+          id,
+          file,
+          originalUrl: URL.createObjectURL(file),
+          outputName: formatOutputName(file.name),
+          originalMeta: null,
+          convertedBlob: null,
+          convertedUrl: null,
+          convertedSize: 0,
+          transcript: ''
+        };
+        audioQueue.push(item);
+        newItems.push(item);
+        renderAudioItem(item);
+      }
+
+      updateToolbarState();
+
+      if (autoConvert) {
+        for (const item of newItems) {
+          await convertSingleItem(item);
+        }
+      }
+    }
+
+    function renderAudioItem(item) {
+      const card = document.createElement('div');
+      card.className = 'audio-item';
+      card.id = `audio-item-${item.id}`;
+
+      card.innerHTML = `
+        <div class="audio-item__header">
+          <div class="audio-item__title-group">
+            <span class="audio-item__badge badge-pending" id="badge-${item.id}">Aguardando Conversão</span>
+            <input type="text" class="audio-item__name-input" id="name-${item.id}" value="${item.outputName}" title="Nome final do arquivo WAV">
+          </div>
+          <div class="mini-actions">
+            <button type="button" class="btn-mini" id="btn-conv-${item.id}">⚡ Converter p/ CXone</button>
+            <button type="button" class="btn-mini btn-mini--green" id="btn-dl-${item.id}" style="display:none">⬇️ Baixar WAV μ-Law</button>
+            <button type="button" class="btn-mini btn-mini--danger" id="btn-del-${item.id}">✕ Remover</button>
+          </div>
+        </div>
+
+        <div class="audio-item__grid">
+          <!-- Coluna 1: Original -->
+          <div class="panel-box">
+            <div class="panel-box__title">
+              <span>📥 Áudio Original</span>
+              <span>${formatBytes(item.file.size)}</span>
+            </div>
+            <div class="meta-tags" id="orig-meta-${item.id}">
+              <span class="meta-tag">Arquivo: ${item.file.name}</span>
+            </div>
+            <audio controls preload="metadata" src="${item.originalUrl}"></audio>
+          </div>
+
+          <!-- Coluna 2: Convertido NICE CXone -->
+          <div class="panel-box panel-box--cxone">
+            <div class="panel-box__title">
+              <span>✅ Padrão Studio NICE CXone</span>
+              <span id="conv-size-${item.id}">—</span>
+            </div>
+            <div class="meta-tags" id="conv-meta-${item.id}">
+              <span class="meta-tag meta-tag--ok">WAV CCITT μ-Law</span>
+              <span class="meta-tag meta-tag--ok">64 kbps</span>
+              <span class="meta-tag meta-tag--ok">8 bits</span>
+              <span class="meta-tag meta-tag--ok">1 Canal (Mono)</span>
+              <span class="meta-tag meta-tag--ok">8 kHz</span>
+            </div>
+            <audio controls id="conv-audio-${item.id}" style="display:none"></audio>
+          </div>
+
+          <!-- Coluna 3: Transcrição / Fraseologia -->
+          <div class="panel-box">
+            <div class="panel-box__title">
+              <span>📝 Transcrição / Fraseologia</span>
+              <div class="mini-actions">
+                <button type="button" class="btn-mini btn-mini--purple" id="btn-whisper-${item.id}" title="Transcrever áudio automaticamente com IA">✨ Transcrever Áudio</button>
+                <button type="button" class="btn-mini" id="btn-mic-${item.id}" title="Ditar pelo microfone">🎙️ Ditado</button>
+                <button type="button" class="btn-mini" id="btn-copy-txt-${item.id}" title="Copiar Nome + Transcrição">📋 Copiar</button>
+              </div>
+            </div>
+            <textarea class="transcript-area" id="txt-${item.id}" placeholder="Clique em '✨ Transcrever Áudio' para extrair a fala gratuitamente com IA..."></textarea>
+          </div>
+        </div>
+      `;
+
+      audioListEl.appendChild(card);
+
+      const nameInput = document.getElementById(`name-${item.id}`);
+      nameInput.addEventListener('input', () => {
+        let v = nameInput.value.trim();
+        if (v && !v.toLowerCase().endsWith('.wav')) v += '.wav';
+        item.outputName = v || `audio_${item.id}.wav`;
+      });
+
+      const txtArea = document.getElementById(`txt-${item.id}`);
+      txtArea.addEventListener('input', () => {
+        item.transcript = txtArea.value;
+      });
+
+      document.getElementById(`btn-conv-${item.id}`).addEventListener('click', () => convertSingleItem(item));
+      document.getElementById(`btn-dl-${item.id}`).addEventListener('click', () => downloadSingleItem(item));
+      document.getElementById(`btn-del-${item.id}`).addEventListener('click', () => removeSingleItem(item.id));
+      document.getElementById(`btn-mic-${item.id}`).addEventListener('click', (e) => toggleSpeechRecognition(item, e.currentTarget));
+      document.getElementById(`btn-whisper-${item.id}`).addEventListener('click', () => transcribeAudioItem(item));
+      document.getElementById(`btn-copy-txt-${item.id}`).addEventListener('click', () => {
+        const block = `${item.outputName}\n${item.transcript || '(sem transcrição)'}`;
+        navigator.clipboard.writeText(block).then(() => showToast('✓ Nome + Transcrição copiados!'));
+      });
+    }
+
+    async function convertSingleItem(item) {
+      const badgeEl    = document.getElementById(`badge-${item.id}`);
+      const origMetaEl = document.getElementById(`orig-meta-${item.id}`);
+      const convSizeEl = document.getElementById(`conv-size-${item.id}`);
+      const convAudio  = document.getElementById(`conv-audio-${item.id}`);
+      const btnDl      = document.getElementById(`btn-dl-${item.id}`);
+      const cardEl     = document.getElementById(`audio-item-${item.id}`);
+
+      try {
+        badgeEl.textContent = '⏳ Convertendo...';
+        badgeEl.className = 'audio-item__badge badge-pending';
+
+        const normalize = document.getElementById('chkNormalize').checked;
+        const res = await convertFileToCXoneMuLaw(item.file, normalize);
+
+        if (item.convertedUrl) URL.revokeObjectURL(item.convertedUrl);
+        item.originalMeta  = res.originalMeta;
+        item.convertedBlob = res.convertedBlob;
+        item.convertedSize = res.convertedSize;
+        item.convertedUrl  = URL.createObjectURL(res.convertedBlob);
+
+        origMetaEl.innerHTML = `
+          <span class="meta-tag">${(res.originalMeta.sampleRate / 1000).toFixed(1)} kHz</span>
+          <span class="meta-tag">${res.originalMeta.channels} ${res.originalMeta.channels > 1 ? 'Canais (Estéreo)' : 'Canal (Mono)'}</span>
+          <span class="meta-tag">⏱️ ${formatDuration(res.originalMeta.duration)}</span>
+        `;
+
+        convSizeEl.textContent = formatBytes(res.convertedSize);
+        convAudio.src = item.convertedUrl;
+        convAudio.style.display = 'block';
+        btnDl.style.display = 'inline-flex';
+
+        badgeEl.textContent = '✓ Pronto p/ Studio CXone';
+        badgeEl.className = 'audio-item__badge badge-ready';
+        cardEl.classList.add('is-converted');
+      } catch (err) {
+        console.error(err);
+        badgeEl.textContent = '❌ Erro ao converter';
+        showToast('Erro ao converter ' + item.file.name);
+      }
+
+      updateToolbarState();
+    }
+
+    function downloadSingleItem(item) {
+      if (!item.convertedBlob) return;
+      const a = document.createElement('a');
+      a.href = item.convertedUrl;
+      a.download = item.outputName.endsWith('.wav') ? item.outputName : item.outputName + '.wav';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
+    function removeSingleItem(id) {
+      const idx = audioQueue.findIndex(i => i.id === id);
+      if (idx === -1) return;
+      const item = audioQueue[idx];
+      if (item.originalUrl) URL.revokeObjectURL(item.originalUrl);
+      if (item.convertedUrl) URL.revokeObjectURL(item.convertedUrl);
+      audioQueue.splice(idx, 1);
+
+      const el = document.getElementById(`audio-item-${id}`);
+      if (el) el.remove();
+      updateToolbarState();
+    }
+
+    let activeRecognition = null;
+
+    function toggleSpeechRecognition(item, btnEl) {
+      const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRec) {
+        alert('Reconhecimento de voz por microfone disponível no Google Chrome ou Edge.');
+        return;
+      }
+
+      if (activeRecognition) {
+        activeRecognition.stop();
+        activeRecognition = null;
+        document.querySelectorAll('.btn-mini.is-recording').forEach(b => {
+          b.classList.remove('is-recording');
+          b.textContent = '🎙️ Ditado';
+        });
+        return;
+      }
+
+      const rec = new SpeechRec();
+      rec.lang = 'pt-BR';
+      rec.continuous = true;
+      rec.interimResults = false;
+
+      btnEl.classList.add('is-recording');
+      btnEl.textContent = '⏹️ Parar';
+
+      rec.onresult = (event) => {
+        let chunk = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          if (event.results[i].isFinal) {
+            chunk += event.results[i][0].transcript + ' ';
+          }
+        }
+        const txtEl = document.getElementById(`txt-${item.id}`);
+        txtEl.value = (txtEl.value ? txtEl.value.trim() + ' ' : '') + chunk.trim();
+        item.transcript = txtEl.value;
+      };
+
+      rec.onerror = () => {
+        btnEl.classList.remove('is-recording');
+        btnEl.textContent = '🎙️ Ditado';
+        activeRecognition = null;
+      };
+
+      rec.onend = () => {
+        btnEl.classList.remove('is-recording');
+        btnEl.textContent = '🎙️ Ditado';
+        activeRecognition = null;
+      };
+
+      activeRecognition = rec;
+      rec.start();
+    }
+
+    /* =========================================================
+       5) AÇÕES EM LOTE
+       ========================================================= */
+    btnConvertAll.addEventListener('click', async () => {
+      for (const item of audioQueue) {
+        await convertSingleItem(item);
+      }
+      showToast('✓ Todos os áudios convertidos para o padrão NICE CXone!');
+    });
+
+    btnTranscribeAll.addEventListener('click', async () => {
+      btnTranscribeAll.disabled = true;
+      const oldText = btnTranscribeAll.textContent;
+      btnTranscribeAll.textContent = '⏳ Transcrevendo fila...';
+      try {
+        for (const item of audioQueue) {
+          await transcribeAudioItem(item);
+        }
+        showToast('✓ Todos os áudios foram transcritos!');
+      } finally {
+        btnTranscribeAll.textContent = oldText;
+        btnTranscribeAll.disabled = audioQueue.length === 0;
+      }
+    });
+
+    btnDownloadZip.addEventListener('click', async () => {
+      const zip = new JSZip();
+      let count = 0;
+
+      audioQueue.forEach(item => {
+        if (item.convertedBlob) {
+          const fileName = item.outputName.endsWith('.wav') ? item.outputName : item.outputName + '.wav';
+          zip.file(fileName, item.convertedBlob);
+          count++;
+        }
+      });
+
+      if (count === 0) return;
+
+      const scriptLines = audioQueue.map(i => `${i.outputName}\t${(i.transcript || '').replace(/\r?\n/g, ' ')}`);
+      zip.file('roteiro_transcricoes.txt', 'Arquivo_WAV\tTranscricao\n' + scriptLines.join('\n'));
+
+      const zipBlob = await zip.generateAsync({ type: 'blob' });
+      const url = URL.createObjectURL(zipBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `audios_nice_cxone_${Date.now()}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast(`✓ Pacote ZIP com ${count} áudio(s) baixado!`);
+    });
+
+    btnExportCsv.addEventListener('click', () => {
+      if (audioQueue.length === 0) return;
+      let csv = '\uFEFFArquivo_CXone_WAV;Arquivo_Original;Duracao_Seg;Formato_Saida;Transcricao\n';
+      audioQueue.forEach(item => {
+        const dur = item.originalMeta ? item.originalMeta.duration.toFixed(2) : '';
+        const texto = `"${(item.transcript || '').replace(/"/g, '""')}"`;
+        csv += `"${item.outputName}";"${item.file.name}";"${dur}";"WAV CCITT u-Law 8kHz 8bit Mono 64kbps";${texto}\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `transcricoes_audios_cxone_${Date.now()}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('✓ Planilha CSV exportada!');
+    });
+
+    btnClearAll.addEventListener('click', () => {
+      audioQueue.forEach(item => {
+        if (item.originalUrl) URL.revokeObjectURL(item.originalUrl);
+        if (item.convertedUrl) URL.revokeObjectURL(item.convertedUrl);
+      });
+      audioQueue.length = 0;
+      audioListEl.querySelectorAll('.audio-item').forEach(el => el.remove());
+      updateToolbarState();
+    });
+  </script>
+</body>
+</html>
