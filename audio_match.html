@@ -551,7 +551,7 @@
 
     .audio-item__grid {
       display: grid;
-      grid-template-columns: 1.2fr 1fr 1.25fr;
+      grid-template-columns: 1.15fr 1.15fr 1.2fr;
       gap: 16px;
       align-items: stretch;
     }
@@ -599,7 +599,7 @@
       flex-wrap: wrap;
       gap: 6px;
       font-family: 'Courier New', monospace;
-      font-size: 0.75rem;
+      font-size: 0.74rem;
     }
 
     .meta-tag {
@@ -619,33 +619,55 @@
     audio {
       width: 100%;
       height: 36px;
-      margin-top: auto;
     }
 
-    /* Controles de Edição Profissional */
+    /* Controles de Edição e Visualizador de Ondas */
     .editor-controls {
       display: flex;
       flex-direction: column;
       gap: 8px;
-      background: rgba(255, 255, 255, 0.6);
+      background: rgba(255, 255, 255, 0.65);
       border: 1px solid rgba(0, 70, 166, 0.1);
       border-radius: 8px;
       padding: 8px;
-      margin-top: 4px;
+      margin-top: auto;
+    }
+
+    .waveform-box {
+      position: relative;
+      width: 100%;
+      height: 44px;
+      background: #0f172a;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.08);
     }
 
     .waveform-canvas {
       width: 100%;
-      height: 40px;
-      background: #111827;
+      height: 100%;
+      display: block;
+    }
+
+    .waveform-label {
+      position: absolute;
+      top: 4px;
+      right: 6px;
+      font-size: 10px;
+      font-family: 'Courier New', monospace;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.75);
+      background: rgba(0, 0, 0, 0.45);
+      padding: 1px 5px;
       border-radius: 4px;
+      pointer-events: none;
     }
 
     .editor-row {
       display: flex;
       gap: 8px;
       align-items: center;
-      font-size: 0.75rem;
+      font-size: 0.74rem;
     }
 
     .editor-row label {
@@ -655,16 +677,26 @@
     }
 
     .editor-row input[type="number"] {
-      width: 60px;
+      width: 58px;
       padding: 3px 6px;
       border: 1px solid rgba(0, 70, 166, 0.2);
       border-radius: 4px;
-      font-size: 0.75rem;
+      font-size: 0.74rem;
+    }
+
+    .cxone-status-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.73rem;
+      color: #00743B;
+      font-weight: 600;
+      padding: 2px 2px 0;
     }
 
     .transcript-area {
       width: 100%;
-      min-height: 82px;
+      min-height: 95px;
       padding: 9px 11px;
       border-radius: 8px;
       border: 1px solid rgba(0, 70, 166, 0.2);
@@ -674,6 +706,7 @@
       resize: vertical;
       background: rgba(255, 255, 255, 0.95);
       color: var(--texto);
+      flex-grow: 1;
     }
 
     .transcript-area:focus {
@@ -851,7 +884,8 @@
     }
 
     body.dark-mode .meta-tag--ok,
-    body.dark-mode .free-badge {
+    body.dark-mode .free-badge,
+    body.dark-mode .cxone-status-row {
       color: #4ade80;
       border-color: rgba(74, 222, 128, 0.35);
     }
@@ -966,8 +1000,9 @@
               <span>🤖 Motor de Transcrição Speech-to-Text:</span>
             </label>
             <select id="engineSelect">
-              <option value="local_tiny" selected>🆓 IA Local no Navegador — Whisper Tiny (Grátis, Rápido, Sem Chave)</option>
-              <option value="local_base">🆓 IA Local no Navegador — Whisper Base (Grátis, Maior Precisão, Sem Chave)</option>
+              <option value="repo_local" selected>🏢 IA no Próprio Repositório GitHub (Sem Bloqueio de Firewall / Grátis)</option>
+              <option value="local_tiny">🆓 IA Local via CDN — Whisper Tiny (Grátis, Rápido, Sem Chave)</option>
+              <option value="local_base">🆓 IA Local via CDN — Whisper Base (Grátis, Maior Precisão)</option>
               <option value="groq">⚡ Groq Cloud API — Whisper Large v3 Turbo (Chave Grátis em console.groq.com)</option>
               <option value="openai">🔑 OpenAI API Oficial — whisper-1</option>
             </select>
@@ -975,7 +1010,7 @@
 
           <!-- Barra de status de download do modelo local -->
           <div class="model-status-box" id="modelStatusBox">
-            <div id="modelStatusText">Baixando modelo Whisper para o navegador...</div>
+            <div id="modelStatusText">Carregando modelo Whisper...</div>
             <div class="progress-bar-wrap">
               <div class="progress-bar-fill" id="modelProgressBar"></div>
             </div>
@@ -1110,11 +1145,6 @@
        ========================================================= */
     const TARGET_SAMPLE_RATE = 8000;
 
-    /**
-     * Conversor ITU-T G.711 μ-Law Oficial (Padrão 14-bit Linear -> 8-bit μ-Law).
-     * Na norma G.711, o sinal linear deve estar na escala -8159 a +8159 (com BIAS=132).
-     * Isso evita a sobre-compressão dos níveis baixos que gerava +12 dB de chiado!
-     */
     const EXP_LUT = [
       0,0,1,1,2,2,2,2,3,3,3,3,3,3,3,3,
       4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
@@ -1135,7 +1165,7 @@
     ];
 
     function linear16ToMuLaw(pcm16) {
-      const BIAS = 0x84; // 132 ( em escala 16-bit equivale a 33 << 2 )
+      const BIAS = 0x84;
       const CLIP = 32635;
 
       let sign = (pcm16 >> 8) & 0x80;
@@ -1148,16 +1178,12 @@
       return (~(sign | (exponent << 4) | mantissa)) & 0xFF;
     }
 
-    /**
-     * Limpeza de Áudio (Remoção de DC Offset + Noise Gate Suave + Normalização)
-     * Elimina o chiado de quantização nas pausas da fala.
-     */
     function cleanAndNormalizeSamples(samplesFloat32, enableClean = true) {
       const n = samplesFloat32.length;
       const out = new Float32Array(n);
-      if (n === 0) return out;
+      if (n === 0) return { samples: out, peakDb: -60 };
 
-      // 1. Remove DC Offset (centraliza o silêncio exatamente em 0.0)
+      // 1. Remove DC Offset
       let sum = 0;
       for (let i = 0; i < n; i++) sum += samplesFloat32[i];
       const dcOffset = sum / n;
@@ -1170,37 +1196,39 @@
         if (abs > maxPeak) maxPeak = abs;
       }
 
-      if (!enableClean || maxPeak === 0) return out;
+      if (!enableClean || maxPeak === 0) {
+        const db = maxPeak > 0 ? (20 * Math.log10(maxPeak)) : -60;
+        return { samples: out, peakDb: db };
+      }
 
-      // 2. Normalização para -1.0 dBFS (0.89) para aproveitar toda a faixa dinâmica de 8 bits
-      const normGain = 0.89 / maxPeak;
+      // 2. Normalização para -1.0 dBFS (0.89)
+      const targetPeak = 0.89;
+      const normGain = targetPeak / maxPeak;
       for (let i = 0; i < n; i++) {
         out[i] *= normGain;
       }
 
-      // 3. Envelope Follower + Soft Noise Gate (zera micro-ruídos de fundo nas pausas da fala)
-      // Isso evita que o ruído de fundo do microfone vire chiado em 8 bits μ-Law
+      // 3. Soft Noise Gate (zera micro-ruídos de fundo nas pausas da locução)
       let env = 0;
       const attack = 0.15;
       const release = 0.003;
-      const gateThreshold = 0.008; // ~ -42 dB
+      const gateThreshold = 0.008;
 
       for (let i = 0; i < n; i++) {
         const abs = Math.abs(out[i]);
         env = abs > env ? env + attack * (abs - env) : env + release * (abs - env);
 
         if (env < gateThreshold) {
-          // Atenuação progressiva suave nas pausas (expansor)
           const ratio = env / gateThreshold;
           out[i] *= (ratio * ratio);
         }
       }
 
-      return out;
+      return { samples: out, peakDb: -1.0 };
     }
 
     function encodeWAVMuLaw(samplesFloat32, normalize = true) {
-      const processed = cleanAndNormalizeSamples(samplesFloat32, normalize);
+      const { samples: processed, peakDb } = cleanAndNormalizeSamples(samplesFloat32, normalize);
       const numSamples = processed.length;
 
       const dataSize = numSamples;
@@ -1240,7 +1268,6 @@
         if (s > 1) s = 1;
         else if (s < -1) s = -1;
 
-        // Zona morta de silêncio absoluto para evitar chiado de 1 LSB
         if (Math.abs(s) < 0.0005) {
           view.setUint8(offset++, 0xFF);
         } else {
@@ -1249,13 +1276,13 @@
         }
       }
 
-      return new Blob([buffer], { type: 'audio/wav' });
+      return {
+        blob: new Blob([buffer], { type: 'audio/wav' }),
+        processedSamples: processed,
+        peakDb
+      };
     }
 
-    /**
-     * Decodifica, aplica filtro Anti-Aliasing NA TAXA ORIGINAL (antes do downsample)
-     * e depois reamostra para 8000 Hz Mono sem chiado.
-     */
     async function decodeAndResampleMono(file, targetRate, trimStart = 0, trimEnd = 0, fadeIn = 0, fadeOut = 0) {
       const arrayBuffer = await file.arrayBuffer();
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -1294,7 +1321,6 @@
         }
       }
 
-      // Aplicação de Fade In / Fade Out
       if (fadeIn > 0) {
         const fadeSamples = Math.min(slicedLength, Math.floor(fadeIn * origRate));
         for (let i = 0; i < fadeSamples; i++) {
@@ -1308,22 +1334,18 @@
         }
       }
 
-      // PASSO 1: Filtragem Anti-Aliasing NA TAXA ORIGINAL (ex: 44.1kHz / 48kHz)
-      // Remove graves de rede elétrica (< 100Hz) e agudos acima de Nyquist (> 3600Hz)
-      // ANTES de reamostrar para 8000 Hz, eliminando 100% do chiado de aliasing!
+      // Filtragem Anti-Aliasing NA TAXA ORIGINAL antes de reamostrar para 8000 Hz
       let preFilteredBuffer = monoOriginalBuffer;
       if (origRate > targetRate && targetRate === TARGET_SAMPLE_RATE) {
         const preCtx = new OfflineAudioContext(1, slicedLength, origRate);
         const preSource = preCtx.createBufferSource();
         preSource.buffer = monoOriginalBuffer;
 
-        // Filtro High-Pass (remove hum grave e sopros de microfone abaixo de 100 Hz)
         const highpass = preCtx.createBiquadFilter();
         highpass.type = 'highpass';
         highpass.frequency.value = 100;
         highpass.Q.value = 0.707;
 
-        // Filtro Low-Pass Duplo (Brickwall em 3600 Hz para respeitar o limite de 4000 Hz de 8kHz)
         const lowpass1 = preCtx.createBiquadFilter();
         lowpass1.type = 'lowpass';
         lowpass1.frequency.value = 3600;
@@ -1343,7 +1365,6 @@
         preFilteredBuffer = await preCtx.startRendering();
       }
 
-      // PASSO 2: Reamostragem limpa para a taxa alvo (8000 Hz)
       const targetLength = Math.max(1, Math.ceil(effectiveDuration * targetRate));
       const offlineCtx = new OfflineAudioContext(1, targetLength, targetRate);
       const source = offlineCtx.createBufferSource();
@@ -1374,30 +1395,34 @@
         item.fadeOut
       );
 
-      const wavBlob = encodeWAVMuLaw(samples, normalize);
+      const { blob, processedSamples, peakDb } = encodeWAVMuLaw(samples, normalize);
 
       return {
         originalMeta,
-        convertedBlob: wavBlob,
-        convertedSize: wavBlob.size,
+        convertedBlob: blob,
+        convertedSize: blob.size,
+        convertedSamples: processedSamples,
+        peakDb,
         duration,
         rawBuffer
       };
     }
 
     /* =========================================================
-       3) MOTOR DE TRANSCRIÇÃO GRATUITO NO NAVEGADOR (WHISPER LOCAL)
-          + SUPORTE A GROQ E OPENAI API
+       3) MOTOR DE TRANSCRIÇÃO (SUPORTE AO PRÓPRIO REPOSITÓRIO GITHUB
+          PARA DRIBLAR FIREWALL CORPORATIVO + CDN + GROQ)
        ========================================================= */
     let transformersPipeline = null;
-    let loadedModelName = null;
+    let loadedModelKey = null;
 
-    async function getLocalWhisperTranscriber(modelChoice) {
-      const modelId = modelChoice === 'local_base'
+    async function getLocalWhisperTranscriber(engineChoice) {
+      const isRepoLocal = engineChoice === 'repo_local';
+      const modelId = engineChoice === 'local_base'
         ? 'Xenova/whisper-base'
         : 'Xenova/whisper-tiny';
 
-      if (transformersPipeline && loadedModelName === modelId) {
+      const cacheKey = `${engineChoice}:${modelId}`;
+      if (transformersPipeline && loadedModelKey === cacheKey) {
         return transformersPipeline;
       }
 
@@ -1406,29 +1431,59 @@
       const progBar    = document.getElementById('modelProgressBar');
 
       statusBox.classList.add('show');
-      statusText.textContent = `Carregando IA Local (${modelId}) no navegador...`;
-      progBar.style.width = '10%';
+      statusText.textContent = isRepoLocal
+        ? 'Carregando IA direto do repositório local (./models/)...'
+        : `Carregando IA (${modelId}) no navegador...`;
+      progBar.style.width = '15%';
 
-      const { pipeline, env } = await import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2');
+      // Tenta importar a biblioteca localmente (./js/transformers.min.js) se existir, senão usa jsDelivr CDN
+      let transformersModule;
+      try {
+        transformersModule = await import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2');
+      } catch (e) {
+        transformersModule = await import('./js/transformers.min.js');
+      }
 
-      env.allowLocalModels = false;
+      const { pipeline, env } = transformersModule;
       env.useBrowserCache = true;
-      env.allowRemoteModels = true;
 
-      transformersPipeline = await pipeline('automatic-speech-recognition', modelId, {
-        progress_callback: (info) => {
-          if (info.status === 'progress' && info.progress) {
-            progBar.style.width = `${Math.round(info.progress)}%`;
-            statusText.textContent = `Baixando modelo de voz gratuito (${Math.round(info.progress)}%)...`;
-          } else if (info.status === 'ready') {
-            progBar.style.width = '100%';
-            statusText.textContent = '✓ Modelo Whisper Local pronto no navegador!';
-            setTimeout(() => statusBox.classList.remove('show'), 2500);
+      if (isRepoLocal) {
+        // Prioriza a pasta ./models/ dentro do seu próprio repositório GitHub (mesmo domínio = zero bloqueio)
+        env.localModelPath = './models/';
+        env.allowLocalModels = true;
+        env.allowRemoteModels = true; // fallback caso algum arquivo não esteja na pasta
+      } else {
+        env.allowLocalModels = false;
+        env.allowRemoteModels = true;
+      }
+
+      try {
+        transformersPipeline = await pipeline('automatic-speech-recognition', modelId, {
+          progress_callback: (info) => {
+            if (info.status === 'progress' && info.progress) {
+              progBar.style.width = `${Math.round(info.progress)}%`;
+              statusText.textContent = `Carregando arquivos da IA (${Math.round(info.progress)}%)...`;
+            } else if (info.status === 'ready') {
+              progBar.style.width = '100%';
+              statusText.textContent = '✓ IA Whisper pronta para transcrever!';
+              setTimeout(() => statusBox.classList.remove('show'), 2500);
+            }
           }
+        });
+      } catch (err) {
+        // Se falhou na pasta local porque ainda não subiu os arquivos, tenta mirror alternativo
+        if (isRepoLocal) {
+          env.allowLocalModels = false;
+          env.allowRemoteModels = true;
+          env.remoteHost = 'https://hf-mirror.com/';
+          transformersPipeline = await pipeline('automatic-speech-recognition', modelId);
+          statusBox.classList.remove('show');
+        } else {
+          throw err;
         }
-      });
+      }
 
-      loadedModelName = modelId;
+      loadedModelKey = cacheKey;
       return transformersPipeline;
     }
 
@@ -1442,7 +1497,7 @@
       btn.disabled = true;
 
       try {
-        if (engine === 'local_tiny' || engine === 'local_base') {
+        if (engine === 'repo_local' || engine === 'local_tiny' || engine === 'local_base') {
           const transcriber = await getLocalWhisperTranscriber(engine);
           const { samples } = await decodeAndResampleMono(item.file, 16000, item.trimStart, item.trimEnd);
 
@@ -1456,13 +1511,13 @@
           const textResult = (output && output.text ? output.text : '').trim();
           txtEl.value = textResult;
           item.transcript = textResult;
-          showToast(`✓ Transcrito gratuitamente: ${item.outputName}`);
+          showToast(`✓ Transcrito: ${item.outputName}`);
           return;
         }
 
         const apiKey = apiKeyInput.value.trim();
         if (!apiKey) {
-          alert('Informe sua chave de API no painel de configurações ou mude o motor para "🆓 IA Local no Navegador".');
+          alert('Informe sua chave de API no painel de configurações ou selecione a IA no Próprio Repositório.');
           apiKeyInput.focus();
           return;
         }
@@ -1495,7 +1550,7 @@
         showToast(`✓ Transcrição concluída: ${item.outputName}`);
       } catch (err) {
         console.error(err);
-        alert('Erro ao transcrever: ' + err.message);
+        alert('Não foi possível baixar o modelo por bloqueio da rede corporativa. Suba a pasta "./models/Xenova/whisper-tiny" no seu GitHub ou use a opção Groq Cloud API.');
       } finally {
         btn.textContent = oldText;
         btn.disabled = false;
@@ -1503,30 +1558,38 @@
     }
 
     /* =========================================================
-       4) RENDERIZADOR DE ONDA DE ÁUDIO (WAVEFORM CANVAS)
+       4) RENDERIZADOR DE ONDAS DE VOLUME (ORIGINAL E CONVERTIDO)
        ========================================================= */
-    function drawWaveform(canvas, audioBuffer) {
-      if (!canvas || !audioBuffer) return;
+    function drawSamplesWaveform(canvas, samplesArray, color = '#00A859') {
+      if (!canvas || !samplesArray || !samplesArray.length) return;
       const ctx = canvas.getContext('2d');
-      const width = canvas.width = canvas.clientWidth;
-      const height = canvas.height = canvas.clientHeight;
-      
-      const data = audioBuffer.getChannelData(0);
-      const step = Math.ceil(data.length / width);
+      const width = canvas.width = canvas.clientWidth || 300;
+      const height = canvas.height = canvas.clientHeight || 44;
+
+      const step = Math.max(1, Math.ceil(samplesArray.length / width));
       const amp = height / 2;
 
       ctx.clearRect(0, 0, width, height);
-      ctx.fillStyle = '#00A859';
+
+      // Linha central de referência (0 dB / Silêncio)
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.12)';
+      ctx.fillRect(0, amp, width, 1);
+
+      ctx.fillStyle = color;
 
       for (let i = 0; i < width; i++) {
         let min = 1.0;
         let max = -1.0;
-        for (let j = 0; j < step; j++) {
-          const datum = data[(i * step) + j];
+        const baseIdx = i * step;
+        for (let j = 0; j < step && (baseIdx + j) < samplesArray.length; j++) {
+          const datum = samplesArray[baseIdx + j];
           if (datum < min) min = datum;
           if (datum > max) max = datum;
         }
-        ctx.fillRect(i, (1 + min) * amp, 1, Math.max(1, (max - min) * amp));
+        if (min > max) { min = 0; max = 0; }
+        const y = (1 + min) * amp;
+        const h = Math.max(1.5, (max - min) * amp);
+        ctx.fillRect(i, y, 1, h);
       }
     }
 
@@ -1693,7 +1756,10 @@
 
             <!-- Painel de Corte, Fade-In e Fade-Out -->
             <div class="editor-controls">
-              <canvas class="waveform-canvas" id="canvas-${item.id}"></canvas>
+              <div class="waveform-box">
+                <canvas class="waveform-canvas" id="canvas-orig-${item.id}"></canvas>
+                <span class="waveform-label">ONDA ORIGINAL</span>
+              </div>
               <div class="editor-row">
                 <label>Corte Início:</label>
                 <input type="number" id="trim-start-${item.id}" value="0" min="0" step="0.1">s
@@ -1709,7 +1775,7 @@
             </div>
           </div>
 
-          <!-- Coluna 2: Convertido NICE CXone -->
+          <!-- Coluna 2: Convertido NICE CXone + Waveform de Volume Limpo -->
           <div class="panel-box panel-box--cxone">
             <div class="panel-box__title">
               <span>✅ Padrão Studio NICE CXone</span>
@@ -1722,7 +1788,20 @@
               <span class="meta-tag meta-tag--ok">1 Canal (Mono)</span>
               <span class="meta-tag meta-tag--ok">8 kHz</span>
             </div>
+
             <audio controls id="conv-audio-${item.id}" style="display:none"></audio>
+
+            <!-- Medidor de Ondas e Volume do Áudio Convertido -->
+            <div class="editor-controls" id="conv-wave-wrap-${item.id}" style="display:none">
+              <div class="waveform-box">
+                <canvas class="waveform-canvas" id="canvas-conv-${item.id}"></canvas>
+                <span class="waveform-label" id="conv-peak-${item.id}">PICO: -1.0 dBFS</span>
+              </div>
+              <div class="cxone-status-row">
+                <span>🔇 Anti-Chiado G.711 Ativo</span>
+                <span>🎚️ 8000 Hz • Mono</span>
+              </div>
+            </div>
           </div>
 
           <!-- Coluna 3: Transcrição / Fraseologia -->
@@ -1769,13 +1848,16 @@
     }
 
     async function convertSingleItem(item) {
-      const badgeEl    = document.getElementById(`badge-${item.id}`);
-      const origMetaEl = document.getElementById(`orig-meta-${item.id}`);
-      const convSizeEl = document.getElementById(`conv-size-${item.id}`);
-      const convAudio  = document.getElementById(`conv-audio-${item.id}`);
-      const btnDl      = document.getElementById(`btn-dl-${item.id}`);
-      const cardEl     = document.getElementById(`audio-item-${item.id}`);
-      const canvas     = document.getElementById(`canvas-${item.id}`);
+      const badgeEl      = document.getElementById(`badge-${item.id}`);
+      const origMetaEl   = document.getElementById(`orig-meta-${item.id}`);
+      const convSizeEl   = document.getElementById(`conv-size-${item.id}`);
+      const convAudio    = document.getElementById(`conv-audio-${item.id}`);
+      const convWaveWrap = document.getElementById(`conv-wave-wrap-${item.id}`);
+      const convPeakEl   = document.getElementById(`conv-peak-${item.id}`);
+      const btnDl        = document.getElementById(`btn-dl-${item.id}`);
+      const cardEl       = document.getElementById(`audio-item-${item.id}`);
+      const canvasOrig   = document.getElementById(`canvas-orig-${item.id}`);
+      const canvasConv   = document.getElementById(`canvas-conv-${item.id}`);
 
       try {
         badgeEl.textContent = '⏳ Convertendo...';
@@ -1796,7 +1878,10 @@
           item.trimEnd = res.originalMeta.duration;
         }
 
-        if (res.rawBuffer) drawWaveform(canvas, res.rawBuffer);
+        // Desenha Onda Original (Verde)
+        if (res.rawBuffer) {
+          drawSamplesWaveform(canvasOrig, res.rawBuffer.getChannelData(0), '#00A859');
+        }
 
         origMetaEl.innerHTML = `
           <span class="meta-tag">${(res.originalMeta.sampleRate / 1000).toFixed(1)} kHz</span>
@@ -1807,7 +1892,14 @@
         convSizeEl.textContent = formatBytes(res.convertedSize);
         convAudio.src = item.convertedUrl;
         convAudio.style.display = 'block';
+        convWaveWrap.style.display = 'flex';
+        convPeakEl.textContent = `VOLUME: ${res.peakDb.toFixed(1)} dBFS`;
         btnDl.style.display = 'inline-flex';
+
+        // Desenha Onda Convertida (Ciano/Azul Ura Tools) após exibir o container
+        requestAnimationFrame(() => {
+          drawSamplesWaveform(canvasConv, res.convertedSamples, '#38bdf8');
+        });
 
         badgeEl.textContent = '✓ Pronto p/ Studio CXone';
         badgeEl.className = 'audio-item__badge badge-ready';
