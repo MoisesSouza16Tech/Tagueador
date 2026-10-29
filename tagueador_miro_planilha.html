@@ -6,9 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tagueador de Planilha - Ura Tools</title>
 
-  <!-- Bibliotecas para Exportação -->
+  <!-- Bibliotecas para Exportação (SheetJS p/ Excel + jsPDF & AutoTable Nativo p/ PDF nunca sair em branco) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 
   <style>
     * {
@@ -25,7 +26,9 @@
       --vermelho: #d32f2f;
       --vermelho-bg: #ffebee;
       --vermelho-borda: #ef5350;
-      --alerta-amarelo: #fff3cd;
+      --amarelo-txt: #8d5800;
+      --amarelo-bg: #fff8db;
+      --amarelo-cell: #f59e0b;
       --texto: #333333;
       --muted: #666666;
     }
@@ -139,7 +142,7 @@
       backdrop-filter: blur(10px);
       border: 1px solid rgba(0, 70, 166, 0.1);
       border-radius: 16px;
-      padding: clamp(20px, 2.5vw, 35px);
+      padding: clamp(20px, 2.5vw, 32px);
       width: 100%;
       box-shadow: 0 8px 32px rgba(0, 70, 166, 0.08);
       margin-top: 25px;
@@ -149,6 +152,8 @@
     .section-title {
       display: flex;
       align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
       gap: 10px;
       font-size: clamp(1.1rem, 2vw, 1.3rem);
       font-weight: 600;
@@ -158,20 +163,156 @@
       border-bottom: 2px solid rgba(0, 70, 166, 0.1);
     }
 
-    .section-title::before {
+    .section-title-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title-left::before {
       content: "📋";
       font-size: clamp(1.2rem, 2vw, 1.5rem);
       color: #00A859;
     }
 
-    .section-title.resultado-header::before {
+    .section-title.resultado-header .section-title-left::before {
       content: "📊";
+    }
+
+    .edit-hint-pill {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #006B3F;
+      background: rgba(0, 168, 89, 0.1);
+      border: 1px solid rgba(0, 168, 89, 0.25);
+      padding: 4px 10px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* ===================== PAINEL RETRÁTIL: SELECIONAR VALIDADORES ===================== */
+    .validators-dropdown {
+      background: rgba(0, 70, 166, 0.03);
+      border: 1px solid rgba(0, 70, 166, 0.15);
+      border-radius: 12px;
+      margin-bottom: 18px;
+      overflow: hidden;
+      transition: all 0.25s;
+    }
+
+    .validators-summary {
+      list-style: none;
+      padding: 12px 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #0046A6;
+      user-select: none;
+    }
+
+    .validators-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .validators-summary:hover {
+      background: rgba(0, 70, 166, 0.05);
+    }
+
+    .validators-summary-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .validators-badge {
+      background: rgba(0, 168, 89, 0.14);
+      color: #00743B;
+      border: 1px solid rgba(0, 168, 89, 0.3);
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .validators-body {
+      padding: 14px 16px 16px;
+      border-top: 1px solid rgba(0, 70, 166, 0.1);
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+      gap: 10px 16px;
+    }
+
+    .val-check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 0.81rem;
+      color: var(--texto);
+      cursor: pointer;
+      user-select: none;
+      padding: 6px 8px;
+      border-radius: 8px;
+      transition: background 0.15s;
+    }
+
+    .val-check-item:hover {
+      background: rgba(0, 70, 166, 0.05);
+    }
+
+    .val-check-item input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      margin-top: 2px;
+      accent-color: #00A859;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .val-check-item small {
+      display: block;
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .validators-actions {
+      grid-column: 1 / -1;
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      padding-top: 6px;
+      border-top: 1px dashed rgba(0, 70, 166, 0.12);
+    }
+
+    .btn-mini-link {
+      background: transparent;
+      border: 1px solid rgba(0, 70, 166, 0.25);
+      color: #0046A6;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      min-width: auto;
+      flex: 0 1 auto;
+      box-shadow: none;
+    }
+
+    .btn-mini-link:hover {
+      background: rgba(0, 70, 166, 0.08);
+      transform: none;
     }
 
     /* ===================== ENTRADA E SOBRESCRIÇÃO ===================== */
     textarea {
       width: 100%;
-      min-height: 180px;
+      min-height: 190px;
       padding: 14px;
       border: 1px solid rgba(0, 70, 166, 0.2);
       border-radius: 10px;
@@ -200,7 +341,7 @@
       padding: 10px 14px;
       margin-top: 12px;
       color: #006B3F;
-      font-size: 0.83rem;
+      font-size: 0.81rem;
       line-height: 1.45;
     }
 
@@ -225,27 +366,28 @@
 
     .inputs-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 12px;
+      grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+      gap: 10px;
       background: rgba(0, 70, 166, 0.03);
-      padding: 16px;
+      padding: 14px;
       border-radius: 12px;
       border: 1px solid rgba(0, 70, 166, 0.1);
+      align-content: start;
     }
 
     .inputs-grid-title {
       grid-column: 1 / -1;
-      font-size: 0.86rem;
+      font-size: 0.85rem;
       font-weight: 700;
       color: #0046A6;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
     }
 
     .inputs-grid-title span {
-      font-size: 0.75rem;
+      font-size: 0.74rem;
       font-weight: normal;
       color: var(--muted);
     }
@@ -259,7 +401,7 @@
     .input-group label {
       font-weight: 600;
       color: #0046A6;
-      font-size: 0.78rem;
+      font-size: 0.76rem;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -267,8 +409,8 @@
 
     input[type="text"] {
       font-family: 'Courier New', Courier, monospace;
-      font-size: 13px;
-      padding: 8px 10px;
+      font-size: 12.5px;
+      padding: 7px 10px;
       border: 1px solid rgba(0, 70, 166, 0.2);
       border-radius: 7px;
       background: rgba(255, 255, 255, 0.95);
@@ -285,14 +427,14 @@
 
     input[type="text"]::placeholder {
       color: #aaa;
-      font-size: 11.5px;
+      font-size: 11px;
     }
 
     /* ===================== BOTÕES ===================== */
     .button-group {
       display: flex;
       gap: 12px;
-      margin-top: 20px;
+      margin-top: 18px;
       flex-wrap: wrap;
     }
 
@@ -337,8 +479,8 @@
     }
 
     .btn-acao-tabela {
-      padding: 9px 16px;
-      font-size: 12.5px;
+      padding: 8px 14px;
+      font-size: 12px;
       min-width: auto;
       flex: 0 1 auto;
       color: #ffffff;
@@ -348,7 +490,7 @@
     .btn-excel       { background: linear-gradient(135deg, #107c41 0%, #185c37 100%); }
     .btn-pdf         { background: linear-gradient(135deg, #e3242b 0%, #c32026 100%); }
 
-    /* ===================== STICKY TOOLBAR E TABELA ===================== */
+    /* ===================== STICKY TOOLBAR E FILTROS DE STATUS ===================== */
     .sticky-bar-wrapper {
       position: sticky;
       top: 65px;
@@ -374,7 +516,7 @@
 
     .filtro-container {
       flex: 1;
-      min-width: 240px;
+      min-width: 200px;
       display: flex;
       align-items: center;
       position: relative;
@@ -383,14 +525,14 @@
     .filtro-container::before {
       content: "🔍";
       position: absolute;
-      left: 12px;
+      left: 11px;
       font-size: 13px;
       pointer-events: none;
     }
 
     .filtro-input {
       width: 100%;
-      padding: 9px 12px 9px 34px !important;
+      padding: 8px 12px 8px 32px !important;
       border: 1px solid rgba(0, 70, 166, 0.25) !important;
       border-radius: 7px;
       font-family: inherit !important;
@@ -399,18 +541,70 @@
       color: var(--texto) !important;
     }
 
+    .status-filter-pills {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .status-pill {
+      padding: 6px 11px;
+      font-size: 11.5px;
+      font-weight: 700;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 70, 166, 0.2);
+      background: rgba(0, 70, 166, 0.05);
+      color: #0046A6;
+      cursor: pointer;
+      min-width: auto;
+      flex: 0 1 auto;
+      box-shadow: none;
+      transition: all 0.2s;
+    }
+
+    .status-pill:hover {
+      background: rgba(0, 70, 166, 0.12);
+      transform: none;
+    }
+
+    .status-pill.active {
+      background: #0046A6;
+      color: #fff;
+      border-color: transparent;
+    }
+
+    .status-pill--err {
+      color: #b71c1c;
+      border-color: rgba(211, 47, 47, 0.3);
+      background: rgba(211, 47, 47, 0.08);
+    }
+    .status-pill--err.active {
+      background: #d32f2f;
+      color: #fff;
+    }
+
+    .status-pill--warn {
+      color: #8d5800;
+      border-color: rgba(245, 158, 11, 0.4);
+      background: rgba(245, 158, 11, 0.12);
+    }
+    .status-pill--warn.active {
+      background: #d97706;
+      color: #fff;
+    }
+
     .contador-badge {
       font-weight: 700;
       color: #00A859;
       background: rgba(0, 168, 89, 0.1);
-      padding: 4px 10px;
+      padding: 5px 10px;
       border-radius: 6px;
       border: 1px solid rgba(0, 168, 89, 0.25);
       font-size: 12px;
       white-space: nowrap;
     }
 
-    /* ===================== TABELA PLANILHA ===================== */
+    /* ===================== TABELA PLANILHA + COLUNA DE ÍNDICE/COPIAR E EDIÇÃO ===================== */
     .tabela-planilha-container {
       width: 100%;
       overflow-x: auto;
@@ -427,14 +621,13 @@
       width: 100%;
       border-collapse: separate;
       border-spacing: 0;
-      min-width: 1200px;
+      min-width: 1420px;
     }
 
     .tabela-planilha thead th {
       position: sticky;
       top: 0;
       z-index: 10;
-      background: #003e94;
       background: linear-gradient(135deg, #0046A6 0%, #003580 100%);
       padding: 11px 13px;
       text-align: left;
@@ -446,14 +639,124 @@
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
     }
 
+    /* Coluna lateral fixa com Numeração da Linha + Botão Copiar Linha */
+    .tabela-planilha th.th-row-meta {
+      position: sticky;
+      left: 0;
+      z-index: 15;
+      text-align: center;
+      width: 82px;
+      min-width: 82px;
+      background: linear-gradient(135deg, #003580 0%, #00265c 100%);
+      border-right: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .tabela-planilha td.td-row-meta {
+      position: sticky;
+      left: 0;
+      z-index: 5;
+      background: #f4f7fb;
+      border-right: 2px solid rgba(0, 70, 166, 0.14);
+      padding: 6px 8px;
+      text-align: center;
+      font-family: inherit;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    .row-meta-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .row-number-badge {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #0046A6;
+      background: rgba(0, 70, 166, 0.08);
+      padding: 2px 7px;
+      border-radius: 5px;
+      min-width: 26px;
+      text-align: center;
+    }
+
+    .btn-copy-row {
+      padding: 4px 7px;
+      min-width: auto;
+      flex: 0 0 auto;
+      font-size: 11.5px;
+      border-radius: 6px;
+      background: rgba(0, 168, 89, 0.12);
+      color: #00743B;
+      border: 1px solid rgba(0, 168, 89, 0.3);
+      box-shadow: none;
+      cursor: pointer;
+      transition: all 0.18s;
+      line-height: 1;
+    }
+
+    .btn-copy-row:hover {
+      background: #00A859;
+      color: #ffffff;
+      transform: scale(1.06);
+      box-shadow: 0 2px 6px rgba(0, 168, 89, 0.25);
+    }
+
+    .btn-copy-row.copied {
+      background: #00A859;
+      color: #ffffff;
+      border-color: #008E4A;
+    }
+
     .tabela-planilha td {
-      padding: 9px 13px;
+      padding: 8px 11px;
       border-bottom: 1px solid rgba(0, 70, 166, 0.08);
       border-right: 1px solid rgba(0, 70, 166, 0.04);
       font-size: 12.5px;
       color: #333333;
       font-family: 'Courier New', Courier, monospace;
       white-space: nowrap;
+      vertical-align: middle;
+    }
+
+    /* Área de texto editável dentro de cada célula */
+    .cell-editor {
+      display: inline-block;
+      min-width: 48px;
+      min-height: 18px;
+      padding: 2px 5px;
+      border-radius: 4px;
+      outline: none;
+      border: 1px dashed transparent;
+      transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+      cursor: text;
+      vertical-align: middle;
+    }
+
+    .cell-editor:hover {
+      border-color: rgba(0, 70, 166, 0.35);
+      background: rgba(0, 70, 166, 0.04);
+    }
+
+    .cell-editor:focus {
+      background: #ffffff !important;
+      color: #111111 !important;
+      border: 1px solid #00A859 !important;
+      box-shadow: 0 0 0 3px rgba(0, 168, 89, 0.18);
+      font-weight: 600;
+    }
+
+    .cell-editor:empty::before {
+      content: "—";
+      color: rgba(0, 70, 166, 0.28);
+    }
+
+    .cell-badges {
+      display: inline-flex;
+      align-items: center;
+      vertical-align: middle;
     }
 
     .tabela-planilha tbody tr:nth-child(even) {
@@ -464,58 +767,65 @@
       background-color: rgba(0, 70, 166, 0.05);
     }
 
-    .tabela-planilha td:empty::after {
-      content: "—";
-      color: rgba(0, 70, 166, 0.2);
+    /* ===================== ERROS (VERMELHO) E ALERTAS DE PADRÃO (AMARELO) ===================== */
+    tr.tr-warning {
+      background-color: #fffbeb !important;
+    }
+    tr.tr-warning:hover {
+      background-color: #fef3c7 !important;
     }
 
-    /* ===================== ERROS E ALERTAS ===================== */
-    tr.tr-duplicado {
+    tr.tr-error {
       background-color: #fff1f0 !important;
     }
-
-    tr.tr-duplicado:hover {
+    tr.tr-error:hover {
       background-color: #ffe4e2 !important;
     }
 
-    td.cell-duplicado {
-      background-color: #ff4d4f !important;
-      color: #ffffff !important;
-      font-weight: 700;
-      position: relative;
-    }
-
-    td.cell-range-invalido {
-      background-color: #ff7875 !important;
+    td.cell-error {
+      background-color: #ef4444 !important;
       color: #ffffff !important;
       font-weight: 700;
     }
+    td.cell-error .cell-editor:empty::before {
+      content: "(vazio)";
+      color: rgba(255, 255, 255, 0.85);
+    }
 
-    tr.tr-range-invalido {
-      background-color: #fffbe6 !important;
+    td.cell-warning {
+      background-color: #f59e0b !important;
+      color: #ffffff !important;
+      font-weight: 700;
+    }
+    td.cell-warning .cell-editor:empty::before {
+      content: "(vazio)";
+      color: rgba(255, 255, 255, 0.9);
     }
 
     .badge-erro {
       display: inline-flex;
       align-items: center;
-      gap: 4px;
+      gap: 3px;
       margin-left: 6px;
       font-size: 10px;
       padding: 1px 6px;
       border-radius: 4px;
-      background: rgba(0, 0, 0, 0.25);
+      background: rgba(0, 0, 0, 0.28);
       color: #fff;
       font-family: sans-serif;
       font-weight: 600;
+      user-select: none;
     }
 
     .alerta-topo {
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       padding: 10px 14px;
       border-radius: 8px;
-      font-size: 0.85rem;
+      font-size: 0.83rem;
       display: flex;
       align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
       gap: 8px;
       border: 1px solid transparent;
     }
@@ -530,7 +840,8 @@
     .alerta-topo--warning {
       background: #fff8e1;
       border-color: #ffe082;
-      color: #8d6e00;
+      color: #8d5800;
+      font-weight: 600;
     }
 
     .linha-oculta {
@@ -659,7 +970,8 @@
     body.dark-mode .header-title,
     body.dark-mode .section-title,
     body.dark-mode .inputs-grid-title,
-    body.dark-mode .input-group label {
+    body.dark-mode .input-group label,
+    body.dark-mode .validators-summary {
       color: #66a3ff;
     }
 
@@ -691,10 +1003,14 @@
       color: #e0e0e0;
     }
 
-    body.dark-mode .inputs-grid {
+    body.dark-mode .inputs-grid,
+    body.dark-mode .validators-dropdown {
       background: rgba(255, 255, 255, 0.02);
-      border-color: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.07);
     }
+
+    body.dark-mode .val-check-item { color: #d1d5db; }
+    body.dark-mode .btn-mini-link { color: #8cbfff; border-color: rgba(140, 191, 255, 0.3); }
 
     body.dark-mode .btn-clear {
       background: rgba(255, 255, 255, 0.05);
@@ -726,10 +1042,31 @@
       background: #0f2d50;
     }
 
+    body.dark-mode .tabela-planilha td.td-row-meta {
+      background: #182028;
+      border-right-color: rgba(255, 255, 255, 0.1);
+    }
+
+    body.dark-mode .row-number-badge {
+      color: #8cbfff;
+      background: rgba(140, 191, 255, 0.12);
+    }
+
+    body.dark-mode .btn-copy-row {
+      color: #4ade80;
+      background: rgba(74, 222, 128, 0.12);
+      border-color: rgba(74, 222, 128, 0.25);
+    }
+
     body.dark-mode .tabela-planilha td {
       color: #cfd8dc;
       border-bottom-color: rgba(255, 255, 255, 0.06);
       border-right-color: rgba(255, 255, 255, 0.03);
+    }
+
+    body.dark-mode .cell-editor:hover {
+      border-color: rgba(140, 191, 255, 0.4);
+      background: rgba(255, 255, 255, 0.05);
     }
 
     body.dark-mode .tabela-planilha tbody tr:nth-child(even) {
@@ -740,12 +1077,12 @@
       background-color: rgba(255, 255, 255, 0.05);
     }
 
-    body.dark-mode tr.tr-duplicado {
+    body.dark-mode tr.tr-error {
       background-color: rgba(211, 47, 47, 0.22) !important;
     }
 
-    body.dark-mode tr.tr-range-invalido {
-      background-color: rgba(245, 158, 11, 0.18) !important;
+    body.dark-mode tr.tr-warning {
+      background-color: rgba(245, 158, 11, 0.16) !important;
     }
 
     body.dark-mode .modal-card {
@@ -766,7 +1103,6 @@
     .tabela-planilha-container::-webkit-scrollbar-thumb { background: rgba(0, 70, 166, 0.3); border-radius: 4px; }
     .tabela-planilha-container::-webkit-scrollbar-thumb:hover { background: rgba(0, 70, 166, 0.5); }
 
-    /* ===================== RESPONSIVO ===================== */
     @media (max-width: 768px) {
       .conteudo_pagina { padding: 0 12px; }
       .container { padding: 18px; margin-top: 18px; }
@@ -804,20 +1140,102 @@
   <!-- ===================== ENTRADA ===================== -->
   <div class="conteudo_pagina">
     <div class="container">
-      <div class="section-title">Informe o tagueamento</div>
+      <div class="section-title">
+        <span class="section-title-left">Informe o tagueamento</span>
+      </div>
+
+      <!-- Painel Expansível Limpo: Selecionar Validadores -->
+      <details class="validators-dropdown" id="validatorsDropdown">
+        <summary class="validators-summary">
+          <span class="validators-summary-left">
+            <span>⚙️ Selecionar Validadores de Qualidade</span>
+            <span style="font-weight:400; font-size:0.8rem; color:var(--muted)">(clique para configurar regras ativas)</span>
+          </span>
+          <span class="validators-badge" id="activeValidatorsBadge">8 de 8 ativos</span>
+        </summary>
+
+        <div class="validators-body">
+          <label class="val-check-item">
+            <input type="checkbox" class="val-checkbox" id="chkValDuplicados" checked>
+            <div>
+              <strong>Pontos Duplicados (Crítico 🔴)</strong>
+              <small>Avisa e abre pop-up caso existam pontos repetidos.</small>
+            </div>
+          </label>
+
+          <label class="val-check-item">
+            <input type="checkbox" class="val-checkbox" id="chkValEventList" checked>
+            <div>
+              <strong>Validar Event_Names Oficiais (Crítico 🔴)</strong>
+              <small>Exige que o event_name esteja na lista oficial (40 eventos).</small>
+            </div>
+          </label>
+
+          <label class="val-check-item">
+            <input type="checkbox" class="val-checkbox" id="chkValEventFormat" checked>
+            <div>
+              <strong>Formato event_name minúsculo (Crítico 🔴)</strong>
+              <small>Sempre em letra minúscula separado por <code>_</code> (snake_case).</small>
+            </div>
+          </label>
+
+          <label class="val-check-item">
+            <input type="checkbox" class="val-checkbox" id="chkValApiRules" checked>
+            <div>
+              <strong>Regras de API (chamada_api / retorno_api) (🔴)</strong>
+              <small><code>chamada_api</code> exige <code>[Status_code]</code> e <code>retorno_api</code> exige <code>Sucesso_Api</code> ou <code>Falha_Api</code>.</small>
+            </div>
+          </label>
+
+          <label class="val-check-item">
+            <input type="checkbox" class="val-checkbox" id="chkValRange" checked>
+            <div>
+              <strong>Coerência Range vs Ponto (Alerta 🟡)</strong>
+              <small>Verifica se o Ponto pertence à mesma casa de milhar do Range.</small>
+            </div>
+          </label>
+
+          <label class="val-check-item">
+            <input type="checkbox" class="val-checkbox" id="chkValValidacaoFormat" checked>
+            <div>
+              <strong>Formato da Validação (Alerta 🟡)</strong>
+              <small>Padrão <code>Nome_Validacao_Ponto</code> (iniciais maiúsculas separadas por <code>_</code> ou <code>[...]</code>).</small>
+            </div>
+          </label>
+
+          <label class="val-check-item">
+            <input type="checkbox" class="val-checkbox" id="chkValMenuInput" checked>
+            <div>
+              <strong>Validar Input em Menus/Submenus (Alerta 🟡)</strong>
+              <small>Menus/submenus exigem <code>[Input_Cliente]</code> no Input (exceto <code>inicio_menu</code> e quando a Validação contiver <code>Repete_Opcoes</code> / <code>Repete_Opcao</code>).</small>
+            </div>
+          </label>
+
+          <label class="val-check-item">
+            <input type="checkbox" class="val-checkbox" id="chkValSameFluxo" checked>
+            <div>
+              <strong>Pontos no Mesmo Fluxo (Alerta 🟡)</strong>
+              <small>Verifica se todos os pontos da planilha têm o mesmo nome na coluna <code>Fluxo</code>.</small>
+            </div>
+          </label>
+
+          <div class="validators-actions">
+            <button type="button" class="btn-mini-link" id="btnMarcarTodosVal">Marcar Todos</button>
+            <button type="button" class="btn-mini-link" id="btnDesmarcarTodosVal">Desmarcar Todos</button>
+          </div>
+        </div>
+      </details>
 
       <div class="input-section">
         <div>
           <textarea id="inputText" class="input-textarea"
-            placeholder="Cole aqui o tagueamento com um ou múltiplos blocos.&#10;Aceita com ou sem ':', valores na linha de baixo e blocos colados.&#10;&#10;Exemplo:&#10;event_name atendimento_encerrado&#10;Validacao Else_Incompleto&#10;Fluxo&#10;Pesquisa_Satisfacao&#10;Indicador [Status_Chamada]&#10;..."></textarea>
+            placeholder="Cole aqui o conteúdo do Miro ou documentação.&#10;Textos soltos/lixo fora da estrutura (event_name ... Timestamp) são descartados automaticamente!&#10;&#10;Exemplo:&#10;event_name menu_principal&#10;Validacao Opcao_Selecionada&#10;Fluxo Atendimento_Cartao&#10;Indicador [Status_Chamada]&#10;Range 60000&#10;Ponto 60010&#10;Ultimo_Ponto [Ultimo_Ponto]&#10;Input [Input_Cliente]&#10;Tentativa&#10;Ponto_Origem&#10;Produto Cartao&#10;Timestamp [Time_Stamp]"></textarea>
 
           <div class="info-banner">
             <div>
-              <strong>Recursos Inteligentes:</strong>
-              <br>• Suporta <strong>valores na linha seguinte</strong> ao nome do campo (ex: <code>Fluxo \n Pesquisa_Satisfacao</code>).
-              <br>• Separa automaticamente blocos colados na mesma linha (ex: <code>Timestamp [Time_Stamp]event_name...</code>).
-              <br>• Avisa e destaca em <span style="color:#d32f2f;font-weight:700">vermelho</span> caso haja <strong>Pontos Duplicados</strong>.
-              <br>• Valida se o <strong>Range condiz com o Ponto</strong>.
+              <strong>Tabela Interativa Editável + Numeração e Cópia por Linha:</strong>
+              <br>• Clique em qualquer célula da tabela gerada para <strong>editar o valor direto na tela</strong> (a validação atualiza na hora!).
+              <br>• Use o botão <strong>📋</strong> ao lado do número da linha para copiar apenas aquela linha corrigida, ou exporte tudo para Excel/PDF.
             </div>
           </div>
         </div>
@@ -885,8 +1303,8 @@
           </div>
 
           <div class="input-group">
-            <label for="ov_timestamp" title="Timestamp">Timestamp:</label>
-            <input type="text" id="ov_timestamp" placeholder="Preencha p/ sobrescrever">
+            <label for="ov_timestamp" title="Timestamp (Padrão fixo: [Time_Stamp])">Timestamp:</label>
+            <input type="text" id="ov_timestamp" placeholder="Fixo: [Time_Stamp]">
           </div>
 
           <div class="input-group" style="grid-column: 1 / -1;">
@@ -897,7 +1315,7 @@
       </div>
 
       <div class="button-group">
-        <button class="btn-primary" type="button" id="btnProcessar">✨ Processar Tagueamentos</button>
+        <button class="btn-primary" type="button" id="btnProcessar">✨ Processar & Validar Tagueamentos</button>
         <button class="btn-clear" type="button" id="btnLimpar">🗑️ Limpar Tudo</button>
       </div>
     </div>
@@ -907,25 +1325,38 @@
   <div class="conteudo_pagina">
     <div class="container">
       <div class="output-section">
-        <div class="section-title resultado-header">Tagueamentos Formatados</div>
+        <div class="section-title resultado-header">
+          <span class="section-title-left">Tagueamentos Formatados</span>
+          <span class="edit-hint-pill">✏️ Clique em qualquer célula da tabela para editar e corrigir</span>
+        </div>
 
         <!-- Alertas de Validação Topo -->
         <div id="alertasContainer"></div>
 
-        <!-- Barra Fixa (Sticky) com Filtros e Ações -->
+        <!-- Barra Fixa (Sticky) com Filtros de Problemas e Ações -->
         <div id="stickyBar" class="sticky-bar-wrapper hidden">
           <div class="tabela-acoes">
             <div class="filtro-container">
               <input type="text" id="filtroTabela" class="filtro-input"
-                     placeholder="Filtrar por qualquer campo (ex.: 60033, Pesquisa, Celular)..."
+                     placeholder="Buscar por ponto, evento, validação..."
                      aria-label="Filtrar tabela">
+            </div>
+
+            <!-- Pílulas para filtrar rapidamente os que têm problema / estão fora do padrão / duplicados / range fora -->
+            <div class="status-filter-pills" role="group" aria-label="Filtrar por status de validação">
+              <button type="button" class="status-pill active" data-status="all">Todos</button>
+              <button type="button" class="status-pill status-pill--err" data-status="issues">⚠️ Com Problemas</button>
+              <button type="button" class="status-pill status-pill--err" data-status="duplicados">🔴 Duplicados</button>
+              <button type="button" class="status-pill status-pill--warn" data-status="range">🟠 Range Fora</button>
+              <button type="button" class="status-pill status-pill--err" data-status="error">🔴 Erros Críticos</button>
+              <button type="button" class="status-pill status-pill--warn" data-status="warning">🟡 Fora do Padrão</button>
             </div>
 
             <div class="contador-badge" id="contadorBadge">Visíveis: 0 / Total: 0</div>
 
-            <button class="btn-acao-tabela btn-copy-action" type="button" id="btnCopiar">📋 Copiar Dados</button>
-            <button class="btn-acao-tabela btn-excel" type="button" id="btnExcel">📊 Exportar Planilha</button>
-            <button class="btn-acao-tabela btn-pdf" type="button" id="btnPdf">📄 Exportar PDF</button>
+            <button class="btn-acao-tabela btn-copy-action" type="button" id="btnCopiar">📋 Copiar Tudo</button>
+            <button class="btn-acao-tabela btn-excel" type="button" id="btnExcel">📊 Excel</button>
+            <button class="btn-acao-tabela btn-pdf" type="button" id="btnPdf">📄 PDF</button>
           </div>
         </div>
 
@@ -979,24 +1410,139 @@
     });
 
     /* =========================================================
-       2) DEFINIÇÃO DOS CAMPOS
+       2) LISTA OFICIAL DE EVENT_NAMES E CAMPOS (INCLUINDO TIMESTAMP FIXO)
        ========================================================= */
+    const EVENT_NAMES_OFICIAIS = new Set([
+      'inicio_chamada',
+      'inicio_menu',
+      'menu_principal',
+      'menu_outros_assuntos',
+      'menu_dinamico',
+      'autosservico',
+      'oferta_incentivo_dial',
+      'incentivo_dial',
+      'oferta_incentivo_digital',
+      'incentivo_digital',
+      'chamada_api',
+      'horario_atendimento',
+      'faq',
+      'atendimento_encerrado',
+      'pesquisa_satisfacao',
+      'pesquisa_nps',
+      'detrator_nps',
+      'transferencia_outra',
+      'transfere_outra_ura',
+      'transfere_externo',
+      'transfere_operacao',
+      'validacao',
+      'protocolo',
+      'segmento_cliente',
+      'lista_bloqueio',
+      'saudacao_inicial',
+      'submenu',
+      'oferta_incentivo_hsm',
+      'incentivo_hsm',
+      'encaminhado_transfere_humano',
+      'encaminhado_transfere_externo',
+      'encaminhado_transfere_outras_uras',
+      'submenu_desambiguacao',
+      'encaminhado_finaliza_chamada',
+      'retorno_api',
+      'menu_chute',
+      'submenu_reconhecimento_voz',
+      'submenu_desambigua_reconhecimento_voz',
+      'oferta_incentivo_col',
+      'incentivo_col'
+    ]);
+
     const CAMPOS = [
-      { key: 'event_name',   nome: 'event_name',   inputId: 'ov_event_name',   aliases: ['event_name', 'event name'] },
-      { key: 'validacao',    nome: 'Validacao',    inputId: 'ov_validacao',    aliases: ['validacao', 'validação'] },
-      { key: 'fluxo',        nome: 'Fluxo',        inputId: 'ov_fluxo',        aliases: ['fluxo'] },
-      { key: 'indicador',    nome: 'Indicador',    inputId: 'ov_indicador',    aliases: ['indicador'] },
-      { key: 'range',        nome: 'Range',        inputId: 'ov_range',        aliases: ['range'] },
-      { key: 'ponto',        nome: 'Ponto',        inputId: 'ov_ponto',        aliases: ['ponto'] },
-      { key: 'ultimo_Ponto', nome: 'Ultimo_Ponto', inputId: 'ov_ultimo_Ponto', aliases: ['ultimo_ponto', 'ultimo ponto', 'último ponto', 'último_ponto'] },
-      { key: 'input',        nome: 'Input',        inputId: 'ov_input',        aliases: ['input'] },
-      { key: 'tentativa',    nome: 'Tentativa',    inputId: 'ov_tentativa',    aliases: ['tentativa'] },
-      { key: 'ponto_origem', nome: 'Ponto_Origem', inputId: 'ov_ponto_origem', aliases: ['ponto_origem', 'ponto origem', 'pontoorigem'] },
-      { key: 'produto',      nome: 'Produto',      inputId: 'ov_produto',      aliases: ['produto'] },
-      { key: 'timestamp',    nome: 'Timestamp',    inputId: 'ov_timestamp',    aliases: ['timestamp', 'time_stamp', 'time stamp'] }
+      {
+        key: 'event_name',
+        nome: 'event_name',
+        inputId: 'ov_event_name',
+        aliases: [
+          'event_name', 'event-name', 'event name', 'eventname',
+          'vent_name', 'vent-name', 'vent name', 'evnt_name', 'evento'
+        ]
+      },
+      {
+        key: 'validacao',
+        nome: 'Validacao',
+        inputId: 'ov_validacao',
+        aliases: ['validacao', 'validação', 'alidacao', 'alidação', 'validacão']
+      },
+      {
+        key: 'fluxo',
+        nome: 'Fluxo',
+        inputId: 'ov_fluxo',
+        aliases: ['fluxo', 'luxo']
+      },
+      {
+        key: 'indicador',
+        nome: 'Indicador',
+        inputId: 'ov_indicador',
+        aliases: ['indicador', 'ndicador']
+      },
+      {
+        key: 'range',
+        nome: 'Range',
+        inputId: 'ov_range',
+        aliases: ['range', 'ange']
+      },
+      {
+        key: 'ponto',
+        nome: 'Ponto',
+        inputId: 'ov_ponto',
+        aliases: ['ponto']
+      },
+      {
+        key: 'ultimo_Ponto',
+        nome: 'Ultimo_Ponto',
+        inputId: 'ov_ultimo_Ponto',
+        aliases: [
+          'ultimo_ponto', 'ultimo-ponto', 'ultimo ponto', 'último ponto',
+          'último_ponto', 'ltimo_ponto', 'timo_ponto', 'ultimoponto'
+        ]
+      },
+      {
+        key: 'input',
+        nome: 'Input',
+        inputId: 'ov_input',
+        aliases: ['input', 'nput']
+      },
+      {
+        key: 'tentativa',
+        nome: 'Tentativa',
+        inputId: 'ov_tentativa',
+        aliases: ['tentativa', 'entativa']
+      },
+      {
+        key: 'ponto_origem',
+        nome: 'Ponto_Origem',
+        inputId: 'ov_ponto_origem',
+        aliases: [
+          'ponto_origem', 'ponto-origem', 'ponto origem', 'pontoorigem',
+          'onto_origem', 'ponto de origem'
+        ]
+      },
+      {
+        key: 'produto',
+        nome: 'Produto',
+        inputId: 'ov_produto',
+        aliases: ['produto', 'roduto']
+      },
+      {
+        key: 'timestamp',
+        nome: 'Timestamp',
+        inputId: 'ov_timestamp',
+        aliases: [
+          'timestamp', 'time_stamp', 'time-stamp', 'time stamp',
+          'imestamp', 'ime_stamp'
+        ]
+      }
     ];
 
-    const COLUNAS = CAMPOS.filter(c => c.key !== 'timestamp');
+    const COLUNAS = CAMPOS.slice();
 
     const ALIASES = (function () {
       const lista = [];
@@ -1012,20 +1558,15 @@
     })();
 
     /* =========================================================
-       3) NORMALIZADOR E PARSER (COM SUPORTE A LINHA SEGUINTE)
+       3) PARSER ANTI-LIXO E RECONHECIMENTO DE NOMES CORRELATOS
        ========================================================= */
     function normalizarTexto(texto) {
       if (!texto) return '';
       let t = String(texto);
 
-      // Substitui tabs por quebras de linha
       t = t.replace(/\t/g, '\n');
-
-      // Corrige blocos colados (ex: Timestamp [Time_Stamp]event_name ...)
-      t = t.replace(/([^\r\n])\s*(event_name\b)/gi, '$1\n$2');
-
-      // Corrige campos colados logo após fechamento de colchetes
-      t = t.replace(/(\]\s*)(validacao|fluxo|indicador|range|ponto|ultimo_ponto|input|tentativa|ponto_origem|ponto origem|produto|timestamp|time_stamp)\b/gi, '$1\n$2');
+      t = t.replace(/([^\r\n])\s*((?:e?vent[_-\s]?name|evnt_name)\b)/gi, '$1\n$2');
+      t = t.replace(/(\]\s*)(validacao|validação|fluxo|indicador|range|ponto|ultimo[_-\s]?ponto|input|tentativa|ponto[_-\s]?origem|produto|time[_-\s]?stamp)\b/gi, '$1\n$2');
 
       return t;
     }
@@ -1045,10 +1586,8 @@
 
         const resto = linha.slice(alias.length);
 
-        // Se a linha tiver apenas o nome do campo (ex.: "Fluxo" ou "Input")
         if (resto === '') return { key: ALIASES[i].key, valor: '' };
 
-        // Separador aceito: espaço, ":", "=", ou início de colchetes "["
         const primeiroChar = resto.charAt(0);
         if (!/[\s:=]/.test(primeiroChar) && primeiroChar !== '[') continue;
 
@@ -1069,7 +1608,9 @@
       let atual = null;
 
       function fecharBloco() {
-        if (atual && Object.keys(atual).length) blocos.push(atual);
+        if (atual && blocoEstruturaValida(atual)) {
+          blocos.push(atual);
+        }
         atual = null;
       }
 
@@ -1080,8 +1621,16 @@
         const campo = separarLinha(linha);
         if (!campo) continue;
 
-        // SE O VALOR ESTÁ VAZIO NA MESMA LINHA:
-        // Verifica se a linha seguinte NÃO é outro campo; se não for, ela é o valor deste campo!
+        if (!atual) {
+          if (campo.key !== 'event_name') {
+            continue;
+          }
+          atual = {};
+        } else if (campo.key === 'event_name') {
+          fecharBloco();
+          atual = {};
+        }
+
         if (campo.valor === '') {
           let nextIdx = i + 1;
           while (nextIdx < linhas.length && !linhas[nextIdx].trim()) {
@@ -1090,26 +1639,22 @@
           if (nextIdx < linhas.length) {
             const nextLinha = linhas[nextIdx].trim();
             const nextCampo = separarLinha(nextLinha);
+            const pareceValorDeTag = /^\[.*\]$/.test(nextLinha) || nextLinha.split(/\s+/).length <= 2;
 
-            // Apenas atribui se a próxima linha NÃO for outro campo conhecido
-            if (!nextCampo) {
+            if (!nextCampo && pareceValorDeTag) {
               campo.valor = nextLinha;
-              i = nextIdx; // avança o cursor além da linha do valor
+              i = nextIdx;
             }
           }
         }
 
-        const comecaNovo = !!atual && (
-          campo.key === 'event_name' ||
-          Object.prototype.hasOwnProperty.call(atual, 'timestamp')
-        );
-
-        if (comecaNovo) fecharBloco();
-        if (!atual) atual = {};
-
         const existente = atual[campo.key];
         if (existente === undefined || existente === '' || campo.valor !== '') {
           atual[campo.key] = campo.valor;
+        }
+
+        if (campo.key === 'timestamp') {
+          fecharBloco();
         }
       }
 
@@ -1117,16 +1662,14 @@
       return blocos;
     }
 
-    function blocoValido(bloco) {
+    function blocoEstruturaValida(bloco) {
       const chaves = Object.keys(bloco);
-      if (chaves.length < 2) return false;
-      const temEvento = String(bloco.event_name || '').trim() !== '';
-      const temPonto  = String(bloco.ponto || '').trim() !== '';
-      return temEvento || temPonto;
+      if (!bloco.event_name || chaves.length < 4) return false;
+      return Boolean(bloco.ponto || bloco.fluxo || bloco.range || bloco.timestamp);
     }
 
     /* =========================================================
-       4) SOBRESCRIÇÕES (OVERRIDES)
+       4) SOBRESCRIÇÕES E COLUNA TIMESTAMP FIXA ([Time_Stamp])
        ========================================================= */
     function lerOverrides() {
       const overrides = {};
@@ -1151,29 +1694,97 @@
         tag.validacao = overrides._operacaoDestino;
       }
 
+      tag.timestamp = overrides.timestamp !== '' ? overrides.timestamp : '[Time_Stamp]';
+
       return tag;
     }
 
+    function lerValidadoresAtivos() {
+      return {
+        duplicados:      document.getElementById('chkValDuplicados').checked,
+        eventList:       document.getElementById('chkValEventList').checked,
+        eventFormat:     document.getElementById('chkValEventFormat').checked,
+        apiRules:        document.getElementById('chkValApiRules').checked,
+        range:           document.getElementById('chkValRange').checked,
+        validacaoFormat: document.getElementById('chkValValidacaoFormat').checked,
+        menuInput:       document.getElementById('chkValMenuInput').checked,
+        sameFluxo:       document.getElementById('chkValSameFluxo').checked
+      };
+    }
+
+    function atualizarBadgeValidadores() {
+      const todos = document.querySelectorAll('.val-checkbox');
+      const marcados = Array.from(todos).filter(c => c.checked).length;
+      document.getElementById('activeValidatorsBadge').textContent = `${marcados} de ${todos.length} ativos`;
+    }
+
+    document.querySelectorAll('.val-checkbox').forEach(chk => {
+      chk.addEventListener('change', () => {
+        atualizarBadgeValidadores();
+        revalidarTabelaExistente(false);
+      });
+    });
+
+    document.getElementById('btnMarcarTodosVal').addEventListener('click', () => {
+      document.querySelectorAll('.val-checkbox').forEach(c => c.checked = true);
+      atualizarBadgeValidadores();
+      revalidarTabelaExistente(false);
+    });
+
+    document.getElementById('btnDesmarcarTodosVal').addEventListener('click', () => {
+      document.querySelectorAll('.val-checkbox').forEach(c => c.checked = false);
+      atualizarBadgeValidadores();
+      revalidarTabelaExistente(false);
+    });
+
     /* =========================================================
-       5) VALIDAÇÕES (RANGE VS PONTO)
+       5) FUNÇÕES DE VALIDAÇÃO DAS REGRAS DE NEGÓCIO
        ========================================================= */
     function validaRangeCondiz(pontoStr, rangeStr) {
       if (!pontoStr || !rangeStr) return true;
-
       const numPonto = parseInt(String(pontoStr).replace(/\D/g, ''), 10);
       const numRange = parseInt(String(rangeStr).replace(/\D/g, ''), 10);
-
       if (isNaN(numPonto) || isNaN(numRange)) return true;
-
       if (numPonto >= 1000 && numRange >= 1000) {
         return Math.floor(numPonto / 1000) === Math.floor(numRange / 1000);
       }
-
       return true;
     }
 
+    function validaFormatoEventName(ev) {
+      if (!ev) return false;
+      return /^[a-z0-9]+(_[a-z0-9]+)*$/.test(ev.trim());
+    }
+
+    function validaFormatoValidacao(val) {
+      if (!val) return false;
+      const v = val.trim();
+      if (/^\[.+\]$/.test(v)) return true;
+      const partes = v.split('_');
+      if (partes.some(p => !p)) return false;
+      return partes.every(p => /^[A-Z0-9][a-zA-Z0-9]*$/.test(p));
+    }
+
+    function exigeInputCliente(ev, validacaoStr) {
+      if (!ev) return false;
+      const e = ev.trim().toLowerCase();
+      if (e === 'inicio_menu') return false;
+
+      const valNorm = String(validacaoStr || '')
+        .trim()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase();
+
+      if (valNorm.includes('repete_opcoes') || valNorm.includes('repete_opcao')) {
+        return false;
+      }
+
+      return e.includes('menu') || e.includes('submenu');
+    }
+
     /* =========================================================
-       6) RENDERIZAÇÃO
+       6) RENDERIZAÇÃO COM NUMERAÇÃO, COPIAR LINHA E EDIÇÃO EM TEMPO REAL
        ========================================================= */
     const inputText        = document.getElementById('inputText');
     const tabelasContainer = document.getElementById('tabelasContainer');
@@ -1191,73 +1802,62 @@
       if (e.target === modalDuplicados) modalDuplicados.classList.remove('active');
     });
 
+    let registrosAtuais = [];
     let totalLinhasGeral = 0;
+    let statusFilterAtivo = 'all';
+
+    // Copia apenas uma linha específica (as 12 colunas de dados separadas por TAB)
+    function copiarLinhaIndividual(tr, btnElement) {
+      const tds = Array.from(tr.querySelectorAll('td[data-col-key]'));
+      const valores = tds.map(extrairValorLimpoCelula);
+      const linhaTsv = valores.join('\t');
+
+      navigator.clipboard.writeText(linhaTsv).then(() => {
+        const originalText = btnElement.innerHTML;
+        btnElement.classList.add('copied');
+        btnElement.innerHTML = '✓';
+        setTimeout(() => {
+          btnElement.classList.remove('copied');
+          btnElement.innerHTML = originalText;
+        }, 1400);
+      });
+    }
 
     function processarDados() {
       const texto = inputText.value;
       const overrides = lerOverrides();
-      const blocos = extrairBlocos(texto).filter(blocoValido);
+      const blocos = extrairBlocos(texto);
 
       tabelasContainer.innerHTML = '';
       alertasContainer.innerHTML = '';
-      filtroInput.value = '';
 
       if (!texto.trim()) {
+        registrosAtuais = [];
         stickyBar.classList.add('hidden');
         return;
       }
 
       if (!blocos.length) {
+        registrosAtuais = [];
         stickyBar.classList.add('hidden');
         const aviso = document.createElement('div');
         aviso.className = 'info-banner';
-        aviso.textContent = 'Nenhum bloco de tagueamento válido foi encontrado. Verifique os dados inseridos.';
+        aviso.textContent = 'Nenhum bloco estruturado de tagueamento (event_name ... Timestamp) foi encontrado.';
         tabelasContainer.appendChild(aviso);
         return;
       }
 
-      const registros = blocos.map(b => processarBloco(b, overrides));
-      totalLinhasGeral = registros.length;
+      registrosAtuais = blocos.map(b => processarBloco(b, overrides));
+      totalLinhasGeral = registrosAtuais.length;
 
-      // Duplicidades
-      const contagemPontos = {};
-      registros.forEach(r => {
-        const p = String(r.ponto || '').trim();
-        if (p) contagemPontos[p] = (contagemPontos[p] || 0) + 1;
-      });
+      construirTabelaDOM();
+      revalidarTabelaExistente(true);
+      stickyBar.classList.remove('hidden');
+    }
 
-      const pontosDuplicados = Object.keys(contagemPontos).filter(p => contagemPontos[p] > 1);
+    function construirTabelaDOM() {
+      tabelasContainer.innerHTML = '';
 
-      // Incoerência de Range
-      let totalRangeInvalido = 0;
-      registros.forEach(r => {
-        if (!validaRangeCondiz(r.ponto, r.range)) totalRangeInvalido++;
-      });
-
-      // Avisos no topo
-      if (pontosDuplicados.length > 0) {
-        const alertDup = document.createElement('div');
-        alertDup.className = 'alerta-topo alerta-topo--danger';
-        alertDup.innerHTML = `⚠️ <strong>Atenção:</strong> Existem <strong>${pontosDuplicados.length}</strong> ponto(s) duplicado(s): <code>${pontosDuplicados.join(', ')}</code>. Linhas marcadas em vermelho.`;
-        alertasContainer.appendChild(alertDup);
-
-        listaDuplicados.innerHTML = '';
-        pontosDuplicados.forEach(p => {
-          const li = document.createElement('li');
-          li.textContent = `Ponto ${p} (aparece ${contagemPontos[p]} vezes)`;
-          listaDuplicados.appendChild(li);
-        });
-        modalDuplicados.classList.add('active');
-      }
-
-      if (totalRangeInvalido > 0) {
-        const alertRange = document.createElement('div');
-        alertRange.className = 'alerta-topo alerta-topo--warning';
-        alertRange.innerHTML = `⚠️ <strong>Atenção:</strong> Foram encontradas <strong>${totalRangeInvalido}</strong> linha(s) em que o <strong>Range não condiz com a casa do Ponto</strong>. Verifique as células sinalizadas.`;
-        alertasContainer.appendChild(alertRange);
-      }
-
-      // Monta Tabela
       const wrapper = document.createElement('div');
       wrapper.className = 'tabela-planilha-container';
       wrapper.id = 'wrapperTabela';
@@ -1266,51 +1866,100 @@
       tabela.className = 'tabela-planilha';
       tabela.id = 'tabelaDados';
 
+      // Cabeçalho com coluna '#' (Índice + Ação Copiar) + as 12 colunas oficiais
       const thead = document.createElement('thead');
       const trHead = document.createElement('tr');
+
+      const thMeta = document.createElement('th');
+      thMeta.className = 'th-row-meta';
+      thMeta.textContent = '# / Copiar';
+      thMeta.title = 'Número da linha e botão para copiar apenas aquela linha';
+      trHead.appendChild(thMeta);
+
       COLUNAS.forEach(c => {
         const th = document.createElement('th');
         th.textContent = c.nome;
+        th.dataset.colHeader = c.key;
         trHead.appendChild(th);
       });
       thead.appendChild(trHead);
       tabela.appendChild(thead);
 
       const tbody = document.createElement('tbody');
-      registros.forEach(tag => {
+
+      registrosAtuais.forEach((tag, idx) => {
         const tr = document.createElement('tr');
-        const pontoVal = String(tag.ponto || '').trim();
-        const rangeVal = String(tag.range || '').trim();
+        tr.dataset.rowIndex = idx;
 
-        const ehDuplicado = pontoVal && contagemPontos[pontoVal] > 1;
-        const rangeInvalido = !validaRangeCondiz(pontoVal, rangeVal);
+        // 1ª Célula: Número da Linha + Botão Copiar Linha
+        const tdMeta = document.createElement('td');
+        tdMeta.className = 'td-row-meta';
 
-        if (ehDuplicado) tr.classList.add('tr-duplicado');
-        if (rangeInvalido) tr.classList.add('tr-range-invalido');
+        const metaInner = document.createElement('div');
+        metaInner.className = 'row-meta-inner';
 
+        const spanNum = document.createElement('span');
+        spanNum.className = 'row-number-badge';
+        spanNum.textContent = idx + 1;
+        spanNum.title = `Linha ${idx + 1}`;
+
+        const btnCopyRow = document.createElement('button');
+        btnCopyRow.type = 'button';
+        btnCopyRow.className = 'btn-copy-row';
+        btnCopyRow.innerHTML = '📋';
+        btnCopyRow.title = `Copiar linha ${idx + 1} completa`;
+        btnCopyRow.addEventListener('click', function () {
+          copiarLinhaIndividual(tr, btnCopyRow);
+        });
+
+        metaInner.appendChild(spanNum);
+        metaInner.appendChild(btnCopyRow);
+        tdMeta.appendChild(metaInner);
+        tr.appendChild(tdMeta);
+
+        // Células de Dados Editáveis
         COLUNAS.forEach(campo => {
           const td = document.createElement('td');
+          td.dataset.colKey = campo.key;
+
           const val = tag[campo.key] || '';
-          td.textContent = val;
+          td.dataset.rawVal = val;
 
-          if (campo.key === 'ponto' && ehDuplicado) {
-            td.classList.add('cell-duplicado');
-            td.title = `Ponto repetido ${contagemPontos[pontoVal]} vezes no tagueamento!`;
-            const badge = document.createElement('span');
-            badge.className = 'badge-erro';
-            badge.textContent = `Duplicado (${contagemPontos[pontoVal]}x)`;
-            td.appendChild(badge);
-          }
+          const editor = document.createElement('span');
+          editor.className = 'cell-editor';
+          editor.contentEditable = 'true';
+          editor.spellcheck = false;
+          editor.textContent = val;
+          editor.title = `Clique para editar ${campo.nome} (Linha ${idx + 1})`;
 
-          if (campo.key === 'range' && rangeInvalido) {
-            td.classList.add('cell-range-invalido');
-            td.title = `Range ${rangeVal} não condiz com a casa do Ponto ${pontoVal}!`;
-            const badge = document.createElement('span');
-            badge.className = 'badge-erro';
-            badge.textContent = 'Incoerente';
-            td.appendChild(badge);
-          }
+          const badgesContainer = document.createElement('span');
+          badgesContainer.className = 'cell-badges';
 
+          // Ao digitar ou colar texto na célula, atualiza o registro e revalida em tempo real
+          editor.addEventListener('input', function () {
+            const novoValor = editor.textContent.replace(/[\r\n\t]+/g, ' ').trim();
+            td.dataset.rawVal = novoValor;
+            registrosAtuais[idx][campo.key] = novoValor;
+            revalidarTabelaExistente(false);
+          });
+
+          // Evita quebra de linha com Enter dentro da célula editável
+          editor.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              editor.blur();
+            }
+          });
+
+          // Clique na área da célula foca automaticamente no editor
+          td.addEventListener('click', function (e) {
+            if (e.target === td) {
+              editor.focus();
+            }
+          });
+
+          td.appendChild(editor);
+          td.appendChild(badgesContainer);
           tr.appendChild(td);
         });
 
@@ -1320,19 +1969,221 @@
       tabela.appendChild(tbody);
       wrapper.appendChild(tabela);
       tabelasContainer.appendChild(wrapper);
-
-      stickyBar.classList.remove('hidden');
-      atualizarContador(registros.length);
     }
 
+    // Revalida todas as linhas e células da tabela em tempo real (inclusive após edições manuais)
+    function revalidarTabelaExistente(abrirModalDuplicadosSeHouver) {
+      const tabela = document.getElementById('tabelaDados');
+      if (!tabela || !registrosAtuais.length) return;
+
+      const Regras = lerValidadoresAtivos();
+      alertasContainer.innerHTML = '';
+
+      // 1) Contagem de pontos para duplicidade
+      const contagemPontos = {};
+      registrosAtuais.forEach(r => {
+        const p = String(r.ponto || '').trim();
+        if (p) contagemPontos[p] = (contagemPontos[p] || 0) + 1;
+      });
+      const pontosDuplicados = Object.keys(contagemPontos).filter(p => contagemPontos[p] > 1);
+
+      // 2) Descobre o Fluxo predominante
+      const contagemFluxos = {};
+      let fluxoPredominante = '';
+      let maxFluxoCount = 0;
+      registrosAtuais.forEach(r => {
+        const f = String(r.fluxo || '').trim();
+        if (f) {
+          contagemFluxos[f] = (contagemFluxos[f] || 0) + 1;
+          if (contagemFluxos[f] > maxFluxoCount) {
+            maxFluxoCount = contagemFluxos[f];
+            fluxoPredominante = f;
+          }
+        }
+      });
+      const fluxosDistintos = Object.keys(contagemFluxos);
+
+      let countEventInvalido = 0;
+      let countApiRegraErr   = 0;
+      let countRangeErr      = 0;
+      let countValidacaoWarn = 0;
+      let countMenuInputWarn = 0;
+      let countFluxoWarn     = 0;
+
+      const linhasDOM = tabela.querySelectorAll('tbody tr');
+
+      linhasDOM.forEach((tr, idx) => {
+        const tag = registrosAtuais[idx];
+        if (!tag) return;
+
+        const evVal    = String(tag.event_name || '').trim();
+        const valVal   = String(tag.validacao || '').trim();
+        const fluxoVal = String(tag.fluxo || '').trim();
+        const rangeVal = String(tag.range || '').trim();
+        const pontoVal = String(tag.ponto || '').trim();
+        const inputVal = String(tag.input || '').trim();
+
+        let rowHasError   = false;
+        let rowHasWarning = false;
+
+        const cellIssues = {};
+        function addIssue(colKey, level, badgeText, tooltip) {
+          if (!cellIssues[colKey]) cellIssues[colKey] = { level, badges: [], tooltips: [] };
+          if (level === 'error') cellIssues[colKey].level = 'error';
+          cellIssues[colKey].badges.push(badgeText);
+          cellIssues[colKey].tooltips.push(tooltip);
+          if (level === 'error') rowHasError = true;
+          else rowHasWarning = true;
+        }
+
+        const isDuplicado = Boolean(pontoVal && contagemPontos[pontoVal] > 1);
+        const isRangeFora = !validaRangeCondiz(pontoVal, rangeVal);
+
+        tr.dataset.duplicado = isDuplicado ? '1' : '0';
+        tr.dataset.rangeFora = isRangeFora ? '1' : '0';
+
+        // V1: Pontos Duplicados (Vermelho)
+        if (Regras.duplicados && isDuplicado) {
+          addIssue('ponto', 'error', `Duplicado (${contagemPontos[pontoVal]}x)`, `Ponto ${pontoVal} aparece ${contagemPontos[pontoVal]} vezes!`);
+        }
+
+        // V2: Formato do event_name (minúsculo com _)
+        if (Regras.eventFormat && !validaFormatoEventName(evVal)) {
+          addIssue('event_name', 'error', 'Formato Inválido', 'O event_name deve ser todo em letra minúscula separado por _');
+          countEventInvalido++;
+        }
+
+        // V3: Lista Oficial de event_name (Vermelho)
+        if (Regras.eventList && evVal && !EVENT_NAMES_OFICIAIS.has(evVal)) {
+          addIssue('event_name', 'error', 'Fora da Lista', `"${evVal}" não faz parte da lista oficial de Event Names.`);
+          countEventInvalido++;
+        }
+
+        // V4: Regras específicas de API (chamada_api e retorno_api)
+        if (Regras.apiRules) {
+          if (evVal === 'chamada_api' && valVal.toLowerCase() !== '[status_code]') {
+            addIssue('validacao', 'error', 'Exige [Status_code]', 'Para event_name "chamada_api", a Validação deve ser obrigatoriamente [Status_code].');
+            countApiRegraErr++;
+          }
+          if (evVal === 'retorno_api' && valVal !== 'Sucesso_Api' && valVal !== 'Falha_Api') {
+            addIssue('validacao', 'error', 'Exige Sucesso_Api/Falha_Api', 'Para event_name "retorno_api", a Validação deve ser Sucesso_Api ou Falha_Api.');
+            countApiRegraErr++;
+          }
+        }
+
+        // V5: Formato da Validação (Amarelo)
+        if (Regras.validacaoFormat && !validaFormatoValidacao(valVal)) {
+          addIssue('validacao', 'warning', 'Fora do Padrão', 'A Validação deve ter iniciais maiúsculas separadas por _ (ex: Nome_Validacao_Ponto) ou estar entre colchetes [...].');
+          countValidacaoWarn++;
+        }
+
+        // V6: Input obrigatório [Input_Cliente] em Menus/Submenus
+        if (Regras.menuInput && exigeInputCliente(evVal, valVal) && inputVal !== '[Input_Cliente]') {
+          addIssue('input', 'warning', 'Exige [Input_Cliente]', `O evento "${evVal}" exige [Input_Cliente] no campo Input (exceto quando a Validação contiver Repete_Opcoes).`);
+          countMenuInputWarn++;
+        }
+
+        // V7: Mesmo Fluxo (Amarelo)
+        if (Regras.sameFluxo && (!fluxoVal || (fluxosDistintos.length > 1 && fluxoVal !== fluxoPredominante))) {
+          addIssue('fluxo', 'warning', 'Fluxo Divergente', `Fluxo "${fluxoVal || 'vazio'}" difere do fluxo principal ("${fluxoPredominante}").`);
+          countFluxoWarn++;
+        }
+
+        // V8: Range vs Ponto (Amarelo)
+        if (Regras.range && isRangeFora) {
+          addIssue('range', 'warning', 'Range Incoerente', `Range ${rangeVal} não condiz com a casa de milhar do Ponto ${pontoVal}.`);
+          countRangeErr++;
+        }
+
+        tr.classList.remove('tr-error', 'tr-warning');
+        if (rowHasError) {
+          tr.classList.add('tr-error');
+          tr.dataset.status = 'error';
+        } else if (rowHasWarning) {
+          tr.classList.add('tr-warning');
+          tr.dataset.status = 'warning';
+        } else {
+          tr.dataset.status = 'ok';
+        }
+
+        // Atualiza classes e badges de cada célula sem perder o foco do cursor de edição
+        const tds = tr.querySelectorAll('td[data-col-key]');
+        tds.forEach(td => {
+          const colKey = td.dataset.colKey;
+          const badgesContainer = td.querySelector('.cell-badges');
+          if (badgesContainer) badgesContainer.innerHTML = '';
+
+          td.classList.remove('cell-error', 'cell-warning');
+          delete td.dataset.issueLevel;
+          td.removeAttribute('title');
+
+          const issue = cellIssues[colKey];
+          if (issue) {
+            td.classList.add(issue.level === 'error' ? 'cell-error' : 'cell-warning');
+            td.dataset.issueLevel = issue.level;
+            td.title = issue.tooltips.join(' | ');
+            if (badgesContainer) {
+              issue.badges.forEach(bTxt => {
+                const badge = document.createElement('span');
+                badge.className = 'badge-erro';
+                badge.textContent = bTxt;
+                badgesContainer.appendChild(badge);
+              });
+            }
+          }
+        });
+      });
+
+      // Renderiza Alertas Resumidos no Topo
+      if (Regras.duplicados && pontosDuplicados.length > 0) {
+        const alertDup = document.createElement('div');
+        alertDup.className = 'alerta-topo alerta-topo--danger';
+        alertDup.innerHTML = `<span>🔴 <strong>Pontos Duplicados (${pontosDuplicados.length}):</strong> <code>${pontosDuplicados.join(', ')}</code></span>`;
+        alertasContainer.appendChild(alertDup);
+
+        if (abrirModalDuplicadosSeHouver) {
+          listaDuplicados.innerHTML = '';
+          pontosDuplicados.forEach(p => {
+            const li = document.createElement('li');
+            li.textContent = `Ponto ${p} (aparece ${contagemPontos[p]} vezes)`;
+            listaDuplicados.appendChild(li);
+          });
+          modalDuplicados.classList.add('active');
+        }
+      }
+
+      if (countEventInvalido > 0 || countApiRegraErr > 0) {
+        const alertEv = document.createElement('div');
+        alertEv.className = 'alerta-topo alerta-topo--danger';
+        alertEv.innerHTML = `<span>🔴 <strong>Erros de Event_Name / Regras de API:</strong> ${countEventInvalido} evento(s) fora da lista/formato e ${countApiRegraErr} erro(s) em chamada_api/retorno_api.</span>`;
+        alertasContainer.appendChild(alertEv);
+      }
+
+      const totalAvisosAmarelos = countRangeErr + countValidacaoWarn + countMenuInputWarn + countFluxoWarn;
+      if (totalAvisosAmarelos > 0) {
+        const detalhes = [];
+        if (countValidacaoWarn) detalhes.push(`${countValidacaoWarn} Validação fora do padrão`);
+        if (countMenuInputWarn) detalhes.push(`${countMenuInputWarn} Menu sem [Input_Cliente]`);
+        if (countFluxoWarn)     detalhes.push(`${countFluxoWarn} Fluxo divergente (Principal: "${fluxoPredominante}")`);
+        if (countRangeErr)      detalhes.push(`${countRangeErr} Range incoerente`);
+
+        const alertWarn = document.createElement('div');
+        alertWarn.className = 'alerta-topo alerta-topo--warning';
+        alertWarn.innerHTML = `<span>🟡 <strong>Alertas de Padrão (${totalAvisosAmarelos}):</strong> ${detalhes.join(' • ')}</span>`;
+        alertasContainer.appendChild(alertWarn);
+      }
+
+      aplicarFiltrosCombinados();
+    }
+
+    /* =========================================================
+       7) FILTRO DE TEXTO + FILTRO POR STATUS
+       ========================================================= */
     function atualizarContador(visiveis) {
       contadorBadge.textContent = `Visíveis: ${visiveis} / Total: ${totalLinhasGeral}`;
     }
 
-    /* =========================================================
-       7) FILTRO
-       ========================================================= */
-    function filtrarTabela() {
+    function aplicarFiltrosCombinados() {
       const tabela = document.getElementById('tabelaDados');
       if (!tabela) return;
 
@@ -1342,31 +2193,64 @@
 
       linhas.forEach(linha => {
         const textoLinha = linha.textContent.toLowerCase();
-        const atende = termos.length === 0 || termos.every(t => textoLinha.includes(t));
-        linha.classList.toggle('linha-oculta', !atende);
-        if (atende) visiveis++;
+        const atendeTexto = termos.length === 0 || termos.every(t => textoLinha.includes(t));
+
+        const st = linha.dataset.status || 'ok';
+        const isDup = linha.dataset.duplicado === '1';
+        const isRng = linha.dataset.rangeFora === '1';
+
+        let atendeStatus = true;
+        if (statusFilterAtivo === 'issues')     atendeStatus = (st === 'error' || st === 'warning');
+        if (statusFilterAtivo === 'duplicados') atendeStatus = isDup;
+        if (statusFilterAtivo === 'range')      atendeStatus = isRng;
+        if (statusFilterAtivo === 'error')      atendeStatus = (st === 'error');
+        if (statusFilterAtivo === 'warning')    atendeStatus = (st === 'warning');
+
+        const mostrar = atendeTexto && atendeStatus;
+        linha.classList.toggle('linha-oculta', !mostrar);
+        if (mostrar) visiveis++;
       });
 
       atualizarContador(visiveis);
     }
 
-    filtroInput.addEventListener('input', filtrarTabela);
+    filtroInput.addEventListener('input', aplicarFiltrosCombinados);
+
+    document.querySelectorAll('.status-pill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.status-pill').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        statusFilterAtivo = btn.dataset.status;
+        aplicarFiltrosCombinados();
+      });
+    });
 
     /* =========================================================
-       8) EXPORTAÇÕES
+       8) EXPORTAÇÕES (COPIAR TUDO, EXCEL E PDF COM OS DADOS EDITADOS)
        ========================================================= */
+    function extrairValorLimpoCelula(celula) {
+      if (celula.dataset && celula.dataset.rawVal !== undefined) {
+        return celula.dataset.rawVal;
+      }
+      const editor = celula.querySelector('.cell-editor');
+      if (editor) {
+        return editor.textContent.trim();
+      }
+      const clone = celula.cloneNode(true);
+      clone.querySelectorAll('.badge-erro').forEach(b => b.remove());
+      return clone.textContent.trim();
+    }
+
+    // Copiar Tabela Completa (Ignora a coluna de número/botão e leva apenas as 12 colunas editadas)
     document.getElementById('btnCopiar').addEventListener('click', function () {
       const tabela = document.getElementById('tabelaDados');
       if (!tabela) return;
 
-      let tsv = '';
-      tabela.querySelectorAll('tr').forEach(linha => {
+      let tsv = COLUNAS.map(c => c.nome).join('\t') + '\n';
+
+      tabela.querySelectorAll('tbody tr').forEach(linha => {
         if (linha.classList.contains('linha-oculta')) return;
-        const valores = Array.from(linha.querySelectorAll('th, td')).map(td => {
-          const clone = td.cloneNode(true);
-          clone.querySelectorAll('.badge-erro').forEach(b => b.remove());
-          return clone.textContent.trim();
-        });
+        const valores = Array.from(linha.querySelectorAll('td[data-col-key]')).map(extrairValorLimpoCelula);
         tsv += valores.join('\t') + '\n';
       });
 
@@ -1377,85 +2261,148 @@
       });
     });
 
+    // Exportar Excel com os valores editados (sem coluna de número/botão e sem badges de erro)
     document.getElementById('btnExcel').addEventListener('click', function () {
       const tabela = document.getElementById('tabelaDados');
       if (!tabela) return;
 
-      const clone = tabela.cloneNode(true);
-      clone.querySelectorAll('tr.linha-oculta').forEach(l => l.remove());
-      clone.querySelectorAll('.badge-erro').forEach(b => b.remove());
+      const aoa = [COLUNAS.map(c => c.nome)];
 
-      const wb = XLSX.utils.table_to_book(clone, { sheet: 'Tagueamentos' });
+      tabela.querySelectorAll('tbody tr').forEach(linha => {
+        if (linha.classList.contains('linha-oculta')) return;
+        const valores = Array.from(linha.querySelectorAll('td[data-col-key]')).map(extrairValorLimpoCelula);
+        aoa.push(valores);
+      });
+
+      const ws = XLSX.utils.aoa_to_sheet(aoa);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Tagueamentos');
       XLSX.writeFile(wb, 'Tagueamentos_Planilha.xlsx');
     });
 
+    // Exportar PDF com os valores editados + numeração de linha
     document.getElementById('btnPdf').addEventListener('click', function () {
       const tabela = document.getElementById('tabelaDados');
       if (!tabela) return;
 
+      if (!window.jspdf || !window.jspdf.jsPDF) {
+        alert('Biblioteca jsPDF não carregada. Verifique sua conexão.');
+        return;
+      }
+
       const btn = this;
       const textoOriginal = btn.textContent;
-      btn.textContent = '⏳ Gerando PDF...';
+      btn.textContent = '⏳ Gerando...';
 
-      const printContainer = document.createElement('div');
-      printContainer.style.position = 'fixed';
-      printContainer.style.left = '-9999px';
-      printContainer.style.top = '0';
-      printContainer.style.width = '1200px';
-      printContainer.style.background = '#ffffff';
-      printContainer.style.color = '#000000';
-      printContainer.style.padding = '20px';
-      printContainer.style.fontFamily = 'Arial, sans-serif';
+      try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({
+          orientation: 'landscape',
+          unit: 'mm',
+          format: 'a4'
+        });
 
-      const titulo = document.createElement('h2');
-      titulo.textContent = 'Tagueamentos Formatados - Ura Tools';
-      titulo.style.fontSize = '16px';
-      titulo.style.marginBottom = '12px';
-      titulo.style.color = '#0046A6';
-      printContainer.appendChild(titulo);
+        const dataHora = new Date().toLocaleString('pt-BR');
 
-      const cloneTable = tabela.cloneNode(true);
-      cloneTable.querySelectorAll('tr.linha-oculta').forEach(l => l.remove());
-      cloneTable.querySelectorAll('.badge-erro').forEach(b => b.remove());
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(13);
+        doc.setTextColor(0, 70, 166);
+        doc.text('Relatório de Tagueamento (Planilha) - Ura Tools', 10, 11);
 
-      cloneTable.style.width = '100%';
-      cloneTable.style.borderCollapse = 'collapse';
-      cloneTable.style.fontSize = '10px';
-      cloneTable.style.minWidth = '0';
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8.5);
+        doc.setTextColor(100);
+        doc.text(`Gerado em: ${dataHora}`, 10, 16);
 
-      cloneTable.querySelectorAll('th').forEach(th => {
-        th.style.background = '#0046A6';
-        th.style.color = '#ffffff';
-        th.style.padding = '6px 8px';
-        th.style.border = '1px solid #002d6b';
-        th.style.textAlign = 'left';
-      });
+        const headers = [['#'].concat(COLUNAS.map(c => c.nome))];
 
-      cloneTable.querySelectorAll('td').forEach(td => {
-        td.style.padding = '5px 8px';
-        td.style.border = '1px solid #cccccc';
-      });
+        const bodyRows = [];
+        const cellMeta = [];
 
-      printContainer.appendChild(cloneTable);
-      document.body.appendChild(printContainer);
+        const trs = Array.from(tabela.querySelectorAll('tbody tr')).filter(
+          tr => !tr.classList.contains('linha-oculta')
+        );
 
-      const opt = {
-        margin: [0.3, 0.3, 0.3, 0.3],
-        filename: 'Tagueamentos_Planilha.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, logging: false },
-        jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' }
-      };
+        trs.forEach((tr) => {
+          const numLinha = ( parseInt(tr.dataset.rowIndex, 10) + 1 ) || '';
+          const tds = Array.from(tr.querySelectorAll('td[data-col-key]'));
+          const rowValues = [String(numLinha)].concat(tds.map(extrairValorLimpoCelula));
+          const rowStyles = [null].concat(tds.map(td => td.dataset.issueLevel || null));
+          bodyRows.push(rowValues);
+          cellMeta.push({
+            rowStatus: tr.dataset.status || 'ok',
+            colLevels: rowStyles
+          });
+        });
 
-      html2pdf().set(opt).from(printContainer).save().then(() => {
-        document.body.removeChild(printContainer);
-        btn.textContent = textoOriginal;
-      }).catch(err => {
+        doc.autoTable({
+          head: headers,
+          body: bodyRows,
+          startY: 20,
+          margin: { top: 15, right: 8, bottom: 12, left: 8 },
+          styles: {
+            font: 'courier',
+            fontSize: 7.0,
+            cellPadding: 1.8,
+            overflow: 'linebreak',
+            lineColor: [215, 222, 230],
+            lineWidth: 0.15,
+            textColor: [40, 40, 40]
+          },
+          headStyles: {
+            font: 'helvetica',
+            fontStyle: 'bold',
+            fillColor: [0, 70, 166],
+            textColor: [255, 255, 255],
+            fontSize: 7.3
+          },
+          alternateRowStyles: {
+            fillColor: [246, 249, 252]
+          },
+          didParseCell: function (data) {
+            if (data.section === 'body') {
+              const meta = cellMeta[data.row.index];
+              if (!meta) return;
+
+              if (meta.rowStatus === 'error') {
+                data.cell.styles.fillColor = [255, 241, 240];
+              } else if (meta.rowStatus === 'warning') {
+                data.cell.styles.fillColor = [255, 251, 235];
+              }
+
+              const colLevel = meta.colLevels[data.column.index];
+              if (colLevel === 'error') {
+                data.cell.styles.fillColor = [239, 68, 68];
+                data.cell.styles.textColor = [255, 255, 255];
+                data.cell.styles.fontStyle = 'bold';
+              } else if (colLevel === 'warning') {
+                data.cell.styles.fillColor = [245, 158, 11];
+                data.cell.styles.textColor = [255, 255, 255];
+                data.cell.styles.fontStyle = 'bold';
+              }
+            }
+          },
+          didDrawPage: function (data) {
+            const pageCount = doc.internal.getNumberOfPages();
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(8);
+            doc.setTextColor(130);
+            doc.text(
+              `Página ${data.pageNumber} de ${pageCount}`,
+              doc.internal.pageSize.getWidth() - 10,
+              doc.internal.pageSize.getHeight() - 5,
+              { align: 'right' }
+            );
+          }
+        });
+
+        doc.save(`Tagueamentos_Planilha_${Date.now()}.pdf`);
+      } catch (err) {
         console.error(err);
-        document.body.removeChild(printContainer);
-        alert('Erro ao gerar PDF. Tente novamente.');
+        alert('Erro ao gerar PDF: ' + err.message);
+      } finally {
         btn.textContent = textoOriginal;
-      });
+      }
     });
 
     /* =========================================================
@@ -1463,6 +2410,7 @@
        ========================================================= */
     function limparTudo() {
       inputText.value = '';
+      registrosAtuais = [];
       tabelasContainer.innerHTML = '';
       alertasContainer.innerHTML = '';
       filtroInput.value = '';
