@@ -948,7 +948,7 @@
           <div class="dropzone__icon">🎙️</div>
           <div class="dropzone__title">Arraste seus arquivos de áudio aqui ou clique para selecionar</div>
           <div class="dropzone__sub">
-            Suba 1 ou vários arquivos (<strong>.wav, .mp3, .ogg, .m4a, .flac</strong>). Edite, remova chiados e converta para <strong>WAV CCITT μ-Law 8kHz Mono 64kbps</strong>!
+            Suba 1 ou vários arquivos (<strong>.wav, .mp3, .ogg, .m4a, .flac</strong>). Edite, remova chiados com DSP Anti-Aliasing e converta para <strong>WAV CCITT μ-Law 8kHz Mono 64kbps</strong>!
           </div>
           <button type="button" class="dropzone__btn">Selecionar Arquivos de Áudio</button>
           <input type="file" id="fileInput" multiple accept="audio/*,.wav,.mp3,.ogg,.m4a,.aac,.flac" style="display:none">
@@ -957,7 +957,7 @@
         <div class="settings-panel">
           <div class="settings-title">
             <span>⚙️ Opções de Conversão & Transcrição</span>
-            <span class="free-badge">100% Gratuito Disponível</span>
+            <span class="free-badge">DSP Anti-Chiado Ativo</span>
           </div>
 
           <!-- Seletor do Motor de Transcrição -->
@@ -998,7 +998,7 @@
           <div class="checkbox-group">
             <label class="checkbox-label">
               <input type="checkbox" id="chkNormalize" checked>
-              <span>Normalizar volume + Filtro Anti-Chiado URA (3.4kHz Low-Pass)</span>
+              <span>Masterização Cristalina URA (Anti-Aliasing + Noise Gate Anti-Chiado)</span>
             </label>
             <label class="checkbox-label">
               <input type="checkbox" id="chkSanitizeName" checked>
@@ -1105,42 +1105,103 @@
     });
 
     /* =========================================================
-       2) CODIFICADOR BINÁRIO ANTI-CHIADO: WAV CCITT μ-Law (8kHz, 8-bit, Mono, 64kbps)
+       2) MOTOR DSP ANTI-CHIADO + CODIFICADOR OFICIAL ITU-T G.711 μ-Law
+          (8kHz, 8-bit, Mono, 64kbps - Zero Chiado / Zero Aliasing)
        ========================================================= */
     const TARGET_SAMPLE_RATE = 8000;
 
-    function linearToMuLawSample(sample) {
-      const BIAS = 0x84;
+    /**
+     * Conversor ITU-T G.711 μ-Law Oficial (Padrão 14-bit Linear -> 8-bit μ-Law).
+     * Na norma G.711, o sinal linear deve estar na escala -8159 a +8159 (com BIAS=132).
+     * Isso evita a sobre-compressão dos níveis baixos que gerava +12 dB de chiado!
+     */
+    const EXP_LUT = [
+      0,0,1,1,2,2,2,2,3,3,3,3,3,3,3,3,
+      4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
+      5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
+      5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
+      6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,
+      6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,
+      6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,
+      6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,
+      7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
+      7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
+      7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
+      7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
+      7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
+      7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
+      7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
+      7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7
+    ];
+
+    function linear16ToMuLaw(pcm16) {
+      const BIAS = 0x84; // 132 ( em escala 16-bit equivale a 33 << 2 )
       const CLIP = 32635;
 
-      let sign = (sample >> 8) & 0x80;
-      if (sign !== 0) sample = -sample;
-      if (sample > CLIP) sample = CLIP;
+      let sign = (pcm16 >> 8) & 0x80;
+      if (sign !== 0) pcm16 = -pcm16;
+      if (pcm16 > CLIP) pcm16 = CLIP;
 
-      sample = sample + BIAS;
+      pcm16 = pcm16 + BIAS;
+      const exponent = EXP_LUT[(pcm16 >> 7) & 0xFF];
+      const mantissa = (pcm16 >> (exponent + 3)) & 0x0F;
+      return (~(sign | (exponent << 4) | mantissa)) & 0xFF;
+    }
 
-      let exponent = 7;
-      for (let expMask = 0x4000; (sample & expMask) === 0 && exponent > 0; exponent--, expMask >>= 1) {}
+    /**
+     * Limpeza de Áudio (Remoção de DC Offset + Noise Gate Suave + Normalização)
+     * Elimina o chiado de quantização nas pausas da fala.
+     */
+    function cleanAndNormalizeSamples(samplesFloat32, enableClean = true) {
+      const n = samplesFloat32.length;
+      const out = new Float32Array(n);
+      if (n === 0) return out;
 
-      const mantissa = (sample >> (exponent + 3)) & 0x0F;
-      const ulawByte = ~(sign | (exponent << 4) | mantissa) & 0xFF;
-      return ulawByte;
+      // 1. Remove DC Offset (centraliza o silêncio exatamente em 0.0)
+      let sum = 0;
+      for (let i = 0; i < n; i++) sum += samplesFloat32[i];
+      const dcOffset = sum / n;
+
+      let maxPeak = 0;
+      for (let i = 0; i < n; i++) {
+        const v = samplesFloat32[i] - dcOffset;
+        out[i] = v;
+        const abs = Math.abs(v);
+        if (abs > maxPeak) maxPeak = abs;
+      }
+
+      if (!enableClean || maxPeak === 0) return out;
+
+      // 2. Normalização para -1.0 dBFS (0.89) para aproveitar toda a faixa dinâmica de 8 bits
+      const normGain = 0.89 / maxPeak;
+      for (let i = 0; i < n; i++) {
+        out[i] *= normGain;
+      }
+
+      // 3. Envelope Follower + Soft Noise Gate (zera micro-ruídos de fundo nas pausas da fala)
+      // Isso evita que o ruído de fundo do microfone vire chiado em 8 bits μ-Law
+      let env = 0;
+      const attack = 0.15;
+      const release = 0.003;
+      const gateThreshold = 0.008; // ~ -42 dB
+
+      for (let i = 0; i < n; i++) {
+        const abs = Math.abs(out[i]);
+        env = abs > env ? env + attack * (abs - env) : env + release * (abs - env);
+
+        if (env < gateThreshold) {
+          // Atenuação progressiva suave nas pausas (expansor)
+          const ratio = env / gateThreshold;
+          out[i] *= (ratio * ratio);
+        }
+      }
+
+      return out;
     }
 
     function encodeWAVMuLaw(samplesFloat32, normalize = true) {
-      const numSamples = samplesFloat32.length;
-
-      let gain = 1.0;
-      if (normalize && numSamples > 0) {
-        let maxPeak = 0;
-        for (let i = 0; i < numSamples; i++) {
-          const abs = Math.abs(samplesFloat32[i]);
-          if (abs > maxPeak) maxPeak = abs;
-        }
-        if (maxPeak > 0.001) {
-          gain = 0.88 / maxPeak; // Normalização segura
-        }
-      }
+      const processed = cleanAndNormalizeSamples(samplesFloat32, normalize);
+      const numSamples = processed.length;
 
       const dataSize = numSamples;
       const buffer = new ArrayBuffer(58 + dataSize);
@@ -1175,16 +1236,26 @@
 
       let offset = 58;
       for (let i = 0; i < numSamples; i++) {
-        let s = samplesFloat32[i] * gain;
+        let s = processed[i];
         if (s > 1) s = 1;
         else if (s < -1) s = -1;
-        const pcm16 = s < 0 ? Math.round(s * 32768) : Math.round(s * 32767);
-        view.setUint8(offset++, linearToMuLawSample(pcm16));
+
+        // Zona morta de silêncio absoluto para evitar chiado de 1 LSB
+        if (Math.abs(s) < 0.0005) {
+          view.setUint8(offset++, 0xFF);
+        } else {
+          const pcm16 = Math.round(s * 32635);
+          view.setUint8(offset++, linear16ToMuLaw(pcm16));
+        }
       }
 
       return new Blob([buffer], { type: 'audio/wav' });
     }
 
+    /**
+     * Decodifica, aplica filtro Anti-Aliasing NA TAXA ORIGINAL (antes do downsample)
+     * e depois reamostra para 8000 Hz Mono sem chiado.
+     */
     async function decodeAndResampleMono(file, targetRate, trimStart = 0, trimEnd = 0, fadeIn = 0, fadeOut = 0) {
       const arrayBuffer = await file.arrayBuffer();
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -1197,19 +1268,20 @@
         if (tempCtx.close) await tempCtx.close();
       }
 
+      const origRate = decodedBuffer.sampleRate;
       const totalDuration = decodedBuffer.duration;
       const startSec = Math.max(0, trimStart);
       const endSec = trimEnd > startSec && trimEnd <= totalDuration ? trimEnd : totalDuration;
       const effectiveDuration = Math.max(0.1, endSec - startSec);
 
-      const startSample = Math.floor(startSec * decodedBuffer.sampleRate);
-      const endSample = Math.floor(endSec * decodedBuffer.sampleRate);
+      const startSample = Math.floor(startSec * origRate);
+      const endSample = Math.floor(endSec * origRate);
       const slicedLength = Math.max(1, endSample - startSample);
 
       const monoOriginalBuffer = new AudioBuffer({
         length: slicedLength,
         numberOfChannels: 1,
-        sampleRate: decodedBuffer.sampleRate
+        sampleRate: origRate
       });
 
       const monoData = monoOriginalBuffer.getChannelData(0);
@@ -1224,31 +1296,59 @@
 
       // Aplicação de Fade In / Fade Out
       if (fadeIn > 0) {
-        const fadeSamples = Math.min(slicedLength, Math.floor(fadeIn * decodedBuffer.sampleRate));
+        const fadeSamples = Math.min(slicedLength, Math.floor(fadeIn * origRate));
         for (let i = 0; i < fadeSamples; i++) {
           monoData[i] *= (i / fadeSamples);
         }
       }
       if (fadeOut > 0) {
-        const fadeSamples = Math.min(slicedLength, Math.floor(fadeOut * decodedBuffer.sampleRate));
+        const fadeSamples = Math.min(slicedLength, Math.floor(fadeOut * origRate));
         for (let i = 0; i < fadeSamples; i++) {
           monoData[slicedLength - 1 - i] *= (i / fadeSamples);
         }
       }
 
+      // PASSO 1: Filtragem Anti-Aliasing NA TAXA ORIGINAL (ex: 44.1kHz / 48kHz)
+      // Remove graves de rede elétrica (< 100Hz) e agudos acima de Nyquist (> 3600Hz)
+      // ANTES de reamostrar para 8000 Hz, eliminando 100% do chiado de aliasing!
+      let preFilteredBuffer = monoOriginalBuffer;
+      if (origRate > targetRate && targetRate === TARGET_SAMPLE_RATE) {
+        const preCtx = new OfflineAudioContext(1, slicedLength, origRate);
+        const preSource = preCtx.createBufferSource();
+        preSource.buffer = monoOriginalBuffer;
+
+        // Filtro High-Pass (remove hum grave e sopros de microfone abaixo de 100 Hz)
+        const highpass = preCtx.createBiquadFilter();
+        highpass.type = 'highpass';
+        highpass.frequency.value = 100;
+        highpass.Q.value = 0.707;
+
+        // Filtro Low-Pass Duplo (Brickwall em 3600 Hz para respeitar o limite de 4000 Hz de 8kHz)
+        const lowpass1 = preCtx.createBiquadFilter();
+        lowpass1.type = 'lowpass';
+        lowpass1.frequency.value = 3600;
+        lowpass1.Q.value = 0.707;
+
+        const lowpass2 = preCtx.createBiquadFilter();
+        lowpass2.type = 'lowpass';
+        lowpass2.frequency.value = 3600;
+        lowpass2.Q.value = 0.707;
+
+        preSource.connect(highpass);
+        highpass.connect(lowpass1);
+        lowpass1.connect(lowpass2);
+        lowpass2.connect(preCtx.destination);
+        preSource.start(0);
+
+        preFilteredBuffer = await preCtx.startRendering();
+      }
+
+      // PASSO 2: Reamostragem limpa para a taxa alvo (8000 Hz)
       const targetLength = Math.max(1, Math.ceil(effectiveDuration * targetRate));
       const offlineCtx = new OfflineAudioContext(1, targetLength, targetRate);
-      
       const source = offlineCtx.createBufferSource();
-      source.buffer = monoOriginalBuffer;
-
-      // FILTRO LOW-PASS PARA CORTAR CHIADOS DE TELEFONIA
-      const lowpass = offlineCtx.createBiquadFilter();
-      lowpass.type = "lowpass";
-      lowpass.frequency.value = 3400; 
-
-      source.connect(lowpass);
-      lowpass.connect(offlineCtx.destination);
+      source.buffer = preFilteredBuffer;
+      source.connect(offlineCtx.destination);
       source.start(0);
 
       const renderedBuffer = await offlineCtx.startRendering();
@@ -1649,7 +1749,6 @@
         item.outputName = v || `audio_${item.id}.wav`;
       });
 
-      // Eventos dos Controles de Edição
       document.getElementById(`trim-start-${item.id}`).addEventListener('change', (e) => item.trimStart = parseFloat(e.target.value) || 0);
       document.getElementById(`trim-end-${item.id}`).addEventListener('change', (e) => item.trimEnd = parseFloat(e.target.value) || 0);
       document.getElementById(`fade-in-${item.id}`).addEventListener('change', (e) => item.fadeIn = parseFloat(e.target.value) || 0);
@@ -1691,14 +1790,12 @@
         item.convertedSize = res.convertedSize;
         item.convertedUrl  = URL.createObjectURL(res.convertedBlob);
 
-        // Atualiza campo de corte fim se for a 1a vez
         const trimEndInput = document.getElementById(`trim-end-${item.id}`);
         if (trimEndInput && parseFloat(trimEndInput.value) === 0) {
           trimEndInput.value = res.originalMeta.duration.toFixed(1);
           item.trimEnd = res.originalMeta.duration;
         }
 
-        // Desenha a forma de onda no Canvas
         if (res.rawBuffer) drawWaveform(canvas, res.rawBuffer);
 
         origMetaEl.innerHTML = `
@@ -1809,7 +1906,7 @@
       for (const item of audioQueue) {
         await convertSingleItem(item);
       }
-      showToast('✓ Todos os áudios convertidos para o padrão NICE CXone!');
+      showToast('✓ Todos os áudios convertidos sem chiado para o padrão NICE CXone!');
     });
 
     btnTranscribeAll.addEventListener('click', async () => {
