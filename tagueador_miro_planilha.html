@@ -486,9 +486,55 @@
       color: #ffffff;
     }
 
-    .btn-copy-action { background: linear-gradient(135deg, #00A859 0%, #008E4A 100%); }
-    .btn-excel       { background: linear-gradient(135deg, #107c41 0%, #185c37 100%); }
-    .btn-pdf         { background: linear-gradient(135deg, #e3242b 0%, #c32026 100%); }
+    .btn-copy-action   { background: linear-gradient(135deg, #00A859 0%, #008E4A 100%); }
+    .btn-copy-ponto-all { background: linear-gradient(135deg, #0046A6 0%, #003580 100%); }
+    .btn-excel         { background: linear-gradient(135deg, #107c41 0%, #185c37 100%); }
+    .btn-pdf           { background: linear-gradient(135deg, #e3242b 0%, #c32026 100%); }
+
+    /* ===================== RESUMO DE EVENT NAMES ===================== */
+    .resumo-eventos-card {
+      background: rgba(0, 70, 166, 0.05);
+      border: 1px solid rgba(0, 70, 166, 0.18);
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-bottom: 12px;
+      font-size: 0.84rem;
+    }
+
+    .resumo-eventos-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+      color: #0046A6;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    .resumo-eventos-lista {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .event-badge {
+      background: #ffffff;
+      border: 1px solid rgba(0, 70, 166, 0.2);
+      color: var(--texto);
+      padding: 4px 9px;
+      border-radius: 6px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.8rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .event-badge strong {
+      color: #0046A6;
+    }
 
     /* ===================== STICKY TOOLBAR E FILTROS DE STATUS ===================== */
     .sticky-bar-wrapper {
@@ -604,7 +650,7 @@
       white-space: nowrap;
     }
 
-    /* ===================== TABELA PLANILHA + COLUNA DE ÍNDICE/COPIAR E EDIÇÃO ===================== */
+    /* ===================== TABELA PLANILHA + COLUNA DE ÍNDICE E BOTÕES DE CÓPIA ===================== */
     .tabela-planilha-container {
       width: 100%;
       overflow-x: auto;
@@ -639,14 +685,14 @@
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
     }
 
-    /* Coluna lateral fixa com Numeração da Linha + Botão Copiar Linha */
+    /* Coluna lateral fixa com Numeração da Linha + Botões Copiar Linha / Copiar Ponto */
     .tabela-planilha th.th-row-meta {
       position: sticky;
       left: 0;
       z-index: 15;
       text-align: center;
-      width: 82px;
-      min-width: 82px;
+      width: 135px;
+      min-width: 135px;
       background: linear-gradient(135deg, #003580 0%, #00265c 100%);
       border-right: 1px solid rgba(255, 255, 255, 0.2);
     }
@@ -657,7 +703,7 @@
       z-index: 5;
       background: #f4f7fb;
       border-right: 2px solid rgba(0, 70, 166, 0.14);
-      padding: 6px 8px;
+      padding: 6px 6px;
       text-align: center;
       font-family: inherit;
       user-select: none;
@@ -667,47 +713,65 @@
     .row-meta-inner {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 6px;
+      justify-content: center;
+      gap: 4px;
     }
 
     .row-number-badge {
-      font-size: 11.5px;
+      font-size: 11px;
       font-weight: 700;
       color: #0046A6;
       background: rgba(0, 70, 166, 0.08);
-      padding: 2px 7px;
-      border-radius: 5px;
-      min-width: 26px;
+      padding: 3px 5px;
+      border-radius: 4px;
+      min-width: 22px;
       text-align: center;
     }
 
-    .btn-copy-row {
-      padding: 4px 7px;
+    .btn-copy-row, .btn-copy-ponto {
+      padding: 3px 6px;
       min-width: auto;
       flex: 0 0 auto;
-      font-size: 11.5px;
-      border-radius: 6px;
-      background: rgba(0, 168, 89, 0.12);
-      color: #00743B;
-      border: 1px solid rgba(0, 168, 89, 0.3);
+      font-size: 10.5px;
+      font-weight: 700;
+      border-radius: 5px;
       box-shadow: none;
       cursor: pointer;
       transition: all 0.18s;
-      line-height: 1;
+      line-height: 1.2;
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .btn-copy-row {
+      background: rgba(0, 168, 89, 0.12);
+      color: #00743B;
+      border: 1px solid rgba(0, 168, 89, 0.3);
     }
 
     .btn-copy-row:hover {
       background: #00A859;
       color: #ffffff;
-      transform: scale(1.06);
-      box-shadow: 0 2px 6px rgba(0, 168, 89, 0.25);
+      transform: scale(1.05);
     }
 
-    .btn-copy-row.copied {
-      background: #00A859;
+    .btn-copy-ponto {
+      background: rgba(0, 70, 166, 0.12);
+      color: #0046A6;
+      border: 1px solid rgba(0, 70, 166, 0.3);
+    }
+
+    .btn-copy-ponto:hover {
+      background: #0046A6;
       color: #ffffff;
-      border-color: #008E4A;
+      transform: scale(1.05);
+    }
+
+    .btn-copy-row.copied, .btn-copy-ponto.copied {
+      background: #00A859 !important;
+      color: #ffffff !important;
+      border-color: #008E4A !important;
     }
 
     .tabela-planilha td {
@@ -1058,6 +1122,31 @@
       border-color: rgba(74, 222, 128, 0.25);
     }
 
+    body.dark-mode .btn-copy-ponto {
+      color: #66a3ff;
+      background: rgba(102, 163, 255, 0.15);
+      border-color: rgba(102, 163, 255, 0.3);
+    }
+
+    body.dark-mode .resumo-eventos-card {
+      background: rgba(102, 163, 255, 0.06);
+      border-color: rgba(102, 163, 255, 0.2);
+    }
+
+    body.dark-mode .resumo-eventos-header {
+      color: #66a3ff;
+    }
+
+    body.dark-mode .event-badge {
+      background: rgba(22, 28, 36, 0.9);
+      border-color: rgba(255, 255, 255, 0.15);
+      color: #e0e0e0;
+    }
+
+    body.dark-mode .event-badge strong {
+      color: #66a3ff;
+    }
+
     body.dark-mode .tabela-planilha td {
       color: #cfd8dc;
       border-bottom-color: rgba(255, 255, 255, 0.06);
@@ -1233,9 +1322,9 @@
 
           <div class="info-banner">
             <div>
-              <strong>Tabela Interativa Editável + Numeração e Cópia por Linha:</strong>
+              <strong>Tabela Interativa Editável + Numeração e Cópia por Linha/Ponto:</strong>
               <br>• Clique em qualquer célula da tabela gerada para <strong>editar o valor direto na tela</strong> (a validação atualiza na hora!).
-              <br>• Use o botão <strong>📋</strong> ao lado do número da linha para copiar apenas aquela linha corrigida, ou exporte tudo para Excel/PDF.
+              <br>• Use os botões <strong>📋 Linha</strong> ou <strong>📍 Ponto</strong> na lateral para copiar a linha individual formatada, ou exporte tudo.
             </div>
           </div>
         </div>
@@ -1330,7 +1419,7 @@
           <span class="edit-hint-pill">✏️ Clique em qualquer célula da tabela para editar e corrigir</span>
         </div>
 
-        <!-- Alertas de Validação Topo -->
+        <!-- Alertas de Validação e Resumo de Event Names no Topo -->
         <div id="alertasContainer"></div>
 
         <!-- Barra Fixa (Sticky) com Filtros de Problemas e Ações -->
@@ -1354,7 +1443,8 @@
 
             <div class="contador-badge" id="contadorBadge">Visíveis: 0 / Total: 0</div>
 
-            <button class="btn-acao-tabela btn-copy-action" type="button" id="btnCopiar">📋 Copiar Tudo</button>
+            <button class="btn-acao-tabela btn-copy-action" type="button" id="btnCopiarLinha">📋 Copiar Todos (Linha)</button>
+            <button class="btn-acao-tabela btn-copy-ponto-all" type="button" id="btnCopiarPonto">📍 Copiar Todos (Ponto)</button>
             <button class="btn-acao-tabela btn-excel" type="button" id="btnExcel">📊 Excel</button>
             <button class="btn-acao-tabela btn-pdf" type="button" id="btnPdf">📄 PDF</button>
           </div>
@@ -1784,7 +1874,7 @@
     }
 
     /* =========================================================
-       6) RENDERIZAÇÃO COM NUMERAÇÃO, COPIAR LINHA E EDIÇÃO EM TEMPO REAL
+       6) RENDERIZAÇÃO COM NUMERAÇÃO, COPIAR LINHA / PONTO E EDIÇÃO EM TEMPO REAL
        ========================================================= */
     const inputText        = document.getElementById('inputText');
     const tabelasContainer = document.getElementById('tabelasContainer');
@@ -1806,13 +1896,70 @@
     let totalLinhasGeral = 0;
     let statusFilterAtivo = 'all';
 
-    // Copia apenas uma linha específica (as 12 colunas de dados separadas por TAB)
+    // Extrai o valor limpo da célula editada
+    function extrairValorLimpoCelula(celula) {
+      if (celula.dataset && celula.dataset.rawVal !== undefined) {
+        return celula.dataset.rawVal;
+      }
+      const editor = celula.querySelector('.cell-editor');
+      if (editor) {
+        return editor.textContent.trim();
+      }
+      const clone = celula.cloneNode(true);
+      clone.querySelectorAll('.badge-erro').forEach(b => b.remove());
+      return clone.textContent.trim();
+    }
+
+    // Mapeia uma linha tr para um objeto com os 12 campos
+    function extrairObjetoLinha(tr) {
+      const obj = {};
+      tr.querySelectorAll('td[data-col-key]').forEach(td => {
+        obj[td.dataset.colKey] = extrairValorLimpoCelula(td);
+      });
+      return obj;
+    }
+
+    // Formata o objeto da linha no modelo de PONTO de chave-valor
+    function formatarLinhaComoPontoText(tr) {
+      const tag = extrairObjetoLinha(tr);
+      return [
+        `event_name: ${tag.event_name || ''}`,
+        `Validacao: ${tag.validacao || ''}`,
+        `Fluxo: ${tag.fluxo || ''}`,
+        `Indicador: ${tag.indicador || ''}`,
+        `Range: ${tag.range || ''}`,
+        `Ponto: ${tag.ponto || ''}`,
+        `Ultimo_Ponto: ${tag.ultimo_Ponto || ''}`,
+        `Input: ${tag.input || ''}`,
+        `Tentativa: ${tag.tentativa || ''}`,
+        `Ponto_Origem: ${tag.ponto_origem || ''}`,
+        `Produto: ${tag.produto || ''}`,
+        `Timestamp: ${tag.timestamp || ''}`
+      ].join('\n');
+    }
+
+    // Copia individualmente a linha como TSV (linha)
     function copiarLinhaIndividual(tr, btnElement) {
       const tds = Array.from(tr.querySelectorAll('td[data-col-key]'));
       const valores = tds.map(extrairValorLimpoCelula);
       const linhaTsv = valores.join('\t');
 
       navigator.clipboard.writeText(linhaTsv).then(() => {
+        const originalText = btnElement.innerHTML;
+        btnElement.classList.add('copied');
+        btnElement.innerHTML = '✓';
+        setTimeout(() => {
+          btnElement.classList.remove('copied');
+          btnElement.innerHTML = originalText;
+        }, 1400);
+      });
+    }
+
+    // Copia individualmente a linha como PONTO (bloco formatado)
+    function copiarPontoIndividual(tr, btnElement) {
+      const textoPonto = formatarLinhaComoPontoText(tr);
+
+      navigator.clipboard.writeText(textoPonto).then(() => {
         const originalText = btnElement.innerHTML;
         btnElement.classList.add('copied');
         btnElement.innerHTML = '✓';
@@ -1866,14 +2013,14 @@
       tabela.className = 'tabela-planilha';
       tabela.id = 'tabelaDados';
 
-      // Cabeçalho com coluna '#' (Índice + Ação Copiar) + as 12 colunas oficiais
+      // Cabeçalho com coluna '#' (Índice + Ações Copiar Linha e Copiar Ponto)
       const thead = document.createElement('thead');
       const trHead = document.createElement('tr');
 
       const thMeta = document.createElement('th');
       thMeta.className = 'th-row-meta';
       thMeta.textContent = '# / Copiar';
-      thMeta.title = 'Número da linha e botão para copiar apenas aquela linha';
+      thMeta.title = 'Número da linha e botões para copiar como linha ou como ponto';
       trHead.appendChild(thMeta);
 
       COLUNAS.forEach(c => {
@@ -1891,7 +2038,7 @@
         const tr = document.createElement('tr');
         tr.dataset.rowIndex = idx;
 
-        // 1ª Célula: Número da Linha + Botão Copiar Linha
+        // 1ª Célula: Número da Linha + Botão Copiar Linha + Botão Copiar Ponto
         const tdMeta = document.createElement('td');
         tdMeta.className = 'td-row-meta';
 
@@ -1906,14 +2053,24 @@
         const btnCopyRow = document.createElement('button');
         btnCopyRow.type = 'button';
         btnCopyRow.className = 'btn-copy-row';
-        btnCopyRow.innerHTML = '📋';
-        btnCopyRow.title = `Copiar linha ${idx + 1} completa`;
+        btnCopyRow.innerHTML = '📋 Linha';
+        btnCopyRow.title = `Copiar linha ${idx + 1} em formato de linha/tabela`;
         btnCopyRow.addEventListener('click', function () {
           copiarLinhaIndividual(tr, btnCopyRow);
         });
 
+        const btnCopyPonto = document.createElement('button');
+        btnCopyPonto.type = 'button';
+        btnCopyPonto.className = 'btn-copy-ponto';
+        btnCopyPonto.innerHTML = '📍 Ponto';
+        btnCopyPonto.title = `Copiar linha ${idx + 1} em formato de ponto (chave-valor)`;
+        btnCopyPonto.addEventListener('click', function () {
+          copiarPontoIndividual(tr, btnCopyPonto);
+        });
+
         metaInner.appendChild(spanNum);
         metaInner.appendChild(btnCopyRow);
+        metaInner.appendChild(btnCopyPonto);
         tdMeta.appendChild(metaInner);
         tr.appendChild(tdMeta);
 
@@ -1978,6 +2135,46 @@
 
       const Regras = lerValidadoresAtivos();
       alertasContainer.innerHTML = '';
+
+      /* =========================================================
+         NOVA FUNCIONALIDADE 3: RESUMO DOS TIPOS DE EVENT_NAME
+         ========================================================= */
+      const contagemEventos = {};
+      registrosAtuais.forEach(r => {
+        const ev = String(r.event_name || '').trim();
+        if (ev) {
+          contagemEventos[ev] = (contagemEventos[ev] || 0) + 1;
+        } else {
+          contagemEventos['(vazio)'] = (contagemEventos['(vazio)'] || 0) + 1;
+        }
+      });
+
+      const listaTiposEventos = Object.keys(contagemEventos);
+      if (listaTiposEventos.length > 0) {
+        const cardResumoEventos = document.createElement('div');
+        cardResumoEventos.className = 'resumo-eventos-card';
+
+        const headerResumo = document.createElement('div');
+        headerResumo.className = 'resumo-eventos-header';
+        headerResumo.innerHTML = `
+          <span>🏷️ <strong>Tipos de event_name presentes:</strong> ${listaTiposEventos.length} diferente(s)</span>
+          <span style="font-weight: 500; font-size: 0.8rem; color: var(--muted)">Total de Registros: ${registrosAtuais.length}</span>
+        `;
+
+        const listaBadges = document.createElement('div');
+        listaBadges.className = 'resumo-eventos-lista';
+
+        listaTiposEventos.sort().forEach(nomeEvento => {
+          const badgeEv = document.createElement('span');
+          badgeEv.className = 'event-badge';
+          badgeEv.innerHTML = `${nomeEvento} <strong>(${contagemEventos[nomeEvento]}x)</strong>`;
+          listaBadges.appendChild(badgeEv);
+        });
+
+        cardResumoEventos.appendChild(headerResumo);
+        cardResumoEventos.appendChild(listaBadges);
+        alertasContainer.appendChild(cardResumoEventos);
+      }
 
       // 1) Contagem de pontos para duplicidade
       const contagemPontos = {};
@@ -2226,23 +2423,11 @@
     });
 
     /* =========================================================
-       8) EXPORTAÇÕES (COPIAR TUDO, EXCEL E PDF COM OS DADOS EDITADOS)
+       8) EXPORTAÇÕES (COPIAR TODOS EM LINHA OU EM PONTO, EXCEL E PDF)
        ========================================================= */
-    function extrairValorLimpoCelula(celula) {
-      if (celula.dataset && celula.dataset.rawVal !== undefined) {
-        return celula.dataset.rawVal;
-      }
-      const editor = celula.querySelector('.cell-editor');
-      if (editor) {
-        return editor.textContent.trim();
-      }
-      const clone = celula.cloneNode(true);
-      clone.querySelectorAll('.badge-erro').forEach(b => b.remove());
-      return clone.textContent.trim();
-    }
 
-    // Copiar Tabela Completa (Ignora a coluna de número/botão e leva apenas as 12 colunas editadas)
-    document.getElementById('btnCopiar').addEventListener('click', function () {
+    // NOVA FUNCIONALIDADE 2A: Copiar Tabela Completa (Formatado em LINHA TSV)
+    document.getElementById('btnCopiarLinha').addEventListener('click', function () {
       const tabela = document.getElementById('tabelaDados');
       if (!tabela) return;
 
@@ -2256,12 +2441,32 @@
 
       navigator.clipboard.writeText(tsv).then(() => {
         const old = this.textContent;
-        this.textContent = '✓ Copiado!';
+        this.textContent = '✓ Copiado em Linhas!';
         setTimeout(() => { this.textContent = old; }, 2000);
       });
     });
 
-    // Exportar Excel com os valores editados (sem coluna de número/botão e sem badges de erro)
+    // NOVA FUNCIONALIDADE 2B: Copiar Tabela Completa (Formatado em PONTO Chave-Valor)
+    document.getElementById('btnCopiarPonto').addEventListener('click', function () {
+      const tabela = document.getElementById('tabelaDados');
+      if (!tabela) return;
+
+      const blocosPontos = [];
+      tabela.querySelectorAll('tbody tr').forEach(linha => {
+        if (linha.classList.contains('linha-oculta')) return;
+        blocosPontos.push(formatarLinhaComoPontoText(linha));
+      });
+
+      const textoFinal = blocosPontos.join('\n\n====================\n\n');
+
+      navigator.clipboard.writeText(textoFinal).then(() => {
+        const old = this.textContent;
+        this.textContent = '✓ Copiado em Pontos!';
+        setTimeout(() => { this.textContent = old; }, 2000);
+      });
+    });
+
+    // Exportar Excel com os valores editados
     document.getElementById('btnExcel').addEventListener('click', function () {
       const tabela = document.getElementById('tabelaDados');
       if (!tabela) return;
