@@ -192,12 +192,12 @@
       gap: 5px;
     }
 
-    /* ===================== PAINEL RETRÁTIL: SELECIONAR VALIDADORES ===================== */
+    /* ===================== PAINEL RETRÁTIL: SELECIONAR VALIDADORES & RESUMO EVENTOS ===================== */
     .validators-dropdown {
       background: rgba(0, 70, 166, 0.03);
       border: 1px solid rgba(0, 70, 166, 0.15);
       border-radius: 12px;
-      margin-bottom: 18px;
+      margin-bottom: 14px;
       overflow: hidden;
       transition: all 0.25s;
     }
@@ -228,6 +228,18 @@
       display: flex;
       align-items: center;
       gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .validators-summary-left::before {
+      content: "▶";
+      font-size: 0.72rem;
+      transition: transform 0.2s ease;
+      color: #0046A6;
+    }
+
+    details.validators-dropdown[open] > .validators-summary .validators-summary-left::before {
+      transform: rotate(90deg);
     }
 
     .validators-badge {
@@ -491,26 +503,47 @@
     .btn-excel         { background: linear-gradient(135deg, #107c41 0%, #185c37 100%); }
     .btn-pdf           { background: linear-gradient(135deg, #e3242b 0%, #c32026 100%); }
 
-    /* ===================== RESUMO DE EVENT NAMES ===================== */
-    .resumo-eventos-card {
-      background: rgba(0, 70, 166, 0.05);
-      border: 1px solid rgba(0, 70, 166, 0.18);
-      border-radius: 10px;
-      padding: 12px 16px;
-      margin-bottom: 12px;
-      font-size: 0.84rem;
+    /* Alternador de Visualização (Linhas vs Caixinhas) */
+    .view-toggle-group {
+      display: inline-flex;
+      background: rgba(0, 70, 166, 0.07);
+      border: 1px solid rgba(0, 70, 166, 0.2);
+      border-radius: 8px;
+      padding: 3px;
+      gap: 4px;
     }
 
-    .resumo-eventos-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 10px;
-      color: #0046A6;
+    .btn-view-mode {
+      padding: 6px 12px;
+      font-size: 12px;
       font-weight: 700;
-      font-size: 0.9rem;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      color: #0046A6;
+      cursor: pointer;
+      min-width: auto;
+      flex: 0 1 auto;
+      box-shadow: none;
+      transition: all 0.2s;
+    }
+
+    .btn-view-mode:hover {
+      background: rgba(0, 70, 166, 0.1);
+      transform: none;
+      box-shadow: none;
+    }
+
+    .btn-view-mode.active {
+      background: linear-gradient(135deg, #0046A6 0%, #003580 100%);
+      color: #ffffff;
+      box-shadow: 0 2px 6px rgba(0, 70, 166, 0.25);
+    }
+
+    /* ===================== RESUMO DE EVENT NAMES (MINIMIZADO / EXPANSÍVEL) ===================== */
+    .resumo-eventos-body {
+      padding: 12px 16px 14px;
+      border-top: 1px solid rgba(0, 70, 166, 0.1);
     }
 
     .resumo-eventos-lista {
@@ -562,7 +595,7 @@
 
     .filtro-container {
       flex: 1;
-      min-width: 200px;
+      min-width: 190px;
       display: flex;
       align-items: center;
       position: relative;
@@ -685,7 +718,6 @@
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
     }
 
-    /* Coluna lateral fixa com Numeração da Linha + Botões Copiar Linha / Copiar Ponto */
     .tabela-planilha th.th-row-meta {
       position: sticky;
       left: 0;
@@ -785,7 +817,6 @@
       vertical-align: middle;
     }
 
-    /* Área de texto editável dentro de cada célula */
     .cell-editor {
       display: inline-block;
       min-width: 48px;
@@ -829,6 +860,308 @@
 
     .tabela-planilha tbody tr:hover {
       background-color: rgba(0, 70, 166, 0.05);
+    }
+
+    /* ===================== VISUALIZAÇÃO EM CAIXINHAS / BLOCOS (CARDS GRID) ===================== */
+    #output {
+      width: 100%;
+      margin-top: 6px;
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(345px, 1fr));
+      gap: 18px;
+      width: 100%;
+    }
+
+    @keyframes cardFadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.98);
+      border: 1px solid rgba(0, 70, 166, 0.16);
+      border-left: 5px solid #0046A6;
+      border-radius: 12px;
+      padding: 16px 18px;
+      position: relative;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0, 70, 166, 0.06);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      animation: cardFadeIn 0.3s ease backwards;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(0, 70, 166, 0.14);
+      border-color: rgba(0, 168, 89, 0.45);
+    }
+
+    .card.card-editing {
+      cursor: default;
+      border-color: #00A859 !important;
+      box-shadow: 0 0 0 3px rgba(0, 168, 89, 0.16), 0 8px 24px rgba(0, 70, 166, 0.12);
+      transform: none !important;
+    }
+
+    .card.card-error {
+      border-left-color: #d32f2f;
+      background: #fff8f8;
+    }
+
+    .card.card-warning {
+      border-left-color: #f59e0b;
+      background: #fffdf5;
+    }
+
+    /* Ações no Topo do Bloco: Editar Ponto + Copiar Bloco */
+    .card-top-actions {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      z-index: 3;
+    }
+
+    .edit-hint,
+    .copy-hint {
+      font-size: 0.73rem;
+      font-weight: 700;
+      padding: 4px 9px;
+      border-radius: 6px;
+      transition: all 0.2s;
+      user-select: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .edit-hint {
+      color: #00743B;
+      background: rgba(0, 168, 89, 0.1);
+      border: 1px solid rgba(0, 168, 89, 0.3);
+    }
+
+    .edit-hint:hover,
+    .card.card-editing .edit-hint {
+      background: #00A859;
+      color: #ffffff;
+      border-color: #008E4A;
+    }
+
+    .copy-hint {
+      color: #0046A6;
+      background: rgba(0, 70, 166, 0.08);
+      border: 1px solid rgba(0, 70, 166, 0.2);
+    }
+
+    .copy-hint:hover {
+      background: #0046A6;
+      color: #ffffff;
+    }
+
+    .card.copied .copy-hint {
+      background: #00A859 !important;
+      border-color: #008E4A !important;
+      color: #ffffff !important;
+    }
+
+    .card-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #0046A6 0%, #003580 100%);
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 0.82rem;
+      padding: 4px 12px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 8px rgba(0, 70, 166, 0.2);
+    }
+
+    .card-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 10px;
+      padding: 4px 6px;
+      border-bottom: 1px dashed rgba(0, 70, 166, 0.1);
+      font-size: 12.5px;
+      border-radius: 4px;
+    }
+
+    .card-row:last-child {
+      border-bottom: none;
+    }
+
+    .card-row.row-issue-error {
+      background: rgba(239, 68, 68, 0.14);
+    }
+
+    .card-row.row-issue-warning {
+      background: rgba(245, 158, 11, 0.16);
+    }
+
+    .field-name {
+      font-weight: 700;
+      color: #0046A6;
+      font-family: 'Courier New', Courier, monospace;
+      flex-shrink: 0;
+    }
+
+    .field-value {
+      font-family: 'Courier New', Courier, monospace;
+      color: var(--texto);
+      text-align: right;
+      word-break: break-all;
+      font-weight: 600;
+      min-width: 60px;
+      padding: 1px 4px;
+      border-radius: 4px;
+      border: 1px dashed transparent;
+      transition: all 0.15s;
+    }
+
+    /* Quando o card está em Modo de Edição */
+    .card.card-editing .field-value {
+      background: #ffffff;
+      border-color: rgba(0, 70, 166, 0.35);
+      color: #111111;
+      cursor: text;
+      min-width: 110px;
+      padding: 2px 6px;
+    }
+
+    .card.card-editing .field-value:focus {
+      outline: none;
+      border: 1px solid #00A859;
+      box-shadow: 0 0 0 3px rgba(0, 168, 89, 0.2);
+      background: #ffffff;
+    }
+
+    .field-value.placeholder {
+      color: #00743B;
+      background: rgba(0, 168, 89, 0.1);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+
+    .field-value.empty::after {
+      content: "—";
+      color: #bbb;
+      font-weight: 400;
+    }
+
+    .card.card-editing .field-value.empty:focus::after {
+      content: "";
+    }
+
+    .card-row.row-issue-error .field-value.empty::after {
+      content: "(vazio)";
+      color: #d32f2f;
+      font-weight: 700;
+    }
+
+    /* ===================== POPOVER DE SUGESTÃO / SELEÇÃO DE VALIDAÇÃO ===================== */
+    .validacao-suggest-popover {
+      position: fixed;
+      z-index: 3500;
+      background: #ffffff;
+      border: 1px solid rgba(0, 70, 166, 0.28);
+      border-left: 5px solid #0046A6;
+      border-radius: 10px;
+      padding: 11px 13px;
+      box-shadow: 0 12px 30px rgba(0, 40, 100, 0.22);
+      max-width: 390px;
+      min-width: 265px;
+      font-size: 12px;
+      color: var(--texto);
+      animation: cardFadeIn 0.15s ease;
+    }
+
+    .validacao-suggest-popover.popover-strict {
+      border-left-color: #d32f2f;
+    }
+
+    .val-pop-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+      font-weight: 700;
+      color: #0046A6;
+      font-size: 11.5px;
+    }
+
+    .val-pop-tag {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .val-pop-tag.strict {
+      background: rgba(211, 47, 47, 0.12);
+      color: #b71c1c;
+      border: 1px solid rgba(211, 47, 47, 0.3);
+    }
+
+    .val-pop-tag.hint {
+      background: rgba(0, 168, 89, 0.12);
+      color: #00743B;
+      border: 1px solid rgba(0, 168, 89, 0.3);
+    }
+
+    .val-pop-hint-text {
+      font-size: 12px;
+      color: #444;
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+
+    .val-pop-hint-text code {
+      font-family: 'Courier New', Courier, monospace;
+      font-weight: 700;
+      color: #0046A6;
+      background: rgba(0, 70, 166, 0.07);
+      padding: 1px 5px;
+      border-radius: 4px;
+    }
+
+    .val-pop-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .val-pop-option-btn {
+      padding: 5px 10px;
+      font-size: 11.5px;
+      font-family: 'Courier New', Courier, monospace;
+      font-weight: 700;
+      border-radius: 6px;
+      border: 1px solid rgba(0, 70, 166, 0.3);
+      background: rgba(0, 70, 166, 0.07);
+      color: #0046A6;
+      cursor: pointer;
+      min-width: auto;
+      flex: 0 1 auto;
+      box-shadow: none;
+      transition: all 0.15s;
+    }
+
+    .val-pop-option-btn:hover {
+      background: #0046A6;
+      color: #ffffff;
+      transform: translateY(-1px);
     }
 
     /* ===================== ERROS (VERMELHO) E ALERTAS DE PADRÃO (AMARELO) ===================== */
@@ -1035,7 +1368,8 @@
     body.dark-mode .section-title,
     body.dark-mode .inputs-grid-title,
     body.dark-mode .input-group label,
-    body.dark-mode .validators-summary {
+    body.dark-mode .validators-summary,
+    body.dark-mode .validators-summary-left::before {
       color: #66a3ff;
     }
 
@@ -1128,15 +1462,6 @@
       border-color: rgba(102, 163, 255, 0.3);
     }
 
-    body.dark-mode .resumo-eventos-card {
-      background: rgba(102, 163, 255, 0.06);
-      border-color: rgba(102, 163, 255, 0.2);
-    }
-
-    body.dark-mode .resumo-eventos-header {
-      color: #66a3ff;
-    }
-
     body.dark-mode .event-badge {
       background: rgba(22, 28, 36, 0.9);
       border-color: rgba(255, 255, 255, 0.15);
@@ -1174,6 +1499,82 @@
       background-color: rgba(245, 158, 11, 0.16) !important;
     }
 
+    body.dark-mode .card {
+      background: rgba(24, 32, 40, 0.98);
+      border-color: rgba(255, 255, 255, 0.08);
+      border-left-color: #66a3ff;
+    }
+
+    body.dark-mode .card.card-error {
+      border-left-color: #ef5350;
+      background: rgba(55, 24, 28, 0.9);
+    }
+
+    body.dark-mode .card.card-warning {
+      border-left-color: #f59e0b;
+      background: rgba(55, 42, 22, 0.9);
+    }
+
+    body.dark-mode .field-name {
+      color: #8cbfff;
+    }
+
+    body.dark-mode .field-value {
+      color: #e0e0e0;
+    }
+
+    body.dark-mode .field-value.placeholder {
+      color: #4ade80;
+      background: rgba(74, 222, 128, 0.12);
+    }
+
+    body.dark-mode .copy-hint {
+      color: #8cbfff;
+      background: rgba(140, 191, 255, 0.12);
+      border-color: rgba(140, 191, 255, 0.25);
+    }
+
+    body.dark-mode .edit-hint {
+      color: #4ade80;
+      background: rgba(74, 222, 128, 0.12);
+      border-color: rgba(74, 222, 128, 0.3);
+    }
+
+    body.dark-mode .btn-view-mode:not(.active) {
+      color: #8cbfff;
+    }
+
+    body.dark-mode .validacao-suggest-popover {
+      background: #1b242d;
+      border-color: rgba(140, 191, 255, 0.25);
+      color: #e0e0e0;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    body.dark-mode .val-pop-header {
+      color: #8cbfff;
+    }
+
+    body.dark-mode .val-pop-hint-text {
+      color: #cfd8dc;
+    }
+
+    body.dark-mode .val-pop-hint-text code {
+      color: #8cbfff;
+      background: rgba(140, 191, 255, 0.12);
+    }
+
+    body.dark-mode .val-pop-option-btn {
+      color: #8cbfff;
+      background: rgba(140, 191, 255, 0.12);
+      border-color: rgba(140, 191, 255, 0.3);
+    }
+
+    body.dark-mode .val-pop-option-btn:hover {
+      background: #0046A6;
+      color: #ffffff;
+    }
+
     body.dark-mode .modal-card {
       background: #1e262e;
       color: #e0e0e0;
@@ -1192,6 +1593,7 @@
     .tabela-planilha-container::-webkit-scrollbar-thumb { background: rgba(0, 70, 166, 0.3); border-radius: 4px; }
     .tabela-planilha-container::-webkit-scrollbar-thumb:hover { background: rgba(0, 70, 166, 0.5); }
 
+    /* ===================== RESPONSIVO ===================== */
     @media (max-width: 768px) {
       .conteudo_pagina { padding: 0 12px; }
       .container { padding: 18px; margin-top: 18px; }
@@ -1240,10 +1642,18 @@
             <span>⚙️ Selecionar Validadores de Qualidade</span>
             <span style="font-weight:400; font-size:0.8rem; color:var(--muted)">(clique para configurar regras ativas)</span>
           </span>
-          <span class="validators-badge" id="activeValidatorsBadge">8 de 8 ativos</span>
+          <span class="validators-badge" id="activeValidatorsBadge">9 de 9 ativos</span>
         </summary>
 
         <div class="validators-body">
+          <label class="val-check-item">
+            <input type="checkbox" class="val-checkbox" id="chkValObrigatorios" checked>
+            <div>
+              <strong>Campos Obrigatórios / Não Vazios (Crítico 🔴)</strong>
+              <small>Impede que <code>Validacao</code>, <code>Fluxo</code>, <code>Indicador</code>, <code>Range</code>, <code>Ponto</code> e <code>Produto</code> fiquem vazios.</small>
+            </div>
+          </label>
+
           <label class="val-check-item">
             <input type="checkbox" class="val-checkbox" id="chkValDuplicados" checked>
             <div>
@@ -1271,8 +1681,8 @@
           <label class="val-check-item">
             <input type="checkbox" class="val-checkbox" id="chkValApiRules" checked>
             <div>
-              <strong>Regras de API (chamada_api / retorno_api) (🔴)</strong>
-              <small><code>chamada_api</code> exige <code>[Status_code]</code> e <code>retorno_api</code> exige <code>Sucesso_Api</code> ou <code>Falha_Api</code>.</small>
+              <strong>Regras de Validação por Event_Name (Crítico 🔴)</strong>
+              <small>Valida valores obrigatórios de <code>Validacao</code> (ex: <code>inicio_menu</code>, <code>chamada_api</code>, <code>retorno_api</code>, <code>horario_atendimento</code>, <code>pesquisa_nps</code>, <code>transfere_*</code>).</small>
             </div>
           </label>
 
@@ -1296,7 +1706,7 @@
             <input type="checkbox" class="val-checkbox" id="chkValMenuInput" checked>
             <div>
               <strong>Validar Input em Menus/Submenus (Alerta 🟡)</strong>
-              <small>Menus/submenus exigem <code>[Input_Cliente]</code> no Input (exceto <code>inicio_menu</code> e quando a Validação contiver <code>Repete_Opcoes</code> / <code>Repete_Opcao</code>).</small>
+              <small>Menus/submenus exigem <code>[Input_Cliente]</code> no Input (exceto <code>inicio_menu</code>, quando a Validação contiver <code>Silencio</code> ou <code>Repete_Opcoes</code> / <code>Repete_Opcao</code>).</small>
             </div>
           </label>
 
@@ -1322,9 +1732,9 @@
 
           <div class="info-banner">
             <div>
-              <strong>Tabela Interativa Editável + Numeração e Cópia por Linha/Ponto:</strong>
-              <br>• Clique em qualquer célula da tabela gerada para <strong>editar o valor direto na tela</strong> (a validação atualiza na hora!).
-              <br>• Use os botões <strong>📋 Linha</strong> ou <strong>📍 Ponto</strong> na lateral para copiar a linha individual formatada, ou exporte tudo.
+              <strong>Edição em Linha e em Bloco + Sugestões Inteligentes de Validação:</strong>
+              <br>• Clique em qualquer célula da tabela ou clique em <strong>✏️ Editar Ponto</strong> dentro de um bloco para editar os campos diretamente.
+              <br>• Ao clicar para editar o campo <strong>Validacao</strong>, o sistema exibe a <strong>dica/sugestão oficial</strong> para aquele <code>event_name</code> e permite <strong>selecionar com 1 clique</strong>!
             </div>
           </div>
         </div>
@@ -1410,19 +1820,19 @@
     </div>
   </div>
 
-  <!-- ===================== SAÍDA E TABELA ===================== -->
+  <!-- ===================== SAÍDA E TABELA / CAIXINHAS ===================== -->
   <div class="conteudo_pagina">
     <div class="container">
       <div class="output-section">
         <div class="section-title resultado-header">
           <span class="section-title-left">Tagueamentos Formatados</span>
-          <span class="edit-hint-pill">✏️ Clique em qualquer célula da tabela para editar e corrigir</span>
+          <span class="edit-hint-pill">✏️ Edite direto na Tabela ou clique em "Editar Ponto" nas Caixinhas</span>
         </div>
 
-        <!-- Alertas de Validação e Resumo de Event Names no Topo -->
+        <!-- Alertas de Validação e Resumo de Event Names Minimizado no Topo -->
         <div id="alertasContainer"></div>
 
-        <!-- Barra Fixa (Sticky) com Filtros de Problemas e Ações -->
+        <!-- Barra Fixa (Sticky) com Filtros de Problemas, Alternador de Visualização e Ações -->
         <div id="stickyBar" class="sticky-bar-wrapper hidden">
           <div class="tabela-acoes">
             <div class="filtro-container">
@@ -1443,6 +1853,12 @@
 
             <div class="contador-badge" id="contadorBadge">Visíveis: 0 / Total: 0</div>
 
+            <!-- Alternador de Visualização: Linhas (Padrão) vs Caixinhas (Blocos) -->
+            <div class="view-toggle-group" role="group" aria-label="Alternar modo de visualização">
+              <button type="button" class="btn-view-mode active" id="btnViewLinhas" title="Visualizar em formato de Linhas (Tabela)">📋 Linhas</button>
+              <button type="button" class="btn-view-mode" id="btnViewCaixinhas" title="Visualizar em formato de Caixinhas (Blocos)">🗂️ Caixinhas</button>
+            </div>
+
             <button class="btn-acao-tabela btn-copy-action" type="button" id="btnCopiarLinha">📋 Copiar Todos (Linha)</button>
             <button class="btn-acao-tabela btn-copy-ponto-all" type="button" id="btnCopiarPonto">📍 Copiar Todos (Ponto)</button>
             <button class="btn-acao-tabela btn-excel" type="button" id="btnExcel">📊 Excel</button>
@@ -1451,11 +1867,14 @@
         </div>
 
         <div id="tabelasContainer">
-          <!-- A tabela é gerada dinamicamente aqui -->
+          <!-- A tabela e o container #output de caixinhas são gerados dinamicamente aqui -->
         </div>
       </div>
     </div>
   </div>
+
+  <!-- ===================== POPOVER FLUTUANTE DE SUGESTÃO / SELEÇÃO DE VALIDAÇÃO ===================== -->
+  <div id="validacaoSuggestPopover" class="validacao-suggest-popover hidden" role="tooltip"></div>
 
   <!-- ===================== MODAL DE PONTOS DUPLICADOS ===================== -->
   <div class="modal-overlay" id="modalDuplicados" role="dialog" aria-modal="true">
@@ -1491,16 +1910,18 @@
       themeText.textContent = escuro ? 'Claro' : 'Escuro';
     }
 
-    aplicarTema(localStorage.getItem('theme') === 'dark');
+    let temaSalvo = 'light';
+    try { temaSalvo = localStorage.getItem('theme') || 'light'; } catch (e) {}
+    aplicarTema(temaSalvo === 'dark');
 
     themeToggle.addEventListener('click', function () {
       const escuro = !document.body.classList.contains('dark-mode');
-      localStorage.setItem('theme', escuro ? 'dark' : 'light');
+      try { localStorage.setItem('theme', escuro ? 'dark' : 'light'); } catch (e) {}
       aplicarTema(escuro);
     });
 
     /* =========================================================
-       2) LISTA OFICIAL DE EVENT_NAMES E CAMPOS (INCLUINDO TIMESTAMP FIXO)
+       2) LISTA OFICIAL DE EVENT_NAMES, REGRAS DE SUGESTÃO DE VALIDAÇÃO E CAMPOS
        ========================================================= */
     const EVENT_NAMES_OFICIAIS = new Set([
       'inicio_chamada',
@@ -1544,6 +1965,211 @@
       'oferta_incentivo_col',
       'incentivo_col'
     ]);
+
+    /* Mapa completo de dicas, sugestões e opções selecionáveis de Validacao por event_name */
+    const VALIDACAO_SUGESTOES_POR_EVENTO = {
+      inicio_menu: {
+        hint: 'Para inicio_menu, a Validação precisa ser obrigatoriamente:',
+        options: ['[Fluxo_Anterior]'],
+        strict: true
+      },
+      menu_principal: {
+        hint: 'Sugestão: <code>[Input_Cliente]</code> ou a opção selecionada (ex: <code>Opcao_Selecionada</code>)',
+        options: ['[Input_Cliente]'],
+        strict: false
+      },
+      menu_outros_assuntos: {
+        hint: 'Sugestão: <code>[Input_Cliente]</code> ou a opção selecionada',
+        options: ['[Input_Cliente]'],
+        strict: false
+      },
+      menu_dinamico: {
+        hint: 'Sugestão: <code>[Input_Cliente]</code> ou a opção selecionada',
+        options: ['[Input_Cliente]'],
+        strict: false
+      },
+      autosservico: {
+        hint: 'Sugestão: <code>[nome/descrição do autosserviço]</code>',
+        options: [],
+        strict: false
+      },
+      oferta_incentivo_dial: {
+        hint: 'Sugestão: <code>[ponto da oferta do canal dial]</code>',
+        options: [],
+        strict: false
+      },
+      incentivo_dial: {
+        hint: 'Sugestão: <code>[canal incentivado/direcionado]</code>',
+        options: [],
+        strict: false
+      },
+      oferta_incentivo_digital: {
+        hint: 'Sugestão: <code>[ponto da oferta do canal incentivado]</code>',
+        options: [],
+        strict: false
+      },
+      incentivo_digital: {
+        hint: 'Sugestão: <code>[canal incentivado/direcionado]</code>',
+        options: [],
+        strict: false
+      },
+      chamada_api: {
+        hint: 'Para chamada_api, a Validação precisa ser obrigatoriamente:',
+        options: ['[Status_Code]'],
+        strict: true,
+        caseInsensitive: true
+      },
+      horario_atendimento: {
+        hint: 'Para horario_atendimento, selecione uma das 3 opções obrigatórias:',
+        options: ['Dentro_Horario', 'Fora_Horario', 'Falha'],
+        strict: true
+      },
+      faq: {
+        hint: 'Sugestão: <code>[nome/título da faq verbalizada]</code>',
+        options: [],
+        strict: false
+      },
+      atendimento_encerrado: {
+        hint: 'Sugestão: <code>[descrição do motivo do encerramento]</code>',
+        options: [],
+        strict: false
+      },
+      pesquisa_satisfacao: {
+        hint: 'Para pesquisa_satisfacao, a Validação precisa ser obrigatoriamente:',
+        options: ['[Fluxo_Anterior]'],
+        strict: true
+      },
+      pesquisa_nps: {
+        hint: 'Para pesquisa_nps, a Validação precisa ser obrigatoriamente:',
+        options: ['[Fluxo_Anterior]'],
+        strict: true
+      },
+      detrator_nps: {
+        hint: 'Sugestão: <code>[motivo da nota detratora]</code>',
+        options: [],
+        strict: false
+      },
+      transfere_outra_ura: {
+        hint: 'Para transfere_outra_ura, a Validação precisa ser obrigatoriamente:',
+        options: ['[Ura_Destino]'],
+        strict: true
+      },
+      transfere_externo: {
+        hint: 'Para transfere_externo, a Validação precisa ser obrigatoriamente:',
+        options: ['[Ura_Destino]'],
+        strict: true
+      },
+      transfere_operacao: {
+        hint: 'Para transfere_operacao, a Validação precisa ser obrigatoriamente:',
+        options: ['[Operacao_Destino]'],
+        strict: true
+      },
+      validacao: {
+        hint: 'Sugestão: <code>[validação realizada]</code>',
+        options: [],
+        strict: false
+      },
+      protocolo: {
+        hint: 'Sugestão: <code>[número de protocolo verbalizado]</code>',
+        options: [],
+        strict: false
+      },
+      segmento_cliente: {
+        hint: 'Sugestão: <code>[segmentação do cliente]</code>',
+        options: [],
+        strict: false
+      },
+      lista_bloqueio: {
+        hint: 'Sugestão: <code>[tipo de regra/lista]</code>',
+        options: [],
+        strict: false
+      },
+      saudacao_inicial: {
+        hint: 'Sugestão: <code>[saudação verbalizada]</code> (clique para preencher):',
+        options: ['Bom_Dia', 'Boa_Tarde', 'Boa_Noite', 'Ola'],
+        strict: false
+      },
+      submenu: {
+        hint: 'Sugestão: <code>[opção selecionada pelo cliente]</code>',
+        options: [],
+        strict: false
+      },
+      oferta_incentivo_hsm: {
+        hint: 'Sugestão: <code>[ponto de aceite do HSM]</code>',
+        options: [],
+        strict: false
+      },
+      incentivo_hsm: {
+        hint: 'Sugestão: <code>[canal incentivado/direcionado]</code>',
+        options: [],
+        strict: false
+      },
+      encaminhado_transfere_humano: {
+        hint: 'Sugestão: <code>[motivo do encaminhamento para transfere operacao]</code>',
+        options: [],
+        strict: false
+      },
+      encaminhado_transfere_externo: {
+        hint: 'Sugestão: <code>[motivo do encaminhamento para transfere externo]</code>',
+        options: [],
+        strict: false
+      },
+      encaminhado_transfere_outras_uras: {
+        hint: 'Sugestão: <code>[motivo do encaminhamento para transfere outra ura]</code>',
+        options: [],
+        strict: false
+      },
+      submenu_desambiguacao: {
+        hint: 'Sugestão: <code>[opção selecionada pelo cliente]</code>',
+        options: [],
+        strict: false
+      },
+      encaminhado_finaliza_chamada: {
+        hint: 'Sugestão: <code>[motivo do encaminhamento para finaliza_chamada]</code>',
+        options: [],
+        strict: false
+      },
+      retorno_api: {
+        hint: 'Para retorno_api, selecione obrigatoriamente uma das 2 opções:',
+        options: ['Sucesso_Api', 'Falha_Api'],
+        strict: true
+      },
+      menu_chute: {
+        hint: 'Sugestão: <code>[opção selecionada pelo cliente]</code>',
+        options: [],
+        strict: false
+      },
+      submenu_reconhecimento_voz: {
+        hint: 'Sugestão: <code>[transcrição do cliente]</code>',
+        options: [],
+        strict: false
+      },
+      submenu_desambigua_reconhecimento_voz: {
+        hint: 'Sugestão: <code>[opção selecionada pelo cliente]</code>',
+        options: [],
+        strict: false
+      },
+      oferta_incentivo_col: {
+        hint: 'Sugestão: <code>[qual a oferta]</code>',
+        options: [],
+        strict: false
+      },
+      incentivo_col: {
+        hint: 'Sugestão: <code>[qual a oferta]</code>',
+        options: [],
+        strict: false
+      }
+    };
+
+    // Campos obrigatórios que não podem estar vazios
+    const CAMPOS_OBRIGATORIOS_NAO_VAZIOS = [
+      { key: 'validacao', nome: 'Validacao' },
+      { key: 'fluxo',     nome: 'Fluxo' },
+      { key: 'indicador', nome: 'Indicador' },
+      { key: 'range',     nome: 'Range' },
+      { key: 'ponto',     nome: 'Ponto' },
+      { key: 'produto',   nome: 'Produto' }
+    ];
 
     const CAMPOS = [
       {
@@ -1791,6 +2417,7 @@
 
     function lerValidadoresAtivos() {
       return {
+        obrigatorios:    document.getElementById('chkValObrigatorios').checked,
         duplicados:      document.getElementById('chkValDuplicados').checked,
         eventList:       document.getElementById('chkValEventList').checked,
         eventFormat:     document.getElementById('chkValEventFormat').checked,
@@ -1866,15 +2493,135 @@
         .replace(/[\u0300-\u036f]/g, '')
         .toLowerCase();
 
-      if (valNorm.includes('repete_opcoes') || valNorm.includes('repete_opcao')) {
+      // Quando a validação indicar Silencio, o Input_Cliente não é obrigatório.
+      if (
+        valNorm.includes('silencio') ||
+        valNorm.includes('repete_opcoes') ||
+        valNorm.includes('repete_opcao')
+      ) {
         return false;
       }
 
       return e.includes('menu') || e.includes('submenu');
     }
 
+    // Verifica se o valor da Validacao atende à regra estrita do event_name (quando houver)
+    function validarRegraEstritaValidacaoPorEvento(evVal, valVal) {
+      if (!evVal) return null;
+      const regra = VALIDACAO_SUGESTOES_POR_EVENTO[evVal.toLowerCase()];
+      if (!regra || !regra.strict || !regra.options || !regra.options.length) return null;
+
+      const valorLimpo = String(valVal || '').trim();
+      const atende = regra.options.some(opt => {
+        if (regra.caseInsensitive) {
+          return opt.toLowerCase() === valorLimpo.toLowerCase();
+        }
+        return opt === valorLimpo;
+      });
+
+      if (!atende) {
+        return {
+          badge: `Exige ${regra.options.join(' / ')}`,
+          tooltip: `Para event_name "${evVal}", o campo Validacao deve ser: ${regra.options.join(' ou ')}.`
+        };
+      }
+      return null;
+    }
+
     /* =========================================================
-       6) RENDERIZAÇÃO COM NUMERAÇÃO, COPIAR LINHA / PONTO E EDIÇÃO EM TEMPO REAL
+       6) POPOVER CONTEXTUAL DE SUGESTÃO / SELEÇÃO PARA "VALIDACAO"
+       ========================================================= */
+    const validacaoPopover = document.getElementById('validacaoSuggestPopover');
+    let popoverHideTimer = null;
+
+    function posicionarPopover(anchorEl) {
+      if (!anchorEl || validacaoPopover.classList.contains('hidden')) return;
+      const rect = anchorEl.getBoundingClientRect();
+      const popRect = validacaoPopover.getBoundingClientRect();
+
+      let top = rect.bottom + 6;
+      let left = rect.left;
+
+      if (top + popRect.height > window.innerHeight - 12) {
+        top = Math.max(10, rect.top - popRect.height - 6);
+      }
+      if (left + popRect.width > window.innerWidth - 12) {
+        left = Math.max(10, window.innerWidth - popRect.width - 12);
+      }
+
+      validacaoPopover.style.top  = `${top}px`;
+      validacaoPopover.style.left = `${left}px`;
+    }
+
+    function mostrarPopoverSugestaoValidacao(rowIndex, anchorEl) {
+      clearTimeout(popoverHideTimer);
+      const tag = registrosAtuais[rowIndex];
+      if (!tag) return;
+
+      const evName = String(tag.event_name || '').trim().toLowerCase();
+      const cfg = VALIDACAO_SUGESTOES_POR_EVENTO[evName] || {
+        hint: 'Padrão: iniciais maiúsculas separadas por <code>_</code> (ex: <code>Nome_Validacao</code>) ou entre colchetes <code>[...]</code>.',
+        options: [],
+        strict: false
+      };
+
+      validacaoPopover.classList.toggle('popover-strict', Boolean(cfg.strict));
+
+      const tipoBadge = cfg.strict
+        ? `<span class="val-pop-tag strict">Obrigatório</span>`
+        : `<span class="val-pop-tag hint">Sugestão</span>`;
+
+      let botoesHtml = '';
+      if (cfg.options && cfg.options.length > 0) {
+        const btns = cfg.options.map(opt =>
+          `<button type="button" class="val-pop-option-btn" data-select-val="${escapeHtml(opt)}">✨ ${escapeHtml(opt)}</button>`
+        ).join('');
+        botoesHtml = `<div class="val-pop-options">${btns}</div>`;
+      }
+
+      validacaoPopover.innerHTML = `
+        <div class="val-pop-header">
+          <span>💡 event_name: <code>${escapeHtml(evName || '(vazio)')}</code></span>
+          ${tipoBadge}
+        </div>
+        <div class="val-pop-hint-text">${cfg.hint}</div>
+        ${botoesHtml}
+      `;
+
+      // Clique em qualquer botão de sugestão preenche imediatamente na Tabela e no Bloco
+      validacaoPopover.querySelectorAll('.val-pop-option-btn').forEach(btn => {
+        btn.addEventListener('mousedown', function (e) {
+          e.preventDefault(); // Evita perder foco antes de aplicar
+          const valorEscolhido = this.getAttribute('data-select-val') || '';
+          aplicarValorCampoSincronizado(rowIndex, 'validacao', valorEscolhido);
+          esconderPopoverSugestaoValidacao();
+        });
+      });
+
+      validacaoPopover.classList.remove('hidden');
+      posicionarPopover(anchorEl);
+    }
+
+    function esconderPopoverSugestaoValidacao() {
+      clearTimeout(popoverHideTimer);
+      validacaoPopover.classList.add('hidden');
+    }
+
+    function agendarEsconderPopover() {
+      clearTimeout(popoverHideTimer);
+      popoverHideTimer = setTimeout(() => {
+        validacaoPopover.classList.add('hidden');
+      }, 180);
+    }
+
+    window.addEventListener('scroll', () => {
+      if (!validacaoPopover.classList.contains('hidden')) {
+        esconderPopoverSugestaoValidacao();
+      }
+    }, true);
+
+    /* =========================================================
+       7) RENDERIZAÇÃO E SINCRONIZAÇÃO ENTRE LINHAS (TABELA) E CAIXINHAS (BLOCOS)
        ========================================================= */
     const inputText        = document.getElementById('inputText');
     const tabelasContainer = document.getElementById('tabelasContainer');
@@ -1882,6 +2629,9 @@
     const contadorBadge    = document.getElementById('contadorBadge');
     const filtroInput      = document.getElementById('filtroTabela');
     const alertasContainer = document.getElementById('alertasContainer');
+
+    const btnViewLinhas    = document.getElementById('btnViewLinhas');
+    const btnViewCaixinhas = document.getElementById('btnViewCaixinhas');
 
     const modalDuplicados = document.getElementById('modalDuplicados');
     const listaDuplicados = document.getElementById('listaDuplicadosModal');
@@ -1895,8 +2645,39 @@
     let registrosAtuais = [];
     let totalLinhasGeral = 0;
     let statusFilterAtivo = 'all';
+    let modoVisualizacao = 'linhas'; // 'linhas' (padrão) ou 'caixinhas'
+    const cardsEmEdicao = new Set(); // guarda índices dos blocos que estão com "Editar Ponto" ativo
 
-    // Extrai o valor limpo da célula editada
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function copiarTexto(texto) {
+      if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(texto);
+      }
+      return new Promise((resolve, reject) => {
+        const area = document.createElement('textarea');
+        area.value = texto;
+        area.style.position = 'fixed';
+        area.style.opacity = '0';
+        document.body.appendChild(area);
+        area.select();
+        try {
+          const ok = document.execCommand('copy');
+          area.remove();
+          ok ? resolve() : reject(new Error('Não foi possível copiar automaticamente.'));
+        } catch (erro) {
+          area.remove();
+          reject(erro);
+        }
+      });
+    }
+
     function extrairValorLimpoCelula(celula) {
       if (celula.dataset && celula.dataset.rawVal !== undefined) {
         return celula.dataset.rawVal;
@@ -1910,18 +2691,7 @@
       return clone.textContent.trim();
     }
 
-    // Mapeia uma linha tr para um objeto com os 12 campos
-    function extrairObjetoLinha(tr) {
-      const obj = {};
-      tr.querySelectorAll('td[data-col-key]').forEach(td => {
-        obj[td.dataset.colKey] = extrairValorLimpoCelula(td);
-      });
-      return obj;
-    }
-
-    // Formata o objeto da linha no modelo de PONTO de chave-valor
-    function formatarLinhaComoPontoText(tr) {
-      const tag = extrairObjetoLinha(tr);
+    function formatarObjetoComoPontoText(tag) {
       return [
         `event_name: ${tag.event_name || ''}`,
         `Validacao: ${tag.validacao || ''}`,
@@ -1938,7 +2708,117 @@
       ].join('\n');
     }
 
-    // Copia individualmente a linha como TSV (linha)
+    function extrairObjetoLinha(tr) {
+      const obj = {};
+      tr.querySelectorAll('td[data-col-key]').forEach(td => {
+        obj[td.dataset.colKey] = extrairValorLimpoCelula(td);
+      });
+      return obj;
+    }
+
+    function formatarLinhaComoPontoText(tr) {
+      const tag = extrairObjetoLinha(tr);
+      return formatarObjetoComoPontoText(tag);
+    }
+
+    // Atualiza um campo tanto no estado central quanto na Tabela e no Card (sem perder foco)
+    function aplicarValorCampoSincronizado(rowIndex, colKey, novoValor, elementoOrigem) {
+      if (!registrosAtuais[rowIndex]) return;
+      registrosAtuais[rowIndex][colKey] = novoValor;
+
+      // 1) Atualiza célula na Tabela (se não for a própria origem)
+      const td = document.querySelector(`#tabelaDados tbody tr[data-row-index="${rowIndex}"] td[data-col-key="${colKey}"]`);
+      if (td) {
+        td.dataset.rawVal = novoValor;
+        const editorTabela = td.querySelector('.cell-editor');
+        if (editorTabela && editorTabela !== elementoOrigem) {
+          editorTabela.textContent = novoValor;
+        }
+      }
+
+      // 2) Atualiza campo no Card (se não for a própria origem)
+      const cardEl = document.querySelector(`#output .card[data-card-index="${rowIndex}"]`);
+      if (cardEl) {
+        const valSpan = cardEl.querySelector(`.field-value[data-col-key="${colKey}"]`);
+        if (valSpan) {
+          if (valSpan !== elementoOrigem) {
+            valSpan.textContent = novoValor;
+          }
+          valSpan.classList.toggle('empty', !novoValor);
+          valSpan.classList.toggle('placeholder', /^\[.+\]$/.test(novoValor));
+        }
+        if (colKey === 'ponto') {
+          const badgeEl = cardEl.querySelector('.card-badge');
+          if (badgeEl) {
+            badgeEl.textContent = novoValor ? `Ponto ${novoValor}` : `Sem Ponto (#${rowIndex + 1})`;
+          }
+        }
+      }
+
+      revalidarTabelaExistente(false);
+    }
+
+    // Função global copyCard(idx, event) usada no onclick="copyCard(idx, event)" das caixinhas
+    window.copyCard = function (idx, ev) {
+      // Se o card estiver em modo de edição e o clique não veio diretamente do botão "Copiar bloco", não copia para permitir editar livremente
+      const clicouNoBotaoCopy = ev && ev.target && ev.target.closest('.copy-hint');
+      const clicouNoBotaoEdit = ev && ev.target && ev.target.closest('.edit-hint');
+      if (clicouNoBotaoEdit) return;
+      if (cardsEmEdicao.has(idx) && !clicouNoBotaoCopy) return;
+
+      const tag = registrosAtuais[idx];
+      if (!tag) return;
+
+      const textoBloco = formatarObjetoComoPontoText(tag);
+      copiarTexto(textoBloco).then(() => {
+        const cardEl = document.querySelector(`#output .card[data-card-index="${idx}"]`);
+        if (cardEl) {
+          const hint = cardEl.querySelector('.copy-hint');
+          const oldText = hint ? hint.textContent : '⎘ Copiar bloco';
+          cardEl.classList.add('copied');
+          if (hint) hint.textContent = '✓ Bloco copiado!';
+          setTimeout(() => {
+            cardEl.classList.remove('copied');
+            if (hint) hint.textContent = oldText;
+          }, 1400);
+        }
+      });
+    };
+
+    // Função global toggleEditCard(idx, event) acionada pelo botão "✏️ Editar Ponto" ao lado de "⎘ Copiar bloco"
+    window.toggleEditCard = function (idx, ev) {
+      if (ev) ev.stopPropagation();
+      const cardEl = document.querySelector(`#output .card[data-card-index="${idx}"]`);
+      if (!cardEl) return;
+
+      const editBtn = cardEl.querySelector('.edit-hint');
+      const estaEditando = !cardsEmEdicao.has(idx);
+
+      if (estaEditando) {
+        cardsEmEdicao.add(idx);
+        cardEl.classList.add('card-editing');
+        if (editBtn) editBtn.innerHTML = '✔️ Concluir';
+
+        cardEl.querySelectorAll('.field-value').forEach(span => {
+          span.contentEditable = 'true';
+          span.spellcheck = false;
+        });
+
+        // Foca automaticamente no campo Validacao para facilitar a edição
+        const valField = cardEl.querySelector('.field-value[data-col-key="validacao"]');
+        if (valField) valField.focus();
+      } else {
+        cardsEmEdicao.delete(idx);
+        cardEl.classList.remove('card-editing');
+        if (editBtn) editBtn.innerHTML = '✏️ Editar Ponto';
+
+        cardEl.querySelectorAll('.field-value').forEach(span => {
+          span.contentEditable = 'false';
+        });
+        esconderPopoverSugestaoValidacao();
+      }
+    };
+
     function copiarLinhaIndividual(tr, btnElement) {
       const tds = Array.from(tr.querySelectorAll('td[data-col-key]'));
       const valores = tds.map(extrairValorLimpoCelula);
@@ -1955,7 +2835,6 @@
       });
     }
 
-    // Copia individualmente a linha como PONTO (bloco formatado)
     function copiarPontoIndividual(tr, btnElement) {
       const textoPonto = formatarLinhaComoPontoText(tr);
 
@@ -1970,6 +2849,32 @@
       });
     }
 
+    function atualizarModoVisualizacaoUI() {
+      const wrapperTabela = document.getElementById('wrapperTabela');
+      const outputCards   = document.getElementById('output');
+
+      btnViewLinhas.classList.toggle('active', modoVisualizacao === 'linhas');
+      btnViewCaixinhas.classList.toggle('active', modoVisualizacao === 'caixinhas');
+
+      if (wrapperTabela) {
+        wrapperTabela.classList.toggle('hidden', modoVisualizacao !== 'linhas');
+      }
+      if (outputCards) {
+        outputCards.classList.toggle('hidden', modoVisualizacao !== 'caixinhas');
+      }
+      esconderPopoverSugestaoValidacao();
+    }
+
+    btnViewLinhas.addEventListener('click', () => {
+      modoVisualizacao = 'linhas';
+      atualizarModoVisualizacaoUI();
+    });
+
+    btnViewCaixinhas.addEventListener('click', () => {
+      modoVisualizacao = 'caixinhas';
+      atualizarModoVisualizacaoUI();
+    });
+
     function processarDados() {
       const texto = inputText.value;
       const overrides = lerOverrides();
@@ -1977,16 +2882,22 @@
 
       tabelasContainer.innerHTML = '';
       alertasContainer.innerHTML = '';
+      cardsEmEdicao.clear();
+      esconderPopoverSugestaoValidacao();
 
       if (!texto.trim()) {
         registrosAtuais = [];
+        totalLinhasGeral = 0;
         stickyBar.classList.add('hidden');
+        contadorBadge.textContent = 'Visíveis: 0 / Total: 0';
         return;
       }
 
       if (!blocos.length) {
         registrosAtuais = [];
+        totalLinhasGeral = 0;
         stickyBar.classList.add('hidden');
+        contadorBadge.textContent = 'Visíveis: 0 / Total: 0';
         const aviso = document.createElement('div');
         aviso.className = 'info-banner';
         aviso.textContent = 'Nenhum bloco estruturado de tagueamento (event_name ... Timestamp) foi encontrado.';
@@ -1996,13 +2907,130 @@
 
       registrosAtuais = blocos.map(b => processarBloco(b, overrides));
       totalLinhasGeral = registrosAtuais.length;
+      statusFilterAtivo = 'all';
+      document.querySelectorAll('.status-pill').forEach(btn => btn.classList.toggle('active', btn.dataset.status === 'all'));
 
-      construirTabelaDOM();
+      construirTabelaECaixinhasDOM();
       revalidarTabelaExistente(true);
+      atualizarModoVisualizacaoUI();
       stickyBar.classList.remove('hidden');
     }
 
-    function construirTabelaDOM() {
+    // Constrói os cards inicialmente e vincula eventos de edição in-place e sugestões de Validacao
+    function construirCaixinhasDOMInicial() {
+      let outputDiv = document.getElementById('output');
+      if (!outputDiv) {
+        outputDiv = document.createElement('div');
+        outputDiv.id = 'output';
+        tabelasContainer.appendChild(outputDiv);
+      }
+
+      const cardsHtml = registrosAtuais.map((tag, idx) => {
+        const delay = (Math.min(idx, 20) * 0.05).toFixed(2).replace(/\.?0+$/, '') + 's';
+        const pontoLabel = tag.ponto ? `Ponto ${escapeHtml(tag.ponto)}` : `Sem Ponto (#${idx + 1})`;
+
+        const rowsHtml = COLUNAS.map(campo => {
+          const rawVal = String(tag[campo.key] || '').trim();
+          let valueClasses = 'field-value';
+          if (!rawVal) {
+            valueClasses += ' empty';
+          } else if (/^\[.+\]$/.test(rawVal)) {
+            valueClasses += ' placeholder';
+          }
+
+          return `<div class="card-row" data-row-col="${campo.key}">
+          <span class="field-name">${escapeHtml(campo.nome)}:</span>
+          <span class="${valueClasses}" data-col-key="${campo.key}" data-row-index="${idx}">${escapeHtml(rawVal)}</span>
+        </div>`;
+        }).join('');
+
+        return `<div class="card" data-card-index="${idx}" style="animation-delay:${delay}" onclick="copyCard(${idx}, event)">
+        <div class="card-top-actions">
+          <span class="edit-hint" onclick="toggleEditCard(${idx}, event)">✏️ Editar Ponto</span>
+          <span class="copy-hint" onclick="copyCard(${idx}, event)">⎘ Copiar bloco</span>
+        </div>
+        <div class="card-badge">${pontoLabel}</div>
+        ${rowsHtml}
+      </div>`;
+      }).join('');
+
+      outputDiv.innerHTML = `<div class="cards-grid">${cardsHtml}</div>`;
+
+      // Eventos de edição para cada campo dentro das caixinhas
+      outputDiv.querySelectorAll('.field-value').forEach(span => {
+        const idx = parseInt(span.dataset.rowIndex, 10);
+        const colKey = span.dataset.colKey;
+
+        span.addEventListener('click', function (e) {
+          if (cardsEmEdicao.has(idx)) {
+            e.stopPropagation();
+          }
+        });
+
+        span.addEventListener('focus', function () {
+          if (colKey === 'validacao') {
+            mostrarPopoverSugestaoValidacao(idx, span);
+          }
+        });
+
+        span.addEventListener('blur', function () {
+          if (colKey === 'validacao') {
+            agendarEsconderPopover();
+          }
+        });
+
+        span.addEventListener('input', function () {
+          const novoValor = span.textContent.replace(/[\r\n\t]+/g, ' ').trim();
+          aplicarValorCampoSincronizado(idx, colKey, novoValor, span);
+          if (colKey === 'event_name') {
+            // Se mudou o event_name, revalida imediatamente
+            revalidarTabelaExistente(false);
+          }
+        });
+
+        span.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            span.blur();
+          }
+        });
+      });
+    }
+
+    // Atualiza apenas as classes de erro/alerta dos cards sem destruir o foco do campo em edição
+    function atualizarStatusVisualCaixinhas(issuesPorLinha) {
+      const outputDiv = document.getElementById('output');
+      if (!outputDiv) return;
+
+      registrosAtuais.forEach((tag, idx) => {
+        const cardEl = outputDiv.querySelector(`.card[data-card-index="${idx}"]`);
+        if (!cardEl) return;
+
+        const metaLinha = (issuesPorLinha && issuesPorLinha[idx]) || { rowStatus: 'ok', cellIssues: {} };
+        cardEl.classList.remove('card-error', 'card-warning');
+        if (metaLinha.rowStatus === 'error') {
+          cardEl.classList.add('card-error');
+        } else if (metaLinha.rowStatus === 'warning') {
+          cardEl.classList.add('card-warning');
+        }
+
+        COLUNAS.forEach(campo => {
+          const rowEl = cardEl.querySelector(`.card-row[data-row-col="${campo.key}"]`);
+          if (!rowEl) return;
+
+          rowEl.classList.remove('row-issue-error', 'row-issue-warning');
+          rowEl.removeAttribute('title');
+
+          const cellIssue = metaLinha.cellIssues[campo.key];
+          if (cellIssue) {
+            rowEl.classList.add(cellIssue.level === 'error' ? 'row-issue-error' : 'row-issue-warning');
+            rowEl.title = cellIssue.tooltips.join(' | ');
+          }
+        });
+      });
+    }
+
+    function construirTabelaECaixinhasDOM() {
       tabelasContainer.innerHTML = '';
 
       const wrapper = document.createElement('div');
@@ -2013,7 +3041,6 @@
       tabela.className = 'tabela-planilha';
       tabela.id = 'tabelaDados';
 
-      // Cabeçalho com coluna '#' (Índice + Ações Copiar Linha e Copiar Ponto)
       const thead = document.createElement('thead');
       const trHead = document.createElement('tr');
 
@@ -2038,7 +3065,6 @@
         const tr = document.createElement('tr');
         tr.dataset.rowIndex = idx;
 
-        // 1ª Célula: Número da Linha + Botão Copiar Linha + Botão Copiar Ponto
         const tdMeta = document.createElement('td');
         tdMeta.className = 'td-row-meta';
 
@@ -2074,7 +3100,6 @@
         tdMeta.appendChild(metaInner);
         tr.appendChild(tdMeta);
 
-        // Células de Dados Editáveis
         COLUNAS.forEach(campo => {
           const td = document.createElement('td');
           td.dataset.colKey = campo.key;
@@ -2092,15 +3117,23 @@
           const badgesContainer = document.createElement('span');
           badgesContainer.className = 'cell-badges';
 
-          // Ao digitar ou colar texto na célula, atualiza o registro e revalida em tempo real
-          editor.addEventListener('input', function () {
-            const novoValor = editor.textContent.replace(/[\r\n\t]+/g, ' ').trim();
-            td.dataset.rawVal = novoValor;
-            registrosAtuais[idx][campo.key] = novoValor;
-            revalidarTabelaExistente(false);
+          editor.addEventListener('focus', function () {
+            if (campo.key === 'validacao') {
+              mostrarPopoverSugestaoValidacao(idx, editor);
+            }
           });
 
-          // Evita quebra de linha com Enter dentro da célula editável
+          editor.addEventListener('blur', function () {
+            if (campo.key === 'validacao') {
+              agendarEsconderPopover();
+            }
+          });
+
+          editor.addEventListener('input', function () {
+            const novoValor = editor.textContent.replace(/[\r\n\t]+/g, ' ').trim();
+            aplicarValorCampoSincronizado(idx, campo.key, novoValor, editor);
+          });
+
           editor.addEventListener('keydown', function (e) {
             if (e.key === 'Enter') {
               e.preventDefault();
@@ -2108,7 +3141,6 @@
             }
           });
 
-          // Clique na área da célula foca automaticamente no editor
           td.addEventListener('click', function (e) {
             if (e.target === td) {
               editor.focus();
@@ -2126,54 +3158,53 @@
       tabela.appendChild(tbody);
       wrapper.appendChild(tabela);
       tabelasContainer.appendChild(wrapper);
+
+      // Constrói também os cards interativos em #output
+      construirCaixinhasDOMInicial();
+      // (Continuação da função revalidarTabelaExistente que define a lógica final)
     }
 
-    // Revalida todas as linhas e células da tabela em tempo real (inclusive após edições manuais)
     function revalidarTabelaExistente(abrirModalDuplicadosSeHouver) {
       const tabela = document.getElementById('tabelaDados');
       if (!tabela || !registrosAtuais.length) return;
 
       const Regras = lerValidadoresAtivos();
+      const detailsEventosAnterior = document.getElementById('resumoEventosDropdown');
+      const estavaAbertoResumoEventos = detailsEventosAnterior ? detailsEventosAnterior.open : false;
+
       alertasContainer.innerHTML = '';
 
-      /* =========================================================
-         NOVA FUNCIONALIDADE 3: RESUMO DOS TIPOS DE EVENT_NAME
-         ========================================================= */
+      // RESUMO DE EVENT_NAMES
       const contagemEventos = {};
       registrosAtuais.forEach(r => {
         const ev = String(r.event_name || '').trim();
-        if (ev) {
-          contagemEventos[ev] = (contagemEventos[ev] || 0) + 1;
-        } else {
-          contagemEventos['(vazio)'] = (contagemEventos['(vazio)'] || 0) + 1;
-        }
+        if (ev) contagemEventos[ev] = (contagemEventos[ev] || 0) + 1;
+        else contagemEventos['(vazio)'] = (contagemEventos['(vazio)'] || 0) + 1;
       });
 
       const listaTiposEventos = Object.keys(contagemEventos);
       if (listaTiposEventos.length > 0) {
-        const cardResumoEventos = document.createElement('div');
-        cardResumoEventos.className = 'resumo-eventos-card';
-
-        const headerResumo = document.createElement('div');
-        headerResumo.className = 'resumo-eventos-header';
-        headerResumo.innerHTML = `
-          <span>🏷️ <strong>Tipos de event_name presentes:</strong> ${listaTiposEventos.length} diferente(s)</span>
-          <span style="font-weight: 500; font-size: 0.8rem; color: var(--muted)">Total de Registros: ${registrosAtuais.length}</span>
-        `;
-
+        const detailsResumo = document.createElement('details');
+        detailsResumo.className = 'validators-dropdown';
+        detailsResumo.id = 'resumoEventosDropdown';
+        if (estavaAbertoResumoEventos) detailsResumo.open = true;
+        const summaryResumo = document.createElement('summary');
+        summaryResumo.className = 'validators-summary';
+        summaryResumo.innerHTML = `<span class="validators-summary-left"><span>🏷️ Tipos de event_name presentes</span></span><span class="validators-badge">${listaTiposEventos.length} tipo(s)</span>`;
+        const bodyResumo = document.createElement('div');
+        bodyResumo.className = 'resumo-eventos-body';
         const listaBadges = document.createElement('div');
         listaBadges.className = 'resumo-eventos-lista';
-
         listaTiposEventos.sort().forEach(nomeEvento => {
           const badgeEv = document.createElement('span');
           badgeEv.className = 'event-badge';
-          badgeEv.innerHTML = `${nomeEvento} <strong>(${contagemEventos[nomeEvento]}x)</strong>`;
+          badgeEv.innerHTML = `${escapeHtml(nomeEvento)} <strong>(${contagemEventos[nomeEvento]}x)</strong>`;
           listaBadges.appendChild(badgeEv);
         });
-
-        cardResumoEventos.appendChild(headerResumo);
-        cardResumoEventos.appendChild(listaBadges);
-        alertasContainer.appendChild(cardResumoEventos);
+        bodyResumo.appendChild(listaBadges);
+        detailsResumo.appendChild(summaryResumo);
+        detailsResumo.appendChild(bodyResumo);
+        alertasContainer.appendChild(detailsResumo);
       }
 
       // 1) Contagem de pontos para duplicidade
@@ -2184,197 +3215,169 @@
       });
       const pontosDuplicados = Object.keys(contagemPontos).filter(p => contagemPontos[p] > 1);
 
-      // 2) Descobre o Fluxo predominante
+      // 2) Fluxo predominante
       const contagemFluxos = {};
-      let fluxoPredominante = '';
-      let maxFluxoCount = 0;
+      let fluxoPredominante = '', maxFluxoCount = 0;
       registrosAtuais.forEach(r => {
         const f = String(r.fluxo || '').trim();
         if (f) {
           contagemFluxos[f] = (contagemFluxos[f] || 0) + 1;
-          if (contagemFluxos[f] > maxFluxoCount) {
-            maxFluxoCount = contagemFluxos[f];
-            fluxoPredominante = f;
-          }
+          if (contagemFluxos[f] > maxFluxoCount) { maxFluxoCount = contagemFluxos[f]; fluxoPredominante = f; }
         }
       });
       const fluxosDistintos = Object.keys(contagemFluxos);
 
-      let countEventInvalido = 0;
-      let countApiRegraErr   = 0;
-      let countRangeErr      = 0;
-      let countValidacaoWarn = 0;
-      let countMenuInputWarn = 0;
-      let countFluxoWarn     = 0;
-
+      let countCamposVazios = 0, countEventInvalido = 0, countApiRegraErr = 0, countRangeErr = 0, countValidacaoWarn = 0, countMenuInputWarn = 0, countFluxoWarn = 0;
+      const issuesPorLinha = [];
       const linhasDOM = tabela.querySelectorAll('tbody tr');
 
       linhasDOM.forEach((tr, idx) => {
         const tag = registrosAtuais[idx];
-        if (!tag) return;
-
-        const evVal    = String(tag.event_name || '').trim();
-        const valVal   = String(tag.validacao || '').trim();
+        const evVal = String(tag.event_name || '').trim();
+        const valVal = String(tag.validacao || '').trim();
         const fluxoVal = String(tag.fluxo || '').trim();
         const rangeVal = String(tag.range || '').trim();
         const pontoVal = String(tag.ponto || '').trim();
         const inputVal = String(tag.input || '').trim();
 
-        let rowHasError   = false;
-        let rowHasWarning = false;
-
+        let rowHasError = false, rowHasWarning = false;
         const cellIssues = {};
         function addIssue(colKey, level, badgeText, tooltip) {
           if (!cellIssues[colKey]) cellIssues[colKey] = { level, badges: [], tooltips: [] };
           if (level === 'error') cellIssues[colKey].level = 'error';
-          cellIssues[colKey].badges.push(badgeText);
-          cellIssues[colKey].tooltips.push(tooltip);
-          if (level === 'error') rowHasError = true;
-          else rowHasWarning = true;
+          cellIssues[colKey].badges.push(badgeText); cellIssues[colKey].tooltips.push(tooltip);
+          if (level === 'error') rowHasError = true; else rowHasWarning = true;
         }
 
-        const isDuplicado = Boolean(pontoVal && contagemPontos[pontoVal] > 1);
-        const isRangeFora = !validaRangeCondiz(pontoVal, rangeVal);
-
-        tr.dataset.duplicado = isDuplicado ? '1' : '0';
-        tr.dataset.rangeFora = isRangeFora ? '1' : '0';
-
-        // V1: Pontos Duplicados (Vermelho)
-        if (Regras.duplicados && isDuplicado) {
-          addIssue('ponto', 'error', `Duplicado (${contagemPontos[pontoVal]}x)`, `Ponto ${pontoVal} aparece ${contagemPontos[pontoVal]} vezes!`);
+        // Validação campos vazios
+        if (Regras.obrigatorios) {
+          CAMPOS_OBRIGATORIOS_NAO_VAZIOS.forEach(campoObr => {
+            if (!String(tag[campoObr.key] || '').trim()) {
+              addIssue(campoObr.key, 'error', 'Vazio', `Campo obrigatório "${campoObr.nome}" vazio.`);
+              countCamposVazios++;
+            }
+          });
         }
 
-        // V2: Formato do event_name (minúsculo com _)
-        if (Regras.eventFormat && !validaFormatoEventName(evVal)) {
-          addIssue('event_name', 'error', 'Formato Inválido', 'O event_name deve ser todo em letra minúscula separado por _');
-          countEventInvalido++;
+        // Validação Estrita de Validacao (Regra do evento)
+        const erroEstrito = validarRegraEstritaValidacaoPorEvento(evVal, valVal);
+        if (Regras.apiRules && erroEstrito) {
+          addIssue('validacao', 'error', erroEstrito.badge, erroEstrito.tooltip);
+          countApiRegraErr++;
         }
 
-        // V3: Lista Oficial de event_name (Vermelho)
-        if (Regras.eventList && evVal && !EVENT_NAMES_OFICIAIS.has(evVal)) {
-          addIssue('event_name', 'error', 'Fora da Lista', `"${evVal}" não faz parte da lista oficial de Event Names.`);
-          countEventInvalido++;
-        }
-
-        // V4: Regras específicas de API (chamada_api e retorno_api)
-        if (Regras.apiRules) {
-          if (evVal === 'chamada_api' && valVal.toLowerCase() !== '[status_code]') {
-            addIssue('validacao', 'error', 'Exige [Status_code]', 'Para event_name "chamada_api", a Validação deve ser obrigatoriamente [Status_code].');
-            countApiRegraErr++;
-          }
-          if (evVal === 'retorno_api' && valVal !== 'Sucesso_Api' && valVal !== 'Falha_Api') {
-            addIssue('validacao', 'error', 'Exige Sucesso_Api/Falha_Api', 'Para event_name "retorno_api", a Validação deve ser Sucesso_Api ou Falha_Api.');
-            countApiRegraErr++;
-          }
-        }
-
-        // V5: Formato da Validação (Amarelo)
-        if (Regras.validacaoFormat && !validaFormatoValidacao(valVal)) {
-          addIssue('validacao', 'warning', 'Fora do Padrão', 'A Validação deve ter iniciais maiúsculas separadas por _ (ex: Nome_Validacao_Ponto) ou estar entre colchetes [...].');
-          countValidacaoWarn++;
-        }
-
-        // V6: Input obrigatório [Input_Cliente] em Menus/Submenus
-        if (Regras.menuInput && exigeInputCliente(evVal, valVal) && inputVal !== '[Input_Cliente]') {
-          addIssue('input', 'warning', 'Exige [Input_Cliente]', `O evento "${evVal}" exige [Input_Cliente] no campo Input (exceto quando a Validação contiver Repete_Opcoes).`);
-          countMenuInputWarn++;
-        }
-
-        // V7: Mesmo Fluxo (Amarelo)
-        if (Regras.sameFluxo && (!fluxoVal || (fluxosDistintos.length > 1 && fluxoVal !== fluxoPredominante))) {
-          addIssue('fluxo', 'warning', 'Fluxo Divergente', `Fluxo "${fluxoVal || 'vazio'}" difere do fluxo principal ("${fluxoPredominante}").`);
+        if (Regras.duplicados && pontoVal && contagemPontos[pontoVal] > 1) addIssue('ponto', 'error', 'Duplicado', `Ponto ${pontoVal} duplicado`);
+        if (Regras.eventFormat && !validaFormatoEventName(evVal)) { addIssue('event_name', 'error', 'Formato', 'Snake case esperado'); countEventInvalido++; }
+        if (Regras.eventList && evVal && !EVENT_NAMES_OFICIAIS.has(evVal)) { addIssue('event_name', 'error', 'Lista', 'Fora da lista oficial'); countEventInvalido++; }
+        if (Regras.validacaoFormat && valVal && !validaFormatoValidacao(valVal)) { addIssue('validacao', 'warning', 'Padrão', 'Formato de validação inválido'); countValidacaoWarn++; }
+        if (Regras.menuInput && exigeInputCliente(evVal, valVal) && inputVal !== '[Input_Cliente]') { addIssue('input', 'warning', 'Input', 'Menu exige [Input_Cliente]'); countMenuInputWarn++; }
+        if (Regras.range && pontoVal && rangeVal && !validaRangeCondiz(pontoVal, rangeVal)) { addIssue('range', 'warning', 'Range', 'Incoerente com Ponto'); countRangeErr++; }
+        if (Regras.sameFluxo && fluxoPredominante && fluxoVal && fluxoVal !== fluxoPredominante) {
+          addIssue('fluxo', 'warning', 'Fluxo', `Fluxo diferente do predominante (${fluxoPredominante})`);
           countFluxoWarn++;
         }
-
-        // V8: Range vs Ponto (Amarelo)
-        if (Regras.range && isRangeFora) {
-          addIssue('range', 'warning', 'Range Incoerente', `Range ${rangeVal} não condiz com a casa de milhar do Ponto ${pontoVal}.`);
-          countRangeErr++;
-        }
+        
+        const linhaDuplicada = !!pontoVal && contagemPontos[pontoVal] > 1;
+        const rangeFora = !!pontoVal && !!rangeVal && !validaRangeCondiz(pontoVal, rangeVal);
+        tr.dataset.duplicado = linhaDuplicada ? '1' : '0';
+        tr.dataset.rangeFora = rangeFora ? '1' : '0';
 
         tr.classList.remove('tr-error', 'tr-warning');
-        if (rowHasError) {
-          tr.classList.add('tr-error');
-          tr.dataset.status = 'error';
-        } else if (rowHasWarning) {
-          tr.classList.add('tr-warning');
-          tr.dataset.status = 'warning';
-        } else {
-          tr.dataset.status = 'ok';
-        }
+        let rowStatus = 'ok';
+        if (rowHasError) { tr.classList.add('tr-error'); rowStatus = 'error'; } 
+        else if (rowHasWarning) { tr.classList.add('tr-warning'); rowStatus = 'warning'; }
+        tr.dataset.status = rowStatus;
+        issuesPorLinha[idx] = { rowStatus, cellIssues };
 
-        // Atualiza classes e badges de cada célula sem perder o foco do cursor de edição
-        const tds = tr.querySelectorAll('td[data-col-key]');
-        tds.forEach(td => {
-          const colKey = td.dataset.colKey;
+        COLUNAS.forEach(campo => {
+          const td = tr.querySelector(`td[data-col-key="${campo.key}"]`);
+          if (!td) return;
           const badgesContainer = td.querySelector('.cell-badges');
           if (badgesContainer) badgesContainer.innerHTML = '';
-
           td.classList.remove('cell-error', 'cell-warning');
           delete td.dataset.issueLevel;
-          td.removeAttribute('title');
-
-          const issue = cellIssues[colKey];
+          const issue = cellIssues[campo.key];
           if (issue) {
-            td.classList.add(issue.level === 'error' ? 'cell-error' : 'cell-warning');
             td.dataset.issueLevel = issue.level;
-            td.title = issue.tooltips.join(' | ');
-            if (badgesContainer) {
-              issue.badges.forEach(bTxt => {
-                const badge = document.createElement('span');
-                badge.className = 'badge-erro';
-                badge.textContent = bTxt;
-                badgesContainer.appendChild(badge);
-              });
-            }
+            td.classList.add(issue.level === 'error' ? 'cell-error' : 'cell-warning');
+            if (badgesContainer) issue.badges.forEach(b => { const span = document.createElement('span'); span.className = 'badge-erro'; span.textContent = b; badgesContainer.appendChild(span); });
           }
         });
       });
 
-      // Renderiza Alertas Resumidos no Topo
+      // RESUMOS DE ALERTAS NO TOPO — mantém o formato original e atualiza a cada revalidação.
+      // Cada linha/evento é contado uma única vez em Event_Name, mesmo se falhar
+      // simultaneamente no formato e na lista oficial.
+      const totalEventosForaPadrao = registrosAtuais.filter(registro => {
+        const nome = String(registro.event_name || '').trim();
+        return (Regras.eventFormat && !validaFormatoEventName(nome)) ||
+               (Regras.eventList && !!nome && !EVENT_NAMES_OFICIAIS.has(nome));
+      }).length;
+
+      function adicionarAlertaTopo(classe, html) {
+        if (!alertasContainer) return;
+        const alerta = document.createElement('div');
+        alerta.className = `alerta-topo ${classe}`;
+        alerta.innerHTML = html;
+        alertasContainer.appendChild(alerta);
+      }
+
       if (Regras.duplicados && pontosDuplicados.length > 0) {
-        const alertDup = document.createElement('div');
-        alertDup.className = 'alerta-topo alerta-topo--danger';
-        alertDup.innerHTML = `<span>🔴 <strong>Pontos Duplicados (${pontosDuplicados.length}):</strong> <code>${pontosDuplicados.join(', ')}</code></span>`;
-        alertasContainer.appendChild(alertDup);
+        const pontosFormatados = [...pontosDuplicados]
+          .sort((a, b) => a.localeCompare(b, 'pt-BR', { numeric: true }))
+          .map(ponto => `<code>${escapeHtml(ponto)}</code>`)
+          .join(', ');
 
-        if (abrirModalDuplicadosSeHouver) {
-          listaDuplicados.innerHTML = '';
-          pontosDuplicados.forEach(p => {
-            const li = document.createElement('li');
-            li.textContent = `Ponto ${p} (aparece ${contagemPontos[p]} vezes)`;
-            listaDuplicados.appendChild(li);
-          });
-          modalDuplicados.classList.add('active');
-        }
+        adicionarAlertaTopo(
+          'alerta-topo--danger',
+          `<span>🔴 <strong>Pontos Duplicados (${pontosDuplicados.length}):</strong> ${pontosFormatados}</span>`
+        );
       }
 
-      if (countEventInvalido > 0 || countApiRegraErr > 0) {
-        const alertEv = document.createElement('div');
-        alertEv.className = 'alerta-topo alerta-topo--danger';
-        alertEv.innerHTML = `<span>🔴 <strong>Erros de Event_Name / Regras de API:</strong> ${countEventInvalido} evento(s) fora da lista/formato e ${countApiRegraErr} erro(s) em chamada_api/retorno_api.</span>`;
-        alertasContainer.appendChild(alertEv);
+      if (totalEventosForaPadrao > 0 || countApiRegraErr > 0) {
+        adicionarAlertaTopo(
+          'alerta-topo--danger',
+          `<span>🔴 <strong>Erros de Event_Name / Regras de API:</strong> ${totalEventosForaPadrao} evento(s) fora da lista/formato e ${countApiRegraErr} erro(s) em chamada_api/retorno_api.</span>`
+        );
       }
 
-      const totalAvisosAmarelos = countRangeErr + countValidacaoWarn + countMenuInputWarn + countFluxoWarn;
-      if (totalAvisosAmarelos > 0) {
-        const detalhes = [];
-        if (countValidacaoWarn) detalhes.push(`${countValidacaoWarn} Validação fora do padrão`);
-        if (countMenuInputWarn) detalhes.push(`${countMenuInputWarn} Menu sem [Input_Cliente]`);
-        if (countFluxoWarn)     detalhes.push(`${countFluxoWarn} Fluxo divergente (Principal: "${fluxoPredominante}")`);
-        if (countRangeErr)      detalhes.push(`${countRangeErr} Range incoerente`);
+      const totalAlertasPadrao = countValidacaoWarn + countMenuInputWarn + countRangeErr + countFluxoWarn;
+      if (totalAlertasPadrao > 0) {
+        const detalhesPadrao = [];
+        if (countValidacaoWarn) detalhesPadrao.push(`${countValidacaoWarn} Validação fora do padrão`);
+        if (countMenuInputWarn) detalhesPadrao.push(`${countMenuInputWarn} Menu sem [Input_Cliente]`);
+        if (countRangeErr) detalhesPadrao.push(`${countRangeErr} Range incoerente`);
+        if (countFluxoWarn) detalhesPadrao.push(`${countFluxoWarn} Fluxo diferente do predominante`);
 
-        const alertWarn = document.createElement('div');
-        alertWarn.className = 'alerta-topo alerta-topo--warning';
-        alertWarn.innerHTML = `<span>🟡 <strong>Alertas de Padrão (${totalAvisosAmarelos}):</strong> ${detalhes.join(' • ')}</span>`;
-        alertasContainer.appendChild(alertWarn);
+        adicionarAlertaTopo(
+          'alerta-topo--warning',
+          `<span>🟡 <strong>Alertas de Padrão (${totalAlertasPadrao}):</strong> ${detalhesPadrao.map(escapeHtml).join(' • ')}</span>`
+        );
       }
 
+      atualizarStatusVisualCaixinhas(issuesPorLinha);
       aplicarFiltrosCombinados();
+
+      if (abrirModalDuplicadosSeHouver && pontosDuplicados.length) {
+        listaDuplicados.innerHTML = '';
+        pontosDuplicados.sort().forEach(ponto => {
+          const item = document.createElement('li');
+          const linhas = registrosAtuais
+            .map((registro, indice) => String(registro.ponto || '').trim() === ponto ? indice + 1 : null)
+            .filter(Boolean);
+          item.textContent = `Ponto ${ponto} — linhas ${linhas.join(', ')}`;
+          listaDuplicados.appendChild(item);
+        });
+        modalDuplicados.classList.add('active');
+      } else if (abrirModalDuplicadosSeHouver) {
+        modalDuplicados.classList.remove('active');
+      }
     }
 
-    /* =========================================================
-       7) FILTRO DE TEXTO + FILTRO POR STATUS
+    // Filtros, exportações e finalização. Os eventos principais são registrados uma única vez ao final.
+
+      /* =========================================================
+       7) FILTRO DE TEXTO + FILTRO POR STATUS (LINHAS E CAIXINHAS)
        ========================================================= */
     function atualizarContador(visiveis) {
       contadorBadge.textContent = `Visíveis: ${visiveis} / Total: ${totalLinhasGeral}`;
@@ -2388,7 +3391,7 @@
       const linhas = tabela.querySelectorAll('tbody tr');
       let visiveis = 0;
 
-      linhas.forEach(linha => {
+      linhas.forEach((linha, idx) => {
         const textoLinha = linha.textContent.toLowerCase();
         const atendeTexto = termos.length === 0 || termos.every(t => textoLinha.includes(t));
 
@@ -2405,6 +3408,13 @@
 
         const mostrar = atendeTexto && atendeStatus;
         linha.classList.toggle('linha-oculta', !mostrar);
+
+        // Sincroniza visibilidade do card correspondente na visualização em caixinhas
+        const cardCorrespondente = document.querySelector(`#output .card[data-card-index="${idx}"]`);
+        if (cardCorrespondente) {
+          cardCorrespondente.classList.toggle('linha-oculta', !mostrar);
+        }
+
         if (mostrar) visiveis++;
       });
 
@@ -2425,8 +3435,6 @@
     /* =========================================================
        8) EXPORTAÇÕES (COPIAR TODOS EM LINHA OU EM PONTO, EXCEL E PDF)
        ========================================================= */
-
-    // NOVA FUNCIONALIDADE 2A: Copiar Tabela Completa (Formatado em LINHA TSV)
     document.getElementById('btnCopiarLinha').addEventListener('click', function () {
       const tabela = document.getElementById('tabelaDados');
       if (!tabela) return;
@@ -2439,14 +3447,13 @@
         tsv += valores.join('\t') + '\n';
       });
 
-      navigator.clipboard.writeText(tsv).then(() => {
+      copiarTexto(tsv).then(() => {
         const old = this.textContent;
         this.textContent = '✓ Copiado em Linhas!';
         setTimeout(() => { this.textContent = old; }, 2000);
-      });
+      }).catch(err => alert('Falha ao copiar: ' + err.message));
     });
 
-    // NOVA FUNCIONALIDADE 2B: Copiar Tabela Completa (Formatado em PONTO Chave-Valor)
     document.getElementById('btnCopiarPonto').addEventListener('click', function () {
       const tabela = document.getElementById('tabelaDados');
       if (!tabela) return;
@@ -2459,17 +3466,20 @@
 
       const textoFinal = blocosPontos.join('\n\n====================\n\n');
 
-      navigator.clipboard.writeText(textoFinal).then(() => {
+      copiarTexto(textoFinal).then(() => {
         const old = this.textContent;
         this.textContent = '✓ Copiado em Pontos!';
         setTimeout(() => { this.textContent = old; }, 2000);
-      });
+      }).catch(err => alert('Falha ao copiar: ' + err.message));
     });
 
-    // Exportar Excel com os valores editados
     document.getElementById('btnExcel').addEventListener('click', function () {
       const tabela = document.getElementById('tabelaDados');
       if (!tabela) return;
+      if (!window.XLSX || !XLSX.utils) {
+        alert('Biblioteca Excel não carregada. Verifique sua conexão e tente novamente.');
+        return;
+      }
 
       const aoa = [COLUNAS.map(c => c.nome)];
 
@@ -2485,13 +3495,16 @@
       XLSX.writeFile(wb, 'Tagueamentos_Planilha.xlsx');
     });
 
-    // Exportar PDF com os valores editados + numeração de linha
     document.getElementById('btnPdf').addEventListener('click', function () {
       const tabela = document.getElementById('tabelaDados');
       if (!tabela) return;
 
       if (!window.jspdf || !window.jspdf.jsPDF) {
         alert('Biblioteca jsPDF não carregada. Verifique sua conexão.');
+        return;
+      }
+      if (typeof window.jspdf.jsPDF.API.autoTable !== 'function') {
+        alert('O complemento AutoTable do PDF não foi carregado. Verifique sua conexão.');
         return;
       }
 
@@ -2614,18 +3627,30 @@
        9) LIMPAR E ATALHOS
        ========================================================= */
     function limparTudo() {
+      clearTimeout(timerAuto);
       inputText.value = '';
       registrosAtuais = [];
+      totalLinhasGeral = 0;
+      statusFilterAtivo = 'all';
+      modoVisualizacao = 'linhas';
+      cardsEmEdicao.clear();
       tabelasContainer.innerHTML = '';
       alertasContainer.innerHTML = '';
       filtroInput.value = '';
+      contadorBadge.textContent = 'Visíveis: 0 / Total: 0';
       stickyBar.classList.add('hidden');
+      modalDuplicados.classList.remove('active');
+      document.querySelectorAll('.status-pill').forEach(btn => btn.classList.toggle('active', btn.dataset.status === 'all'));
+      btnViewLinhas.classList.add('active');
+      btnViewCaixinhas.classList.remove('active');
 
       CAMPOS.forEach(c => {
         const el = document.getElementById(c.inputId);
         if (el) el.value = '';
       });
-      document.getElementById('ov_operacaoDestino').value = '';
+      const operacaoDestino = document.getElementById('ov_operacaoDestino');
+      if (operacaoDestino) operacaoDestino.value = '';
+      esconderPopoverSugestaoValidacao();
       inputText.focus();
     }
 
