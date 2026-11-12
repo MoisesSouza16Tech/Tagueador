@@ -2276,16 +2276,45 @@
     /* =========================================================
        3) PARSER ANTI-LIXO E RECONHECIMENTO DE NOMES CORRELATOS
        ========================================================= */
-    function normalizarTexto(texto) {
-      if (!texto) return '';
-      let t = String(texto);
+    function normalizarTexto(textoOriginal) {
+      if (!textoOriginal) return '';
+      let t = String(textoOriginal);
 
+      // Word frequentemente cola com NBSP e outros espaços invisíveis
+      t = t.replace(/\u00A0/g, ' ');   // NBSP -> espaço normal
+      t = t.replace(/\r\n/g, '\n');
+      t = t.replace(/\r/g, '\n');
       t = t.replace(/\t/g, '\n');
-      t = t.replace(/([^\r\n])\s*((?:e?vent[_-\s]?name|evnt_name)\b)/gi, '$1\n$2');
-      t = t.replace(/(\]\s*)(validacao|validação|fluxo|indicador|range|ponto|ultimo[_-\s]?ponto|input|tentativa|ponto[_-\s]?origem|produto|time[_-\s]?stamp)\b/gi, '$1\n$2');
+
+      // Remove espaços duplicados (não apaga tudo, só deixa mais previsível)
+      // (isso ajuda as regex abaixo a funcionarem melhor)
+      t = t.replace(/[ ]{2,}/g, ' ');
+
+      // 1) Cria quebra antes do "event_name" quando ele vier colado com outros campos
+      t = t.replace(
+        /([^\r\n])\s*((?:e?vent[_-\s]?name|evnt_name)\b)/gi,
+        '$1\n$2'
+      );
+
+      // 2) Cria quebra antes dos outros campos SEM depender de vir depois de "]"
+      //    (isso resolve o caso do Word virar tudo em uma única linha)
+      const keysAlternatives =
+        '(validacao|validação|fluxo|indicador|range|ponto|ultimo[_-\\s]?ponto|input|tentativa|ponto[_-\\s]?origem|produto|time[_-\\s]?stamp)';
+
+      t = t.replace(
+        new RegExp(`\\s+(?=${keysAlternatives}\\b)`, 'gi'),
+        '\n'
+      );
+
+      // 3) Mantém sua lógica anterior adicional: se vier depois de ]...
+      t = t.replace(
+        /(\]\s*)(validacao|validação|fluxo|indicador|range|ponto|ultimo[_-\s]?ponto|input|tentativa|ponto[_-\s]?origem|produto|time[_-\s]?stamp)\b/gi,
+        '$1\n$2'
+      );
 
       return t;
     }
+
 
     function separarLinha(linhaOriginal) {
       let linha = String(linhaOriginal)
