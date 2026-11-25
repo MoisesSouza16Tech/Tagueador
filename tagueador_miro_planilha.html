@@ -1139,7 +1139,10 @@
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
-      margin-top: 4px;
+      margin-top: 6px;
+      max-height: 175px;
+      overflow-y: auto;
+      padding-right: 2px;
     }
 
     .val-pop-option-btn {
@@ -1642,7 +1645,7 @@
             <span>⚙️ Selecionar Validadores de Qualidade</span>
             <span style="font-weight:400; font-size:0.8rem; color:var(--muted)">(clique para configurar regras ativas)</span>
           </span>
-          <span class="validators-badge" id="activeValidatorsBadge">9 de 9 ativos</span>
+          <span class="validators-badge" id="activeValidatorsBadge">11 de 11 ativos</span>
         </summary>
 
         <div class="validators-body">
@@ -1683,6 +1686,22 @@
             <div>
               <strong>Regras de Validação por Event_Name (Crítico 🔴)</strong>
               <small>Valida valores obrigatórios de <code>Validacao</code> (ex: <code>inicio_menu</code>, <code>chamada_api</code>, <code>retorno_api</code>, <code>horario_atendimento</code>, <code>pesquisa_nps</code>, <code>transfere_*</code>).</small>
+            </div>
+          </label>
+
+          <label class="val-check-item">
+            <input type="checkbox" class="val-checkbox" id="chkValPontoOrigemRules" checked>
+            <div>
+              <strong>Regras de Ponto_Origem por Event_Name (Crítico 🔴)</strong>
+              <small>Valida obrigatoriedade e sugestões de <code>Ponto_Origem</code> (ex: <code>chamada_api</code>, <code>retorno_api</code> exigem <code>[Nome_Da_Api]</code>).</small>
+            </div>
+          </label>
+
+          <label class="val-check-item">
+            <input type="checkbox" class="val-checkbox" id="chkValNumericoRangePonto" checked>
+            <div>
+              <strong>Range e Ponto Numéricos (Crítico 🔴)</strong>
+              <small>Exige que as colunas <code>Range</code> e <code>Ponto</code> contenham apenas números (ex: <code>60000</code>, <code>60010</code>).</small>
             </div>
           </label>
 
@@ -1734,7 +1753,7 @@
             <div>
               <strong>Edição em Linha e em Bloco + Sugestões Inteligentes de Validação:</strong>
               <br>• Clique em qualquer célula da tabela ou clique em <strong>✏️ Editar Ponto</strong> dentro de um bloco para editar os campos diretamente.
-              <br>• Ao clicar para editar o campo <strong>Validacao</strong>, o sistema exibe a <strong>dica/sugestão oficial</strong> para aquele <code>event_name</code> e permite <strong>selecionar com 1 clique</strong>!
+              <br>• Ao clicar para editar os campos <strong>Validacao</strong> ou <strong>Ponto_Origem</strong>, o sistema exibe a <strong>dica/sugestão oficial</strong> para aquele <code>event_name</code> e permite <strong>selecionar com 1 clique</strong>!
             </div>
           </div>
         </div>
@@ -1963,7 +1982,9 @@
       'submenu_reconhecimento_voz',
       'submenu_desambigua_reconhecimento_voz',
       'oferta_incentivo_col',
-      'incentivo_col'
+      'incentivo_col',
+      'coleta_dados',
+      'menu_validacao'
     ]);
 
     /* Mapa completo de dicas, sugestões e opções selecionáveis de Validacao por event_name */
@@ -1975,17 +1996,17 @@
       },
       menu_principal: {
         hint: 'Sugestão: <code>[Input_Cliente]</code> ou a opção selecionada (ex: <code>Opcao_Selecionada</code>)',
-        options: ['[Input_Cliente]'],
+        options: ['Silencio', 'Else_Invalido', 'Repete_Opcoes', 'Repete_Opcoes_Silencio', 'Repete_Opcoes_Else_Invalido',],
         strict: false
       },
       menu_outros_assuntos: {
         hint: 'Sugestão: <code>[Input_Cliente]</code> ou a opção selecionada',
-        options: ['[Input_Cliente]'],
+        options: ['Silencio', 'Else_Invalido', 'Repete_Opcoes', 'Repete_Opcoes_Silencio', 'Repete_Opcoes_Else_Invalido',],
         strict: false
       },
       menu_dinamico: {
         hint: 'Sugestão: <code>[Input_Cliente]</code> ou a opção selecionada',
-        options: ['[Input_Cliente]'],
+        options: ['Silencio', 'Else_Invalido', 'Repete_Opcoes', 'Repete_Opcoes_Silencio', 'Repete_Opcoes_Else_Invalido',],
         strict: false
       },
       autosservico: {
@@ -2091,7 +2112,7 @@
       },
       submenu: {
         hint: 'Sugestão: <code>[opção selecionada pelo cliente]</code>',
-        options: [],
+        options: ['Silencio', 'Else_Invalido', 'Repete_Opcoes', 'Repete_Opcoes_Silencio', 'Repete_Opcoes_Else_Invalido',],
         strict: false
       },
       oferta_incentivo_hsm: {
@@ -2105,9 +2126,9 @@
         strict: false
       },
       encaminhado_transferencia_humano: {
-        hint: 'Sugestão: <code>[motivo do encaminhamento para transfere operacao]</code>',
-        options: [],
-        strict: false
+        hint: 'Atenção: Para transferência é obrigatório <code>[Operacao_Destino]</code>',
+        options: ['[Operacao_Destino]'],
+        strict: true
       },
       encaminhado_transfere_externo: {
         hint: 'Sugestão: <code>[motivo do encaminhamento para transfere externo]</code>',
@@ -2121,12 +2142,12 @@
       },
       submenu_desambiguacao: {
         hint: 'Sugestão: <code>[opção selecionada pelo cliente]</code>',
-        options: [],
+        options: ['Silencio', 'Else_Invalido', 'Repete_Opcoes', 'Repete_Opcoes_Silencio', 'Repete_Opcoes_Else_Invalido',],
         strict: false
       },
       encaminhado_finaliza_chamada: {
         hint: 'Sugestão: <code>[motivo do encaminhamento para finaliza_chamada]</code>',
-        options: [],
+        options: ['Else_Invalido', 'Silencio', 'Escolheu_Encerramento', 'Passou_Pela_Pesquisa'],
         strict: false
       },
       retorno_api: {
@@ -2136,7 +2157,7 @@
       },
       menu_chute: {
         hint: 'Sugestão: <code>[opção selecionada pelo cliente]</code>',
-        options: [],
+        options: ['Silencio', 'Else_Invalido', 'Repete_Opcoes', 'Repete_Opcoes_Silencio', 'Repete_Opcoes_Else_Invalido',],
         strict: false
       },
       submenu_reconhecimento_voz: {
@@ -2158,6 +2179,34 @@
         hint: 'Sugestão: <code>[qual a oferta]</code>',
         options: [],
         strict: false
+      },
+      coleta_dados: {
+        hint: 'Sugestão: <code>[[Nome do documento, ex.: cpf, cnpj, cod corretor, telefone e etc]</code>',
+        options: ['Silencio', 'Else_Invalido', 'Repete_Opcoes', 'Repete_Opcoes_Silencio', 'Repete_Opcoes_Else_Invalido',],
+        strict: false
+      },
+      menu_validacao: {
+        hint: 'Sugestão: <code>[Input/Opção Selecionada Pelo Cliente]</code>',
+        options: ['Silencio', 'Else_Invalido', 'Repete_Opcoes', 'Repete_Opcoes_Silencio', 'Repete_Opcoes_Else_Invalido',],
+        strict: false
+      }
+    };
+
+    /* Mapa de dicas, sugestões e obrigatoriedade de Ponto_Origem por event_name */
+    const PONTO_ORIGEM_SUGESTOES_POR_EVENTO = {
+      chamada_api: {
+        hint: 'Sugestão: <code>[Nome_Da_Api]</code> — adicionar um nome curto, claro e objetivo para a API com base na marcação no Miro. Ex: <code>Consulta_Telefone</code>, <code>Get_Last_Card</code>, <code>Account_Customers</code>...',
+        options: [],
+        strict: true,
+        requiredNonEmpty: true,
+        badgeErro: 'Exige [Nome_Da_Api]'
+      },
+      retorno_api: {
+        hint: 'Sugestão: <code>[Nome_Da_Api]</code> — adicionar um nome curto, claro e objetivo para a API com base na marcação no Miro. Ex: <code>Consulta_Telefone</code>, <code>Get_Last_Card</code>, <code>Account_Customers</code>...',
+        options: [],
+        strict: true,
+        requiredNonEmpty: true,
+        badgeErro: 'Exige [Nome_Da_Api]'
       }
     };
 
@@ -2417,15 +2466,17 @@
 
     function lerValidadoresAtivos() {
       return {
-        obrigatorios:    document.getElementById('chkValObrigatorios').checked,
-        duplicados:      document.getElementById('chkValDuplicados').checked,
-        eventList:       document.getElementById('chkValEventList').checked,
-        eventFormat:     document.getElementById('chkValEventFormat').checked,
-        apiRules:        document.getElementById('chkValApiRules').checked,
-        range:           document.getElementById('chkValRange').checked,
-        validacaoFormat: document.getElementById('chkValValidacaoFormat').checked,
-        menuInput:       document.getElementById('chkValMenuInput').checked,
-        sameFluxo:       document.getElementById('chkValSameFluxo').checked
+        obrigatorios:       document.getElementById('chkValObrigatorios').checked,
+        duplicados:         document.getElementById('chkValDuplicados').checked,
+        eventList:          document.getElementById('chkValEventList').checked,
+        eventFormat:        document.getElementById('chkValEventFormat').checked,
+        apiRules:           document.getElementById('chkValApiRules').checked,
+        pontoOrigemRules:   document.getElementById('chkValPontoOrigemRules').checked,
+        numericoRangePonto: document.getElementById('chkValNumericoRangePonto').checked,
+        range:              document.getElementById('chkValRange').checked,
+        validacaoFormat:    document.getElementById('chkValValidacaoFormat').checked,
+        menuInput:          document.getElementById('chkValMenuInput').checked,
+        sameFluxo:          document.getElementById('chkValSameFluxo').checked
       };
     }
 
@@ -2457,11 +2508,18 @@
     /* =========================================================
        5) FUNÇÕES DE VALIDAÇÃO DAS REGRAS DE NEGÓCIO
        ========================================================= */
+    function validaNumerico(valor) {
+      if (!valor) return true;
+      return /^\d+$/.test(String(valor).trim());
+    }
+
     function validaRangeCondiz(pontoStr, rangeStr) {
       if (!pontoStr || !rangeStr) return true;
-      const numPonto = parseInt(String(pontoStr).replace(/\D/g, ''), 10);
-      const numRange = parseInt(String(rangeStr).replace(/\D/g, ''), 10);
-      if (isNaN(numPonto) || isNaN(numRange)) return true;
+      const p = String(pontoStr).trim();
+      const r = String(rangeStr).trim();
+      if (!/^\d+$/.test(p) || !/^\d+$/.test(r)) return true;
+      const numPonto = parseInt(p, 10);
+      const numRange = parseInt(r, 10);
       if (numPonto >= 1000 && numRange >= 1000) {
         return Math.floor(numPonto / 1000) === Math.floor(numRange / 1000);
       }
@@ -2502,7 +2560,7 @@
         return false;
       }
 
-      return e.includes('menu') || e.includes('submenu');
+      return e.includes('menu') || e.includes('submenu') || e.includes('coleta_dados');
     }
 
     // Verifica se o valor da Validacao atende à regra estrita do event_name (quando houver)
@@ -2525,6 +2583,41 @@
           tooltip: `Para event_name "${evVal}", o campo Validacao deve ser: ${regra.options.join(' ou ')}.`
         };
       }
+      return null;
+    }
+
+    // Verifica se o valor de Ponto_Origem atende à regra estrita/obrigatória do event_name (quando houver)
+    function validarRegraEstritaPontoOrigemPorEvento(evVal, pontoOrigemVal) {
+      if (!evVal) return null;
+      const regra = PONTO_ORIGEM_SUGESTOES_POR_EVENTO[evVal.toLowerCase()];
+      if (!regra || !regra.strict) return null;
+
+      const valorLimpo = String(pontoOrigemVal || '').trim();
+
+      if (regra.options && regra.options.length > 0) {
+        const atende = regra.options.some(opt => {
+          if (regra.caseInsensitive) {
+            return opt.toLowerCase() === valorLimpo.toLowerCase();
+          }
+          return opt === valorLimpo;
+        });
+
+        if (!atende) {
+          return {
+            badge: regra.badgeErro || `Exige ${regra.options.join(' / ')}`,
+            tooltip: `Para event_name "${evVal}", o campo Ponto_Origem deve ser: ${regra.options.join(' ou ')}.`
+          };
+        }
+        return null;
+      }
+
+      if (regra.requiredNonEmpty && !valorLimpo) {
+        return {
+          badge: regra.badgeErro || 'Obrigatório',
+          tooltip: `Para event_name "${evVal}", o campo Ponto_Origem é obrigatório (ex: Consulta_Telefone, Get_Last_Card, Account_Customers).`
+        };
+      }
+
       return null;
     }
 
@@ -2553,23 +2646,131 @@
       validacaoPopover.style.left = `${left}px`;
     }
 
-    function mostrarPopoverSugestaoValidacao(rowIndex, anchorEl) {
+    function calcularSimilaridadeEvento(evento, consulta) {
+      if (!consulta) return 100;
+      const ev = evento.toLowerCase();
+      const q = consulta.toLowerCase();
+
+      // 1) Correspondência exata ou começo exato (ex: "men" -> "menu_principal", "menu_outros_assuntos"...)
+      if (ev.startsWith(q)) {
+        return 1000 - ev.length;
+      }
+
+      // 2) Alguma parte separada por "_" começa com a consulta (ex: "api" -> "chamada_api", "retorno_api")
+      const partes = ev.split('_');
+      if (partes.some(p => p.startsWith(q))) {
+        return 700 - ev.length;
+      }
+
+      // 3) Substring direta em qualquer posição
+      if (ev.includes(q)) {
+        return 500 - ev.indexof(q);
+      }
+
+      // 4) Similaridade por caracteres na mesma ordem (ex: "mnp" -> "menu_principal")
+      let pos = 0;
+      let matches = 0;
+      for (let i = 0; i < q.length; i++) {
+        const idx = ev.indexof(q[i], pos);
+        if (idx !== -1) {
+          matches++;
+          pos = idx + 1;
+        }
+      }
+      if (q.length >= 2 && matches === q.length) {
+        return 250 + matches * 10 - (pos - matches);
+      }
+
+      return -1;
+    }
+
+    function obterSugestoesEventName(valorAtual) {
+      const listaOficial = Array.from(EVENT_NAMES_OFICIAIS);
+      const q = String(valorAtual || '').trim().toLowerCase();
+
+      if (!q) {
+        return {
+          badgeText: `${listaOficial.length} disponíveis`,
+          badgeClass: 'hint',
+          strict: false,
+          hint: 'Campo vazio: clique em um <code>event_name</code> disponível ou continue digitando (ex: <code>men</code>, <code>api</code>, <code>transfere</code>).',
+          options: listaOficial
+        };
+      }
+
+      const ranqueados = listaOficial
+        .map(ev => ({ ev, score: calcularSimilaridadeEvento(ev, q) }))
+        .filter(item => item.score >= 0)
+        .sort((a, b) => b.score - a.score || a.ev.localeCompare(b.ev));
+
+      if (ranqueados.length > 0) {
+        return {
+          badgeText: `${ranqueados.length} sugestão(ões)`,
+          badgeClass: 'hint',
+          strict: false,
+          hint: `Sugestões para <code>${escapeHtml(q)}</code> (clique para preencher):`,
+          options: ranqueados.map(r => r.ev)
+        };
+      }
+
+      return {
+        badgeText: 'Sem correspondência',
+        badgeClass: 'strict',
+        strict: true,
+        hint: `Nenhum event_name oficial semelhante a <code>${escapeHtml(q)}</code>. Veja os disponíveis abaixo:`,
+        options: listaOficial
+      };
+    }
+
+    function mostrarPopoverSugestaoCampo(rowIndex, colKey, anchorEl, valorAoVivo) {
       clearTimeout(popoverHideTimer);
       const tag = registrosAtuais[rowIndex];
       if (!tag) return;
 
       const evName = String(tag.event_name || '').trim().toLowerCase();
-      const cfg = VALIDACAO_SUGESTOES_POR_EVENTO[evName] || {
-        hint: 'Padrão: iniciais maiúsculas separadas por <code>_</code> (ex: <code>Nome_Validacao</code>) ou entre colchetes <code>[...]</code>.',
-        options: [],
-        strict: false
-      };
+      let cfg = null;
+      let nomeCampoLabel = '';
+      let tipoBadge = '';
+
+      if (colKey === 'event_name') {
+        nomeCampoLabel = 'event_name';
+        const atual = valorAoVivo !== undefined ? valorAoVivo : String(tag.event_name || '').trim();
+        const sug = obterSugestoesEventName(atual);
+        cfg = {
+          hint: sug.hint,
+          options: sug.options,
+          strict: sug.strict
+        };
+        tipoBadge = `<span class="val-pop-tag ${sug.badgeClass}">${escapeHtml(sug.badgeText)}</span>`;
+      } else if (colKey === 'validacao') {
+        nomeCampoLabel = 'Validacao';
+        cfg = VALIDACAO_SUGESTOES_POR_EVENTO[evName] || {
+          hint: 'Padrão: iniciais maiúsculas separadas por <code>_</code> (ex: <code>Nome_Validacao</code>) ou entre colchetes <code>[...]</code>.',
+          options: [],
+          strict: false
+        };
+        tipoBadge = cfg.strict
+          ? `<span class="val-pop-tag strict">Obrigatório</span>`
+          : `<span class="val-pop-tag hint">Sugestão</span>`;
+      } else if (colKey === 'ponto_origem') {
+        nomeCampoLabel = 'Ponto_Origem';
+        cfg = PONTO_ORIGEM_SUGESTOES_POR_EVENTO[evName] || {
+          hint: 'Campo de origem do ponto (preencha conforme marcação no Miro, quando aplicável para este <code>event_name</code>).',
+          options: [],
+          strict: false
+        };
+        tipoBadge = cfg.strict
+          ? `<span class="val-pop-tag strict">Obrigatório</span>`
+          : `<span class="val-pop-tag hint">Sugestão</span>`;
+      } else {
+        return;
+      }
 
       validacaoPopover.classList.toggle('popover-strict', Boolean(cfg.strict));
 
-      const tipoBadge = cfg.strict
-        ? `<span class="val-pop-tag strict">Obrigatório</span>`
-        : `<span class="val-pop-tag hint">Sugestão</span>`;
+      const contextoHeader = colKey === 'event_name'
+        ? (valorAoVivo !== undefined && String(valorAoVivo).trim() ? String(valorAoVivo).trim() : (tag.event_name || '(vazio)'))
+        : (evName || '(vazio)');
 
       let botoesHtml = '';
       if (cfg.options && cfg.options.length > 0) {
@@ -2581,7 +2782,7 @@
 
       validacaoPopover.innerHTML = `
         <div class="val-pop-header">
-          <span>💡 event_name: <code>${escapeHtml(evName || '(vazio)')}</code></span>
+          <span>💡 ${escapeHtml(nomeCampoLabel)} • <code>${escapeHtml(contextoHeader)}</code></span>
           ${tipoBadge}
         </div>
         <div class="val-pop-hint-text">${cfg.hint}</div>
@@ -2593,7 +2794,7 @@
         btn.addEventListener('mousedown', function (e) {
           e.preventDefault(); // Evita perder foco antes de aplicar
           const valorEscolhido = this.getAttribute('data-select-val') || '';
-          aplicarValorCampoSincronizado(rowIndex, 'validacao', valorEscolhido);
+          aplicarValorCampoSincronizado(rowIndex, colKey, valorEscolhido);
           esconderPopoverSugestaoValidacao();
         });
       });
@@ -2852,9 +3053,16 @@
     function atualizarModoVisualizacaoUI() {
       const wrapperTabela = document.getElementById('wrapperTabela');
       const outputCards   = document.getElementById('output');
+      const btnPdfEl      = document.getElementById('btnPdf');
 
       btnViewLinhas.classList.toggle('active', modoVisualizacao === 'linhas');
       btnViewCaixinhas.classList.toggle('active', modoVisualizacao === 'caixinhas');
+
+      if (btnPdfEl) {
+        btnPdfEl.title = modoVisualizacao === 'caixinhas'
+          ? 'Exportar PDF em formato de Caixinhas (Blocos)'
+          : 'Exportar PDF em formato de Linhas (Planilha)';
+      }
 
       if (wrapperTabela) {
         wrapperTabela.classList.toggle('hidden', modoVisualizacao !== 'linhas');
@@ -2968,13 +3176,14 @@
         });
 
         span.addEventListener('focus', function () {
-          if (colKey === 'validacao') {
-            mostrarPopoverSugestaoValidacao(idx, span);
+          if (colKey === 'event_name' || colKey === 'validacao' || colKey === 'ponto_origem') {
+            const valorAtual = span.textContent.replace(/[\r\n\t]+/g, ' ').trim();
+            mostrarPopoverSugestaoCampo(idx, colKey, span, valorAtual);
           }
         });
 
         span.addEventListener('blur', function () {
-          if (colKey === 'validacao') {
+          if (colKey === 'event_name' || colKey === 'validacao' || colKey === 'ponto_origem') {
             agendarEsconderPopover();
           }
         });
@@ -2983,8 +3192,9 @@
           const novoValor = span.textContent.replace(/[\r\n\t]+/g, ' ').trim();
           aplicarValorCampoSincronizado(idx, colKey, novoValor, span);
           if (colKey === 'event_name') {
-            // Se mudou o event_name, revalida imediatamente
+            // Se mudou o event_name, revalida imediatamente e atualiza sugestões ao vivo
             revalidarTabelaExistente(false);
+            mostrarPopoverSugestaoCampo(idx, 'event_name', span, novoValor);
           }
         });
 
@@ -3118,13 +3328,14 @@
           badgesContainer.className = 'cell-badges';
 
           editor.addEventListener('focus', function () {
-            if (campo.key === 'validacao') {
-              mostrarPopoverSugestaoValidacao(idx, editor);
+            if (campo.key === 'event_name' || campo.key === 'validacao' || campo.key === 'ponto_origem') {
+              const valorAtual = editor.textContent.replace(/[\r\n\t]+/g, ' ').trim();
+              mostrarPopoverSugestaoCampo(idx, campo.key, editor, valorAtual);
             }
           });
 
           editor.addEventListener('blur', function () {
-            if (campo.key === 'validacao') {
+            if (campo.key === 'event_name' || campo.key === 'validacao' || campo.key === 'ponto_origem') {
               agendarEsconderPopover();
             }
           });
@@ -3132,6 +3343,9 @@
           editor.addEventListener('input', function () {
             const novoValor = editor.textContent.replace(/[\r\n\t]+/g, ' ').trim();
             aplicarValorCampoSincronizado(idx, campo.key, novoValor, editor);
+            if (campo.key === 'event_name') {
+              mostrarPopoverSugestaoCampo(idx, 'event_name', editor, novoValor);
+            }
           });
 
           editor.addEventListener('keydown', function (e) {
@@ -3227,7 +3441,7 @@
       });
       const fluxosDistintos = Object.keys(contagemFluxos);
 
-      let countCamposVazios = 0, countEventInvalido = 0, countApiRegraErr = 0, countRangeErr = 0, countValidacaoWarn = 0, countMenuInputWarn = 0, countFluxoWarn = 0;
+      let countCamposVazios = 0, countEventInvalido = 0, countApiRegraErr = 0, countPontoOrigemErr = 0, countNumericoErr = 0, countRangeErr = 0, countValidacaoWarn = 0, countMenuInputWarn = 0, countFluxoWarn = 0;
       const issuesPorLinha = [];
       const linhasDOM = tabela.querySelectorAll('tbody tr');
 
@@ -3239,6 +3453,7 @@
         const rangeVal = String(tag.range || '').trim();
         const pontoVal = String(tag.ponto || '').trim();
         const inputVal = String(tag.input || '').trim();
+        const pontoOrigemVal = String(tag.ponto_origem || '').trim();
 
         let rowHasError = false, rowHasWarning = false;
         const cellIssues = {};
@@ -3264,6 +3479,25 @@
         if (Regras.apiRules && erroEstrito) {
           addIssue('validacao', 'error', erroEstrito.badge, erroEstrito.tooltip);
           countApiRegraErr++;
+        }
+
+        // Validação Estrita / Obrigatória de Ponto_Origem (Regra do evento)
+        const erroPontoOrigem = validarRegraEstritaPontoOrigemPorEvento(evVal, pontoOrigemVal);
+        if (Regras.pontoOrigemRules && erroPontoOrigem) {
+          addIssue('ponto_origem', 'error', erroPontoOrigem.badge, erroPontoOrigem.tooltip);
+          countPontoOrigemErr++;
+        }
+
+        // Validação Numérica Obrigatória para Range e Ponto
+        if (Regras.numericoRangePonto) {
+          if (rangeVal && !validaNumerico(rangeVal)) {
+            addIssue('range', 'error', 'Numérico', 'O campo Range deve conter apenas números (ex: 60000).');
+            countNumericoErr++;
+          }
+          if (pontoVal && !validaNumerico(pontoVal)) {
+            addIssue('ponto', 'error', 'Numérico', 'O campo Ponto deve conter apenas números (ex: 60010).');
+            countNumericoErr++;
+          }
         }
 
         if (Regras.duplicados && pontoVal && contagemPontos[pontoVal] > 1) addIssue('ponto', 'error', 'Duplicado', `Ponto ${pontoVal} duplicado`);
@@ -3334,10 +3568,22 @@
         );
       }
 
-      if (totalEventosForaPadrao > 0 || countApiRegraErr > 0) {
+      if (totalEventosForaPadrao > 0 || countApiRegraErr > 0 || countPontoOrigemErr > 0) {
+        const detalhesApi = [];
+        if (totalEventosForaPadrao) detalhesApi.push(`${totalEventosForaPadrao} evento(s) fora da lista/formato`);
+        if (countApiRegraErr) detalhesApi.push(`${countApiRegraErr} erro(s) em Validacao`);
+        if (countPontoOrigemErr) detalhesApi.push(`${countPontoOrigemErr} erro(s) em Ponto_Origem`);
+
         adicionarAlertaTopo(
           'alerta-topo--danger',
-          `<span>🔴 <strong>Erros de Event_Name / Regras de API:</strong> ${totalEventosForaPadrao} evento(s) fora da lista/formato e ${countApiRegraErr} erro(s) em chamada_api/retorno_api.</span>`
+          `<span>🔴 <strong>Erros de Event_Name / Regras por Evento:</strong> ${detalhesApi.join(' • ')}.</span>`
+        );
+      }
+
+      if (countNumericoErr > 0) {
+        adicionarAlertaTopo(
+          'alerta-topo--danger',
+          `<span>🔴 <strong>Range / Ponto Não Numéricos (${countNumericoErr}):</strong> As colunas <code>Range</code> e <code>Ponto</code> devem conter apenas números.</span>`
         );
       }
 
@@ -3495,6 +3741,230 @@
       XLSX.writeFile(wb, 'Tagueamentos_Planilha.xlsx');
     });
 
+    function exportarPdfEmCaixinhas(doc, trs, dataHora) {
+      const pageW = doc.internal.pageSize.getWidth();
+      const pageH = doc.internal.pageSize.getHeight();
+      const marginX = 10;
+      const headerBottomY = 21;
+      const footerTopY = pageH - 10;
+      const colsPerRow = 3;
+      const gapX = 5;
+      const gapY = 5.5;
+      const cardW = (pageW - marginX * 2 - gapX * (colsPerRow - 1)) / colsPerRow;
+
+      const cardPadX = 3.2;
+      const cardPadTop = 3.5;
+      const cardPadBottom = 3.0;
+      const badgeAreaH = 7.8;
+      const labelColW = 24.5;
+      const valueMaxW = cardW - (cardPadX * 2) - labelColW - 2;
+      const lineH = 3.4;
+      const rowPadY = 1.05;
+
+      function desenharCabecalhoPagina() {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(13);
+        doc.setTextColor(0, 70, 166);
+        doc.text('Relatório de Tagueamento (Caixinhas) - Ura Tools', marginX, 11);
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8.5);
+        doc.setTextColor(100);
+        doc.text(`Gerado em: ${dataHora}  •  Total exibido: ${trs.length} ponto(s)`, marginX, 16);
+
+        doc.setDrawColor(210, 222, 238);
+        doc.setLineWidth(0.25);
+        doc.line(marginX, 18.2, pageW - marginX, 18.2);
+      }
+
+      // Pré-calcula layout e altura de cada caixinha para alinhar perfeitamente as fileiras
+      const cardsData = trs.map((tr) => {
+        const idx = parseInt(tr.dataset.rowIndex, 10);
+        const numLinha = isNaN(idx) ? '' : (idx + 1);
+        const rowStatus = tr.dataset.status || 'ok';
+        const tds = Array.from(tr.querySelectorAll('td[data-col-key]'));
+        const valoresPorCol = {};
+        const issuesPorCol = {};
+
+        tds.forEach(td => {
+          valoresPorCol[td.dataset.colKey] = extrairValorLimpoCelula(td);
+          issuesPorCol[td.dataset.colKey] = td.dataset.issueLevel || null;
+        });
+
+        doc.setFont('courier', 'normal');
+        doc.setFontSize(7.2);
+
+        const rows = COLUNAS.map(campo => {
+          const rawVal = String(valoresPorCol[campo.key] || '').trim();
+          const issueLevel = issuesPorCol[campo.key];
+          const displayVal = rawVal || (issueLevel === 'error' ? '(vazio)' : '—');
+          const wrapped = doc.splitTextToSize(displayVal, valueMaxW);
+          const rowH = Math.max(lineH, wrapped.length * lineH) + (rowPadY * 2);
+          return {
+            nome: campo.nome,
+            rawVal,
+            displayVal,
+            wrapped,
+            issueLevel,
+            rowH
+          };
+        });
+
+        const totalRowsH = rows.reduce((acc, r) => acc + r.rowH, 0);
+        const cardH = cardPadTop + badgeAreaH + totalRowsH + cardPadBottom;
+        const pontoVal = String(valoresPorCol.ponto || '').trim();
+        const badgeText = pontoVal ? `Ponto ${pontoVal}` : `Sem Ponto (#${numLinha})`;
+
+        return {
+          numLinha,
+          rowStatus,
+          badgeText,
+          rows,
+          cardH
+        };
+      });
+
+      desenharCabecalhoPagina();
+      let cursorY = headerBottomY;
+
+      for (let i = 0; i < cardsData.length; i += colsPerRow) {
+        const fila = cardsData.slice(i, i + colsPerRow);
+        const maxCardH = Math.max.apply(null, fila.map(c => c.cardH));
+
+        if (cursorY + maxCardH > footerTopY && cursorY > headerBottomY) {
+          doc.addPage();
+          desenharCabecalhoPagina();
+          cursorY = headerBottomY;
+        }
+
+        fila.forEach((card, colIdx) => {
+          const x = marginX + colIdx * (cardW + gapX);
+          const y = cursorY;
+          const h = maxCardH;
+
+          // Cores base do card conforme status (normal, erro, alerta)
+          let bgColor = [255, 255, 255];
+          let borderColor = [205, 218, 235];
+          let accentColor = [0, 70, 166];
+
+          if (card.rowStatus === 'error') {
+            bgColor = [255, 248, 248];
+            borderColor = [239, 154, 154];
+            accentColor = [211, 47, 47];
+          } else if (card.rowStatus === 'warning') {
+            bgColor = [255, 253, 245];
+            borderColor = [245, 198, 92];
+            accentColor = [245, 158, 11];
+          }
+
+          // Fundo e borda arredondada da caixinha
+          doc.setFillColor(bgColor[0], bgColor[1], bgColor[2]);
+          doc.setDrawColor(borderColor[0], borderColor[1], borderColor[2]);
+          doc.setLineWidth(0.3);
+          doc.roundedRect(x, y, cardW, h, 2.2, 2.2, 'FD');
+
+          // Faixa lateral esquerda colorida (identidade visual da caixinha)
+          doc.setFillColor(accentColor[0], accentColor[1], accentColor[2]);
+          doc.roundedRect(x, y, 1.8, h, 1.0, 1.0, 'F');
+
+          // Badge do Ponto no topo da caixinha
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(7.8);
+          const badgeTextW = doc.getTextWidth(card.badgeText);
+          const pillW = Math.min(cardW - 18, badgeTextW + 7);
+          const pillH = 5.4;
+          const pillX = x + cardPadX + 1.2;
+          const pillY = y + cardPadTop;
+
+          doc.setFillColor(0, 70, 166);
+          doc.roundedRect(pillX, pillY, pillW, pillH, 2.5, 2.5, 'F');
+          doc.setTextColor(255, 255, 255);
+          doc.text(card.badgeText, pillX + 3.5, pillY + 3.7);
+
+          // Índice (#N) no canto superior direito da caixinha
+          if (card.numLinha !== '') {
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(7.2);
+            doc.setTextColor(125, 138, 155);
+            doc.text(`#${card.numLinha}`, x + cardW - cardPadX, pillY + 3.7, { align: 'right' });
+          }
+
+          // Linhas de campos dentro da caixinha
+          let rowY = y + cardPadTop + badgeAreaH;
+          const contentX = x + cardPadX + 1.2;
+          const contentW = cardW - (cardPadX * 2) - 1.2;
+
+          card.rows.forEach((row, rIdx) => {
+            if (row.issueLevel === 'error') {
+              doc.setFillColor(254, 226, 226);
+              doc.roundedRect(contentX - 0.8, rowY, contentW + 1.6, row.rowH - 0.3, 0.8, 0.8, 'F');
+            } else if (row.issueLevel === 'warning') {
+              doc.setFillColor(254, 243, 199);
+              doc.roundedRect(contentX - 0.8, rowY, contentW + 1.6, row.rowH - 0.3, 0.8, 0.8, 'F');
+            }
+
+            const textBaseY = rowY + rowPadY + 2.4;
+
+            // Nome do campo
+            doc.setFont('courier', 'bold');
+            doc.setFontSize(7.0);
+            doc.setTextColor(0, 70, 166);
+            doc.text(`${row.nome}:`, contentX, textBaseY);
+
+            // Valor do campo (alinhado à direita)
+            const isPlaceholder = /^\[.+\]$/.test(row.rawVal);
+            if (row.issueLevel === 'error') {
+              doc.setFont('courier', 'bold');
+              doc.setTextColor(185, 28, 28);
+            } else if (row.issueLevel === 'warning') {
+              doc.setFont('courier', 'bold');
+              doc.setTextColor(146, 64, 14);
+            } else if (!row.rawVal) {
+              doc.setFont('courier', 'normal');
+              doc.setTextColor(170, 170, 170);
+            } else if (isPlaceholder) {
+              doc.setFont('courier', 'bold');
+              doc.setTextColor(0, 116, 59);
+            } else {
+              doc.setFont('courier', 'normal');
+              doc.setTextColor(45, 45, 45);
+            }
+
+            doc.setFontSize(7.1);
+            row.wrapped.forEach((linhaTxt, lIdx) => {
+              doc.text(linhaTxt, contentX + contentW, textBaseY + (lIdx * lineH), { align: 'right' });
+            });
+
+            // Linha divisória sutil entre campos
+            if (rIdx < card.rows.length - 1) {
+              doc.setDrawColor(232, 238, 246);
+              doc.setLineWidth(0.15);
+              doc.line(contentX, rowY + row.rowH - 0.15, contentX + contentW, rowY + row.rowH - 0.15);
+            }
+
+            rowY += row.rowH;
+          });
+        });
+
+        cursorY += maxCardH + gapY;
+      }
+
+      // Rodapé com numeração correta "Página X de Y" em todas as páginas
+      const totalPages = doc.internal.getNumberOfPages();
+      for (let p = 1; p <= totalPages; p++) {
+        doc.setPage(p);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8);
+        doc.setTextColor(130);
+        doc.text(
+          `Página ${p} de ${totalPages}`,
+          pageW - marginX,
+          pageH - 5,
+          { align: 'right' }
+        );
+      }
+    }
+
     document.getElementById('btnPdf').addEventListener('click', function () {
       const tabela = document.getElementById('tabelaDados');
       if (!tabela) return;
@@ -3503,7 +3973,7 @@
         alert('Biblioteca jsPDF não carregada. Verifique sua conexão.');
         return;
       }
-      if (typeof window.jspdf.jsPDF.API.autoTable !== 'function') {
+      if (modoVisualizacao === 'linhas' && typeof window.jspdf.jsPDF.API.autoTable !== 'function') {
         alert('O complemento AutoTable do PDF não foi carregado. Verifique sua conexão.');
         return;
       }
@@ -3521,100 +3991,104 @@
         });
 
         const dataHora = new Date().toLocaleString('pt-BR');
-
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(13);
-        doc.setTextColor(0, 70, 166);
-        doc.text('Relatório de Tagueamento (Planilha) - Ura Tools', 10, 11);
-
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(8.5);
-        doc.setTextColor(100);
-        doc.text(`Gerado em: ${dataHora}`, 10, 16);
-
-        const headers = [['#'].concat(COLUNAS.map(c => c.nome))];
-
-        const bodyRows = [];
-        const cellMeta = [];
-
         const trs = Array.from(tabela.querySelectorAll('tbody tr')).filter(
           tr => !tr.classList.contains('linha-oculta')
         );
 
-        trs.forEach((tr) => {
-          const numLinha = ( parseInt(tr.dataset.rowIndex, 10) + 1 ) || '';
-          const tds = Array.from(tr.querySelectorAll('td[data-col-key]'));
-          const rowValues = [String(numLinha)].concat(tds.map(extrairValorLimpoCelula));
-          const rowStyles = [null].concat(tds.map(td => td.dataset.issueLevel || null));
-          bodyRows.push(rowValues);
-          cellMeta.push({
-            rowStatus: tr.dataset.status || 'ok',
-            colLevels: rowStyles
+        if (modoVisualizacao === 'caixinhas') {
+          exportarPdfEmCaixinhas(doc, trs, dataHora);
+          doc.save(`Tagueamentos_Caixinhas_${Date.now()}.pdf`);
+        } else {
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(13);
+          doc.setTextColor(0, 70, 166);
+          doc.text('Relatório de Tagueamento (Planilha) - Ura Tools', 10, 11);
+
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(8.5);
+          doc.setTextColor(100);
+          doc.text(`Gerado em: ${dataHora}`, 10, 16);
+
+          const headers = [['#'].concat(COLUNAS.map(c => c.nome))];
+
+          const bodyRows = [];
+          const cellMeta = [];
+
+          trs.forEach((tr) => {
+            const numLinha = ( parseInt(tr.dataset.rowIndex, 10) + 1 ) || '';
+            const tds = Array.from(tr.querySelectorAll('td[data-col-key]'));
+            const rowValues = [String(numLinha)].concat(tds.map(extrairValorLimpoCelula));
+            const rowStyles = [null].concat(tds.map(td => td.dataset.issueLevel || null));
+            bodyRows.push(rowValues);
+            cellMeta.push({
+              rowStatus: tr.dataset.status || 'ok',
+              colLevels: rowStyles
+            });
           });
-        });
 
-        doc.autoTable({
-          head: headers,
-          body: bodyRows,
-          startY: 20,
-          margin: { top: 15, right: 8, bottom: 12, left: 8 },
-          styles: {
-            font: 'courier',
-            fontSize: 7.0,
-            cellPadding: 1.8,
-            overflow: 'linebreak',
-            lineColor: [215, 222, 230],
-            lineWidth: 0.15,
-            textColor: [40, 40, 40]
-          },
-          headStyles: {
-            font: 'helvetica',
-            fontStyle: 'bold',
-            fillColor: [0, 70, 166],
-            textColor: [255, 255, 255],
-            fontSize: 7.3
-          },
-          alternateRowStyles: {
-            fillColor: [246, 249, 252]
-          },
-          didParseCell: function (data) {
-            if (data.section === 'body') {
-              const meta = cellMeta[data.row.index];
-              if (!meta) return;
+          doc.autoTable({
+            head: headers,
+            body: bodyRows,
+            startY: 20,
+            margin: { top: 15, right: 8, bottom: 12, left: 8 },
+            styles: {
+              font: 'courier',
+              fontSize: 7.0,
+              cellPadding: 1.8,
+              overflow: 'linebreak',
+              lineColor: [215, 222, 230],
+              lineWidth: 0.15,
+              textColor: [40, 40, 40]
+            },
+            headStyles: {
+              font: 'helvetica',
+              fontStyle: 'bold',
+              fillColor: [0, 70, 166],
+              textColor: [255, 255, 255],
+              fontSize: 7.3
+            },
+            alternateRowStyles: {
+              fillColor: [246, 249, 252]
+            },
+            didParseCell: function (data) {
+              if (data.section === 'body') {
+                const meta = cellMeta[data.row.index];
+                if (!meta) return;
 
-              if (meta.rowStatus === 'error') {
-                data.cell.styles.fillColor = [255, 241, 240];
-              } else if (meta.rowStatus === 'warning') {
-                data.cell.styles.fillColor = [255, 251, 235];
+                if (meta.rowStatus === 'error') {
+                  data.cell.styles.fillColor = [255, 241, 240];
+                } else if (meta.rowStatus === 'warning') {
+                  data.cell.styles.fillColor = [255, 251, 235];
+                }
+
+                const colLevel = meta.colLevels[data.column.index];
+                if (colLevel === 'error') {
+                  data.cell.styles.fillColor = [239, 68, 68];
+                  data.cell.styles.textColor = [255, 255, 255];
+                  data.cell.styles.fontStyle = 'bold';
+                } else if (colLevel === 'warning') {
+                  data.cell.styles.fillColor = [245, 158, 11];
+                  data.cell.styles.textColor = [255, 255, 255];
+                  data.cell.styles.fontStyle = 'bold';
+                }
               }
-
-              const colLevel = meta.colLevels[data.column.index];
-              if (colLevel === 'error') {
-                data.cell.styles.fillColor = [239, 68, 68];
-                data.cell.styles.textColor = [255, 255, 255];
-                data.cell.styles.fontStyle = 'bold';
-              } else if (colLevel === 'warning') {
-                data.cell.styles.fillColor = [245, 158, 11];
-                data.cell.styles.textColor = [255, 255, 255];
-                data.cell.styles.fontStyle = 'bold';
-              }
+            },
+            didDrawPage: function (data) {
+              const pageCount = doc.internal.getNumberOfPages();
+              doc.setFont('helvetica', 'normal');
+              doc.setFontSize(8);
+              doc.setTextColor(130);
+              doc.text(
+                `Página ${data.pageNumber} de ${pageCount}`,
+                doc.internal.pageSize.getWidth() - 10,
+                doc.internal.pageSize.getHeight() - 5,
+                { align: 'right' }
+              );
             }
-          },
-          didDrawPage: function (data) {
-            const pageCount = doc.internal.getNumberOfPages();
-            doc.setFont('helvetica', 'normal');
-            doc.setFontSize(8);
-            doc.setTextColor(130);
-            doc.text(
-              `Página ${data.pageNumber} de ${pageCount}`,
-              doc.internal.pageSize.getWidth() - 10,
-              doc.internal.pageSize.getHeight() - 5,
-              { align: 'right' }
-            );
-          }
-        });
+          });
 
-        doc.save(`Tagueamentos_Planilha_${Date.now()}.pdf`);
+          doc.save(`Tagueamentos_Planilha_${Date.now()}.pdf`);
+        }
       } catch (err) {
         console.error(err);
         alert('Erro ao gerar PDF: ' + err.message);
