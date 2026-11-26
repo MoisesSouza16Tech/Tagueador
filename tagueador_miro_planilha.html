@@ -1645,7 +1645,7 @@
             <span>⚙️ Selecionar Validadores de Qualidade</span>
             <span style="font-weight:400; font-size:0.8rem; color:var(--muted)">(clique para configurar regras ativas)</span>
           </span>
-          <span class="validators-badge" id="activeValidatorsBadge">11 de 11 ativos</span>
+          <span class="validators-badge" id="activeValidatorsBadge">12 de 12 ativos</span>
         </summary>
 
         <div class="validators-body">
@@ -1694,6 +1694,14 @@
             <div>
               <strong>Regras de Ponto_Origem por Event_Name (Crítico 🔴)</strong>
               <small>Valida obrigatoriedade e sugestões de <code>Ponto_Origem</code> (ex: <code>chamada_api</code>, <code>retorno_api</code> exigem <code>[Nome_Da_Api]</code>).</small>
+            </div>
+          </label>
+
+          <label class="val-check-item">
+            <input type="checkbox" class="val-checkbox" id="chkValIndicadorUltimoPonto" checked>
+            <div>
+              <strong>Indicador e Ultimo_Ponto Obrigatórios (Crítico 🔴)</strong>
+              <small>Exige obrigatoriamente <code>[Status_Chamada]</code> em <code>Indicador</code> e <code>[Ultimo_Ponto]</code> em <code>Ultimo_Ponto</code>.</small>
             </div>
           </label>
 
@@ -1753,7 +1761,7 @@
             <div>
               <strong>Edição em Linha e em Bloco + Sugestões Inteligentes de Validação:</strong>
               <br>• Clique em qualquer célula da tabela ou clique em <strong>✏️ Editar Ponto</strong> dentro de um bloco para editar os campos diretamente.
-              <br>• Ao clicar para editar os campos <strong>Validacao</strong> ou <strong>Ponto_Origem</strong>, o sistema exibe a <strong>dica/sugestão oficial</strong> para aquele <code>event_name</code> e permite <strong>selecionar com 1 clique</strong>!
+              <br>• Ao clicar para editar <strong>event_name</strong>, <strong>Validacao</strong>, <strong>Indicador</strong>, <strong>Ultimo_Ponto</strong>, <strong>Tentativa</strong> ou <strong>Ponto_Origem</strong>, o sistema exibe a <strong>dica/sugestão oficial</strong> e permite <strong>selecionar com 1 clique</strong>!
             </div>
           </div>
         </div>
@@ -2470,8 +2478,9 @@
         duplicados:         document.getElementById('chkValDuplicados').checked,
         eventList:          document.getElementById('chkValEventList').checked,
         eventFormat:        document.getElementById('chkValEventFormat').checked,
-        apiRules:           document.getElementById('chkValApiRules').checked,
-        pontoOrigemRules:   document.getElementById('chkValPontoOrigemRules').checked,
+        apiRules:             document.getElementById('chkValApiRules').checked,
+        pontoOrigemRules:     document.getElementById('chkValPontoOrigemRules').checked,
+        indicadorUltimoPonto: document.getElementById('chkValIndicadorUltimoPonto').checked,
         numericoRangePonto: document.getElementById('chkValNumericoRangePonto').checked,
         range:              document.getElementById('chkValRange').checked,
         validacaoFormat:    document.getElementById('chkValValidacaoFormat').checked,
@@ -2722,6 +2731,51 @@
       };
     }
 
+    const COLUNAS_COM_POPOVER = new Set([
+      'event_name',
+      'validacao',
+      'indicador',
+      'ultimo_Ponto',
+      'tentativa',
+      'ponto_origem'
+    ]);
+
+    function obterSugestoesTentativa(evName, validacaoVal) {
+      const ev = String(evName || '').trim().toLowerCase();
+      const valNorm = String(validacaoVal || '')
+        .trim()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase();
+
+      const ehApi = ev === 'chamada_api' || ev === 'retorno_api';
+      const ehMenu = ev.includes('menu') || ev.includes('submenu') || ev.includes('coleta_dados');
+      const ehSilencioOuElse = valNorm.includes('silencio') || valNorm.includes('else_invalido') ||
+                               ev.includes('silencio') || ev.includes('else_invalido');
+
+      if (ehApi) {
+        return {
+          hint: `Sugestão de <code>Tentativa</code> para <code>${escapeHtml(ev)}</code> (clique para preencher):`,
+          options: ['1_Tentativa', '2_Tentativa'],
+          strict: false
+        };
+      }
+
+      if ((ehMenu && ehSilencioOuElse) || ehSilencioOuElse) {
+        return {
+          hint: 'Sugestão de <code>Tentativa</code> para cenário de <code>Silencio</code> / <code>Else_Invalido</code> (clique para preencher):',
+          options: ['1_Tentativa', '2_Tentativa'],
+          strict: false
+        };
+      }
+
+      return {
+        hint: 'Campo opcional. Sugestões (<code>1_Tentativa</code>, <code>2_Tentativa</code>) aparecem automaticamente para menus com <code>Silencio</code> / <code>Else_Invalido</code> e para <code>chamada_api</code> / <code>retorno_api</code>.',
+        options: [],
+        strict: false
+      };
+    }
+
     function mostrarPopoverSugestaoCampo(rowIndex, colKey, anchorEl, valorAoVivo) {
       clearTimeout(popoverHideTimer);
       const tag = registrosAtuais[rowIndex];
@@ -2752,6 +2806,26 @@
         tipoBadge = cfg.strict
           ? `<span class="val-pop-tag strict">Obrigatório</span>`
           : `<span class="val-pop-tag hint">Sugestão</span>`;
+      } else if (colKey === 'indicador') {
+        nomeCampoLabel = 'Indicador';
+        cfg = {
+          hint: 'O campo <code>Indicador</code> precisa ser obrigatoriamente:',
+          options: ['[Status_Chamada]'],
+          strict: true
+        };
+        tipoBadge = `<span class="val-pop-tag strict">Obrigatório</span>`;
+      } else if (colKey === 'ultimo_Ponto') {
+        nomeCampoLabel = 'Ultimo_Ponto';
+        cfg = {
+          hint: 'O campo <code>Ultimo_Ponto</code> precisa ser obrigatoriamente:',
+          options: ['[Ultimo_Ponto]'],
+          strict: true
+        };
+        tipoBadge = `<span class="val-pop-tag strict">Obrigatório</span>`;
+      } else if (colKey === 'tentativa') {
+        nomeCampoLabel = 'Tentativa';
+        cfg = obterSugestoesTentativa(evName, tag.validacao);
+        tipoBadge = `<span class="val-pop-tag hint">Sugestão</span>`;
       } else if (colKey === 'ponto_origem') {
         nomeCampoLabel = 'Ponto_Origem';
         cfg = PONTO_ORIGEM_SUGESTOES_POR_EVENTO[evName] || {
@@ -3176,14 +3250,14 @@
         });
 
         span.addEventListener('focus', function () {
-          if (colKey === 'event_name' || colKey === 'validacao' || colKey === 'ponto_origem') {
+          if (COLUNAS_COM_POPOVER.has(colKey)) {
             const valorAtual = span.textContent.replace(/[\r\n\t]+/g, ' ').trim();
             mostrarPopoverSugestaoCampo(idx, colKey, span, valorAtual);
           }
         });
 
         span.addEventListener('blur', function () {
-          if (colKey === 'event_name' || colKey === 'validacao' || colKey === 'ponto_origem') {
+          if (COLUNAS_COM_POPOVER.has(colKey)) {
             agendarEsconderPopover();
           }
         });
@@ -3328,14 +3402,14 @@
           badgesContainer.className = 'cell-badges';
 
           editor.addEventListener('focus', function () {
-            if (campo.key === 'event_name' || campo.key === 'validacao' || campo.key === 'ponto_origem') {
+            if (COLUNAS_COM_POPOVER.has(campo.key)) {
               const valorAtual = editor.textContent.replace(/[\r\n\t]+/g, ' ').trim();
               mostrarPopoverSugestaoCampo(idx, campo.key, editor, valorAtual);
             }
           });
 
           editor.addEventListener('blur', function () {
-            if (campo.key === 'event_name' || campo.key === 'validacao' || campo.key === 'ponto_origem') {
+            if (COLUNAS_COM_POPOVER.has(campo.key)) {
               agendarEsconderPopover();
             }
           });
@@ -3441,7 +3515,7 @@
       });
       const fluxosDistintos = Object.keys(contagemFluxos);
 
-      let countCamposVazios = 0, countEventInvalido = 0, countApiRegraErr = 0, countPontoOrigemErr = 0, countNumericoErr = 0, countRangeErr = 0, countValidacaoWarn = 0, countMenuInputWarn = 0, countFluxoWarn = 0;
+      let countCamposVazios = 0, countEventInvalido = 0, countApiRegraErr = 0, countPontoOrigemErr = 0, countIndicadorUltimoErr = 0, countNumericoErr = 0, countRangeErr = 0, countValidacaoWarn = 0, countMenuInputWarn = 0, countFluxoWarn = 0;
       const issuesPorLinha = [];
       const linhasDOM = tabela.querySelectorAll('tbody tr');
 
@@ -3452,6 +3526,8 @@
         const fluxoVal = String(tag.fluxo || '').trim();
         const rangeVal = String(tag.range || '').trim();
         const pontoVal = String(tag.ponto || '').trim();
+        const indicadorVal = String(tag.indicador || '').trim();
+        const ultimoPontoVal = String(tag.ultimo_Ponto || '').trim();
         const inputVal = String(tag.input || '').trim();
         const pontoOrigemVal = String(tag.ponto_origem || '').trim();
 
@@ -3486,6 +3562,18 @@
         if (Regras.pontoOrigemRules && erroPontoOrigem) {
           addIssue('ponto_origem', 'error', erroPontoOrigem.badge, erroPontoOrigem.tooltip);
           countPontoOrigemErr++;
+        }
+
+        // Validação Obrigatória de Indicador ([Status_Chamada]) e Ultimo_Ponto ([Ultimo_Ponto])
+        if (Regras.indicadorUltimoPonto) {
+          if (indicadorVal !== '[Status_Chamada]') {
+            addIssue('indicador', 'error', 'Exige [Status_Chamada]', 'O campo Indicador deve ser obrigatoriamente [Status_Chamada].');
+            countIndicadorUltimoErr++;
+          }
+          if (ultimoPontoVal !== '[Ultimo_Ponto]') {
+            addIssue('ultimo_Ponto', 'error', 'Exige [Ultimo_Ponto]', 'O campo Ultimo_Ponto deve ser obrigatoriamente [Ultimo_Ponto].');
+            countIndicadorUltimoErr++;
+          }
         }
 
         // Validação Numérica Obrigatória para Range e Ponto
@@ -3577,6 +3665,13 @@
         adicionarAlertaTopo(
           'alerta-topo--danger',
           `<span>🔴 <strong>Erros de Event_Name / Regras por Evento:</strong> ${detalhesApi.join(' • ')}.</span>`
+        );
+      }
+
+      if (countIndicadorUltimoErr > 0) {
+        adicionarAlertaTopo(
+          'alerta-topo--danger',
+          `<span>🔴 <strong>Indicador / Ultimo_Ponto fora do padrão (${countIndicadorUltimoErr}):</strong> <code>Indicador</code> exige <code>[Status_Chamada]</code> e <code>Ultimo_Ponto</code> exige <code>[Ultimo_Ponto]</code>.</span>`
         );
       }
 
@@ -4156,7 +4251,7 @@
 
     const paginaAtual = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
     document.querySelectorAll('a.nav-button').forEach(botao => {
-      const href = (botao.getAttribute('href') || '').toLowerCase();
+      const href = (botao.getAttribute('href') || '').toLowerCase();  
       if (!href) return;
       botao.classList.toggle('active', href === paginaAtual);
     });
